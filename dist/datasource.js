@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['lodash'], function (_export, _context) {
+System.register(['lodash', './types/queryAttributes', './types/aggregations', './types/intervals'], function (_export, _context) {
   "use strict";
 
-  var _, _createClass, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, QUERY_INTERVAL, _createClass, BitmovinAnalyticsDatasource;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -14,6 +14,13 @@ System.register(['lodash'], function (_export, _context) {
   return {
     setters: [function (_lodash) {
       _ = _lodash.default;
+    }, function (_typesQueryAttributes) {
+      convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
+      ATTRIBUTE = _typesQueryAttributes.ATTRIBUTE;
+    }, function (_typesAggregations) {
+      AGGREGATION = _typesAggregations.AGGREGATION;
+    }, function (_typesIntervals) {
+      QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
     }],
     execute: function () {
       _createClass = function () {
@@ -82,10 +89,10 @@ System.register(['lodash'], function (_export, _context) {
             }
 
             var targetResponsePromises = _.map(query.targets, function (target) {
-              target.metric = target.metric || 'count';
-              target.dimension = target.dimension || 'LICENSE_KEY';
+              target.metric = target.metric || AGGREGATION.COUNT;
+              target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
               target.resultFormat = target.resultFormat || 'time_series';
-              target.interval = target.interval || 'MINUTE';
+              target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
               var data = {
                 licenseKey: target.license,
@@ -96,7 +103,7 @@ System.register(['lodash'], function (_export, _context) {
                   return {
                     name: filter.name,
                     operator: filter.operator,
-                    value: _this.convertFilterValueToProperType(filter)
+                    value: convertFilterValueToProperType(filter)
                   };
                 })
               };
@@ -172,26 +179,6 @@ System.register(['lodash'], function (_export, _context) {
               url: this.url + '/analytics/licenses',
               method: 'GET'
             });
-          }
-        }, {
-          key: 'convertFilterValueToProperType',
-          value: function convertFilterValueToProperType(filter) {
-            switch (filter.name) {
-              case 'IS_LIVE':
-              case 'IS_CASTING':
-              case 'IS_MUTED':
-                return filter.value === 'true';
-              case 'PLAYER_STARTUPTIME':
-              case 'VIDEO_STARTUPTIME':
-              case 'CLIENT_TIME':
-              case 'VIDEOTIME':
-              case 'VIDEOTIME':
-              case 'STARTUPTIME':
-              case 'PAGE_LOAD_TIME':
-                return parseInt(filter.value, 10);
-              default:
-                return filter.value;
-            }
           }
         }]);
 

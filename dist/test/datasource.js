@@ -11,6 +11,12 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _queryAttributes = require('./types/queryAttributes');
+
+var _aggregations = require('./types/aggregations');
+
+var _intervals = require('./types/intervals');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -63,10 +69,10 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
       }
 
       var targetResponsePromises = _lodash2.default.map(query.targets, function (target) {
-        target.metric = target.metric || 'count';
-        target.dimension = target.dimension || 'LICENSE_KEY';
+        target.metric = target.metric || _aggregations.AGGREGATION.COUNT;
+        target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.LICENSE_KEY;
         target.resultFormat = target.resultFormat || 'time_series';
-        target.interval = target.interval || 'MINUTE';
+        target.interval = target.interval || _intervals.QUERY_INTERVAL.HOUR;
 
         var data = {
           licenseKey: target.license,
@@ -77,7 +83,7 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
             return {
               name: filter.name,
               operator: filter.operator,
-              value: _this.convertFilterValueToProperType(filter)
+              value: (0, _queryAttributes.convertFilterValueToProperType)(filter)
             };
           })
         };
@@ -153,26 +159,6 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
         url: this.url + '/analytics/licenses',
         method: 'GET'
       });
-    }
-  }, {
-    key: 'convertFilterValueToProperType',
-    value: function convertFilterValueToProperType(filter) {
-      switch (filter.name) {
-        case 'IS_LIVE':
-        case 'IS_CASTING':
-        case 'IS_MUTED':
-          return filter.value === 'true';
-        case 'PLAYER_STARTUPTIME':
-        case 'VIDEO_STARTUPTIME':
-        case 'CLIENT_TIME':
-        case 'VIDEOTIME':
-        case 'VIDEOTIME':
-        case 'STARTUPTIME':
-        case 'PAGE_LOAD_TIME':
-          return parseInt(filter.value, 10);
-        default:
-          return filter.value;
-      }
     }
   }]);
 

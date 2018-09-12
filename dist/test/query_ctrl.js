@@ -15,6 +15,14 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _queryAttributes = require('./types/queryAttributes');
+
+var _operators = require('./types/operators');
+
+var _intervals = require('./types/intervals');
+
+var _aggregations = require('./types/aggregations');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38,12 +46,12 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.$q = $q;
     _this.uiSegmentSrv = uiSegmentSrv;
 
-    _this.metrics = ['count', 'sum', 'avg', 'min', 'max', 'stddev', 'percentile', 'variance', 'median'];
-    _this.fields = ['LICENSE_KEY', 'PLAYER_KEY', 'IMPRESSION_ID', 'USER_ID', 'DOMAIN', 'PATH', 'LANGUAGE', 'PLAYER_TECH', 'SCREEN_WIDTH', 'SCREEN_HEIGHT', 'IP_ADDRESS', 'STREAM_FORMAT', 'PLAYER', 'PLAYER_VERSION', 'ANALYTICS_VERSION', 'VIDEO_DURATION', 'IS_LIVE', 'IS_CASTING', 'IS_MUTED', 'VIDEO_ID', 'PLAYER_STARTUPTIME', 'VIDEO_STARTUPTIME', 'CUSTOM_USER_ID', 'CLIENT_TIME', 'SIZE', 'VIDEO_WINDOW_WIDTH', 'VIDEO_WINDOW_HEIGHT', 'DROPPED_FRAMES', 'PLAYED', 'PAUSED', 'BUFFERED', 'AD', 'SEEKED', 'VIDEO_PLAYBACK_WIDTH', 'VIDEO_PLAYBACK_HEIGHT', 'VIDEO_BITRATE', 'AUDIO_BITRATE', 'VIDEOTIME_START', 'VIDEOTIME_END', 'DURATION', 'STARTUPTIME', 'BROWSER', 'BROWSER_VERSION_MAJOR', 'OPERATINGSYSTEM', 'OPERATINGSYSTEM_VERSION_MAJOR', 'DEVICE_TYPE', 'COUNTRY', 'REGION', 'CITY', 'CDN_PROVIDER', 'MPD_URL', 'M3U8_URL', 'PROG_URL', 'ERROR_CODE', 'SCALE_FACTOR', 'PAGE_LOAD_TIME', 'PAGE_LOAD_TYPE', 'AUTOPLAY', 'CUSTOM_DATA_1', 'CUSTOM_DATA_2', 'CUSTOM_DATA_3', 'CUSTOM_DATA_4', 'CUSTOM_DATA_5', 'EXPERIMENT_NAME'];
-    _this.operators = ['EQ', 'NE', 'LT', 'LTE', 'GT', 'GTE', 'CONTAINS', 'NOTCONTAINS'];
+    _this.metrics = _aggregations.AGGREGATION_LIST;
+    _this.fields = _queryAttributes.ATTRIBUTE_LIST;
+    _this.operators = _operators.OPERATOR_LIST;
     _this.licenses = [];
     _this.resultFormats = ['time_series', 'table'];
-    _this.intervals = ['MINUTE', 'HOUR', 'DAY', 'MONTH'];
+    _this.intervals = _intervals.QUERY_INTERVAL_LIST;
     _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
     _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
     _this.groupByParts = [];
@@ -56,7 +64,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.target.dimension = _this.target.dimension || _this.fields[0];
     _this.target.license = _this.target.license || _this.licenses[0];
     _this.target.resultFormat = _this.target.resultFormat || _this.resultFormats[0];
-    _this.target.interval = _this.target.interval || _this.intervals[0];
+    _this.target.interval = _this.target.interval || _intervals.QUERY_INTERVAL.HOUR;
     _this.target.alias = _this.target.alias || '';
     _this.target.groupBy = _this.target.groupBy || [];
     _this.target.filter = _this.target.filter || [];
@@ -175,9 +183,11 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
   }, {
     key: 'createFilter',
     value: function createFilter(name, operator) {
-      var value = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+      var value = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-      return { name: name, operator: operator || DEFAULT_OPERATOR, value: value };
+      var filter = { name: name, operator: operator || DEFAULT_OPERATOR, value: value };
+      filter.value = (0, _queryAttributes.convertFilterValueToProperType)(filter);
+      return filter;
     }
   }, {
     key: 'createFilterSegment',
