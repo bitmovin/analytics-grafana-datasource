@@ -32,7 +32,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.filterSegment = this.uiSegmentSrv.newPlusButton();
     this.groupBySegment = this.uiSegmentSrv.newPlusButton();
     this.groupByParts = [];
-    this.filterSegments = [];
+    this.filterSegments = this.target.filter ? this.target.filter.map(f => this.createFilterSegment(f)) : [];
 
     this.target.metric = this.target.metric || this.metrics[0];
     this.target.percentileValue = this.target.percentileValue || 95;
@@ -53,7 +53,9 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
           this.licenses.push(item);
         }
 
-        this.target.license = this.licenses[0].licenseKey;
+        if (!this.target.license || !this.licenses.find(l => l.licenseKey === this.target.license)) {
+          this.target.license = this.licenses[0].licenseKey;
+        }
       }
     });
   }
@@ -122,18 +124,22 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh();
   }
 
-  filterAction() {
-    this.target.filter.push({
-      name: this.filterSegment.value,
-      operator: DEFAULT_OPERATOR,
-      value: ''
-    });
+  createFilter(name, operator, value='') {
+    return {name, operator: operator || DEFAULT_OPERATOR, value};
+  }
 
-    this.filterSegments.push({
-      html: this.filterSegment.value,
-      operator: {html: DEFAULT_OPERATOR},
-      filterValue: {html: 'set filter value'}
-    });
+  createFilterSegment(filter) {
+    return {html: filter.name, operator: {html: filter.operator || DEFAULT_OPERATOR}, filterValue: {html: filter.value || 'set filter value'}};
+  }
+
+  filterAction() {
+    const filter = this.target.filter.find(f => f.name === this.filterSegment.name);
+    if (!filter) {
+      const newFilter = this.createFilter(this.filterSegment.value)
+      this.target.filter.push(newFilter);
+
+      this.filterSegments.push(this.createFilterSegment(newFilter));
+    }
 
     const plusButton = this.uiSegmentSrv.newPlusButton();
     this.filterSegment.value = plusButton.value;
