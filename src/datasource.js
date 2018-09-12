@@ -1,4 +1,7 @@
-import _ from "lodash";
+import _ from 'lodash';
+import {convertFilterValueToProperType, ATTRIBUTE} from './types/queryAttributes';
+import { AGGREGATION } from './types/aggregations';
+import { QUERY_INTERVAL } from './types/intervals';
 
 export class BitmovinAnalyticsDatasource {
 
@@ -41,10 +44,10 @@ export class BitmovinAnalyticsDatasource {
     }
 
     let targetResponsePromises = _.map(query.targets, target => {
-      target.metric = target.metric || 'count';
-      target.dimension = target.dimension || 'LICENSE_KEY';
+      target.metric = target.metric || AGGREGATION.COUNT;
+      target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
       target.resultFormat = target.resultFormat || 'time_series';
-      target.interval = target.interval || 'MINUTE';
+      target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
       var data = {
         licenseKey: target.license,
@@ -55,7 +58,7 @@ export class BitmovinAnalyticsDatasource {
           return {
             name: filter.name,
             operator: filter.operator,
-            value: this.convertFilterValueToProperType(filter)
+            value: convertFilterValueToProperType(filter)
           }
         })
       };
@@ -129,21 +132,5 @@ export class BitmovinAnalyticsDatasource {
       url: this.url + '/analytics/licenses',
       method: 'GET',
     });
-  }
-
-  convertFilterValueToProperType(filter) {
-    switch(filter.name) {
-      case 'IS_LIVE':
-      case 'IS_CASTING':
-      case 'IS_MUTED': return filter.value === 'true';
-      case 'PLAYER_STARTUPTIME':
-      case 'VIDEO_STARTUPTIME':
-      case 'CLIENT_TIME':
-      case 'VIDEOTIME':
-      case 'VIDEOTIME':
-      case 'STARTUPTIME':
-      case 'PAGE_LOAD_TIME': return parseInt(filter.value, 10);
-      default: return filter.value
-    }
   }
 }

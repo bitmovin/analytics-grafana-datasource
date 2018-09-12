@@ -2,6 +2,10 @@ import {QueryCtrl} from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
 import _ from 'lodash';
+import { ATTRIBUTE_LIST, convertFilterValueToProperType } from './types/queryAttributes';
+import { OPERATOR_LIST } from './types/operators';
+import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
+import { AGGREGATION_LIST } from './types/aggregations';
 
 const REMOVE_FILTER_TEXT = '-- Remove Filter --';
 const DEFAULT_OPERATOR = 'EQ';
@@ -15,20 +19,12 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.$q = $q;
     this.uiSegmentSrv = uiSegmentSrv;
 
-    this.metrics = ['count', 'sum', 'avg', 'min', 'max', 'stddev', 'percentile', 'variance', 'median'];
-    this.fields = ['LICENSE_KEY', 'PLAYER_KEY', 'IMPRESSION_ID', 'USER_ID', 'DOMAIN', 'PATH', 'LANGUAGE', 'PLAYER_TECH', 'SCREEN_WIDTH',
-                   'SCREEN_HEIGHT', 'IP_ADDRESS', 'STREAM_FORMAT', 'PLAYER', 'PLAYER_VERSION', 'ANALYTICS_VERSION', 'VIDEO_DURATION',
-                   'IS_LIVE', 'IS_CASTING', 'IS_MUTED', 'VIDEO_ID', 'PLAYER_STARTUPTIME', 'VIDEO_STARTUPTIME', 'CUSTOM_USER_ID',
-                   'CLIENT_TIME', 'SIZE', 'VIDEO_WINDOW_WIDTH', 'VIDEO_WINDOW_HEIGHT', 'DROPPED_FRAMES', 'PLAYED', 'PAUSED',
-                   'BUFFERED', 'AD', 'SEEKED', 'VIDEO_PLAYBACK_WIDTH', 'VIDEO_PLAYBACK_HEIGHT', 'VIDEO_BITRATE', 'AUDIO_BITRATE',
-                   'VIDEOTIME_START', 'VIDEOTIME_END', 'DURATION', 'STARTUPTIME', 'BROWSER', 'BROWSER_VERSION_MAJOR', 'OPERATINGSYSTEM',
-                   'OPERATINGSYSTEM_VERSION_MAJOR', 'DEVICE_TYPE', 'COUNTRY', 'REGION', 'CITY', 'CDN_PROVIDER', 'MPD_URL', 'M3U8_URL',
-                   'PROG_URL', 'ERROR_CODE', 'SCALE_FACTOR', 'PAGE_LOAD_TIME', 'PAGE_LOAD_TYPE', 'AUTOPLAY', 'CUSTOM_DATA_1',
-                   'CUSTOM_DATA_2', 'CUSTOM_DATA_3', 'CUSTOM_DATA_4', 'CUSTOM_DATA_5', 'EXPERIMENT_NAME'];
-    this.operators = ['EQ', 'NE', 'LT', 'LTE', 'GT', 'GTE', 'CONTAINS', 'NOTCONTAINS']
+    this.metrics = AGGREGATION_LIST;
+    this.fields = ATTRIBUTE_LIST;
+    this.operators = OPERATOR_LIST;
     this.licenses = [];
     this.resultFormats = ['time_series', 'table'];
-    this.intervals = ['MINUTE', 'HOUR', 'DAY', 'MONTH'];
+    this.intervals = QUERY_INTERVAL_LIST;
     this.filterSegment = this.uiSegmentSrv.newPlusButton();
     this.groupBySegment = this.uiSegmentSrv.newPlusButton();
     this.groupByParts = [];
@@ -39,7 +35,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.target.dimension = this.target.dimension || this.fields[0];
     this.target.license = this.target.license || this.licenses[0];
     this.target.resultFormat = this.target.resultFormat || this.resultFormats[0];
-    this.target.interval = this.target.interval || this.intervals[0];
+    this.target.interval = this.target.interval || QUERY_INTERVAL.HOUR;
     this.target.alias = this.target.alias || '';
     this.target.groupBy = this.target.groupBy || [];
     this.target.filter = this.target.filter || [];
@@ -124,8 +120,10 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh();
   }
 
-  createFilter(name, operator, value='') {
-    return {name, operator: operator || DEFAULT_OPERATOR, value};
+  createFilter(name, operator, value=null) {
+    const filter = {name, operator: operator || DEFAULT_OPERATOR, value};
+    filter.value = convertFilterValueToProperType(filter)
+    return filter;
   }
 
   createFilterSegment(filter) {
