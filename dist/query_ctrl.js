@@ -84,7 +84,9 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash'], functi
           _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
           _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
           _this.groupByParts = [];
-          _this.filterSegments = [];
+          _this.filterSegments = _this.target.filter ? _this.target.filter.map(function (f) {
+            return _this.createFilterSegment(f);
+          }) : [];
 
           _this.target.metric = _this.target.metric || _this.metrics[0];
           _this.target.percentileValue = _this.target.percentileValue || 95;
@@ -126,7 +128,11 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash'], functi
                 }
               }
 
-              _this.target.license = _this.licenses[0].licenseKey;
+              if (!_this.target.license || !_this.licenses.find(function (l) {
+                return l.licenseKey === _this.target.license;
+              })) {
+                _this.target.license = _this.licenses[0].licenseKey;
+              }
             }
           });
           return _this;
@@ -204,19 +210,31 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash'], functi
             this.panelCtrl.refresh();
           }
         }, {
+          key: 'createFilter',
+          value: function createFilter(name, operator) {
+            var value = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+            return { name: name, operator: operator || DEFAULT_OPERATOR, value: value };
+          }
+        }, {
+          key: 'createFilterSegment',
+          value: function createFilterSegment(filter) {
+            return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
+          }
+        }, {
           key: 'filterAction',
           value: function filterAction() {
-            this.target.filter.push({
-              name: this.filterSegment.value,
-              operator: DEFAULT_OPERATOR,
-              value: ''
-            });
+            var _this2 = this;
 
-            this.filterSegments.push({
-              html: this.filterSegment.value,
-              operator: { html: DEFAULT_OPERATOR },
-              filterValue: { html: 'set filter value' }
+            var filter = this.target.filter.find(function (f) {
+              return f.name === _this2.filterSegment.name;
             });
+            if (!filter) {
+              var newFilter = this.createFilter(this.filterSegment.value);
+              this.target.filter.push(newFilter);
+
+              this.filterSegments.push(this.createFilterSegment(newFilter));
+            }
 
             var plusButton = this.uiSegmentSrv.newPlusButton();
             this.filterSegment.value = plusButton.value;
