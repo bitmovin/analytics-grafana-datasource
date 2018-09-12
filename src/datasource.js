@@ -16,8 +16,9 @@ export class BitmovinAnalyticsDatasource {
       'X-Api-Key': instanceSettings.jsonData.apiKey,
     };
 
-    if (typeof instanceSettings.tenantOrgId === 'string' && instanceSettings.tenantOrgId.length > 0) {
-      this.headers['X-Tenant-Org-Id'] = instanceSettings.tenantOrgId;
+    const tenantOrgId = instanceSettings.jsonData.tenantOrgId;
+    if (typeof tenantOrgId === 'string' && tenantOrgId.length > 0) {
+      this.headers['X-Tenant-Org-Id'] = tenantOrgId;
     }
 
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
