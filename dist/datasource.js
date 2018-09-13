@@ -114,6 +114,9 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
 
               if (target.resultFormat === 'time_series') {
                 data['interval'] = target.interval;
+              } else if (target.resultFormat === 'table') {
+                data['groupBy'] = target.groupBy;
+                data['limit'] = target.limit;
               }
 
               return _this.doRequest({

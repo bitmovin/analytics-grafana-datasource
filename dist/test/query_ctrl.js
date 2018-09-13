@@ -54,7 +54,9 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.intervals = _intervals.QUERY_INTERVAL_LIST;
     _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
     _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
-    _this.groupByParts = [];
+    _this.groupByParts = _this.target.groupBy ? _this.target.groupBy.map(function (e) {
+      return _this.createGroupByPartsEntry(e);
+    }) : [];
     _this.filterSegments = _this.target.filter ? _this.target.filter.map(function (f) {
       return _this.createFilterSegment(f);
     }) : [];
@@ -68,6 +70,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.target.alias = _this.target.alias || '';
     _this.target.groupBy = _this.target.groupBy || [];
     _this.target.filter = _this.target.filter || [];
+    _this.target.limit = _this.target.limit;
 
     _this.datasource.getLicenses().then(function (response) {
       if (response.status === 200) {
@@ -81,7 +84,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
           for (var _iterator = response.data.data.result.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var item = _step.value;
 
-            item['label'] = item.name + ' (' + item.licenseKey + ')';
+            item['label'] = item.name ? item.name : item.licenseKey;
             _this.licenses.push(item);
           }
         } catch (err) {
@@ -161,19 +164,24 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       return Promise.resolve([]);
     }
   }, {
-    key: 'groupByAction',
-    value: function groupByAction() {
-      this.target.groupBy.push(this.groupBySegment.value);
-
-      this.groupByParts.push({
-        params: [this.groupBySegment.value],
+    key: 'createGroupByPartsEntry',
+    value: function createGroupByPartsEntry(groupByValue) {
+      return {
+        params: [groupByValue],
         def: {
           type: 'dimension',
           params: [{
             optional: false
           }]
         }
-      });
+      };
+    }
+  }, {
+    key: 'groupByAction',
+    value: function groupByAction() {
+      this.target.groupBy.push(this.groupBySegment.value);
+
+      this.groupByParts.push(this.createGroupByPartsEntry(this.groupBySegment.value));
 
       var plusButton = this.uiSegmentSrv.newPlusButton();
       this.groupBySegment.value = plusButton.value;
