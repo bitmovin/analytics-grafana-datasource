@@ -27,7 +27,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.intervals = QUERY_INTERVAL_LIST;
     this.filterSegment = this.uiSegmentSrv.newPlusButton();
     this.groupBySegment = this.uiSegmentSrv.newPlusButton();
-    this.groupByParts = [];
+    this.groupByParts = this.target.groupBy ? this.target.groupBy.map(e => this.createGroupByPartsEntry(e)) : [];
     this.filterSegments = this.target.filter ? this.target.filter.map(f => this.createFilterSegment(f)) : [];
 
     this.target.metric = this.target.metric || this.metrics[0];
@@ -39,6 +39,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.target.alias = this.target.alias || '';
     this.target.groupBy = this.target.groupBy || [];
     this.target.filter = this.target.filter || [];
+    this.target.limit = this.target.limit;
 
     this.datasource.getLicenses().then(response => {
       if (response.status === 200) {
@@ -101,18 +102,22 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     return Promise.resolve([]);
   }
 
-  groupByAction() {
-    this.target.groupBy.push(this.groupBySegment.value);
-
-    this.groupByParts.push({
-      params: [this.groupBySegment.value],
+  createGroupByPartsEntry(groupByValue) {
+    return {
+      params: [groupByValue],
       def: {
         type: 'dimension',
         params: [{
           optional: false
         }]
       }
-    });
+    }
+  }
+
+  groupByAction() {
+    this.target.groupBy.push(this.groupBySegment.value);
+
+    this.groupByParts.push(this.createGroupByPartsEntry(this.groupBySegment.value));
 
     const plusButton = this.uiSegmentSrv.newPlusButton();
     this.groupBySegment.value = plusButton.value;
