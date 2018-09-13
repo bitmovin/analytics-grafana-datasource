@@ -46,7 +46,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
         this.licenses = [];
 
         for (var item of response.data.data.result.items) {
-          item['label'] = item.name + ' (' + item.licenseKey + ')';
+          item['label'] = item.name ? item.name : item.licenseKey;
           this.licenses.push(item);
         }
 
