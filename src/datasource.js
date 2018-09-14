@@ -45,7 +45,7 @@ export class BitmovinAnalyticsDatasource {
 
     let targetResponsePromises = _.map(query.targets, target => {
       target.metric = target.metric || AGGREGATION.COUNT;
-      target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
+      target.dimension = target.dimension || ATTRIBUTE.IMPRESSION_ID;
       target.resultFormat = target.resultFormat || 'time_series';
       target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
