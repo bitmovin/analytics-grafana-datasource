@@ -23,6 +23,8 @@ var _intervals = require('./types/intervals');
 
 var _aggregations = require('./types/aggregations');
 
+var _resultFormat = require('./types/resultFormat');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -50,7 +52,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.fields = _queryAttributes.ATTRIBUTE_LIST;
     _this.operators = _operators.OPERATOR_LIST;
     _this.licenses = [];
-    _this.resultFormats = ['time_series', 'table'];
+    _this.resultFormats = [_resultFormat.ResultFormat.TIME_SERIES, _resultFormat.ResultFormat.TABLE];
     _this.intervals = _intervals.QUERY_INTERVAL_LIST;
     _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
     _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();

@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './types/queryAttributes', './types/operators', './types/intervals', './types/aggregations'], function (_export, _context) {
+System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './types/queryAttributes', './types/operators', './types/intervals', './types/aggregations', './types/resultFormat'], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, _createClass, REMOVE_FILTER_TEXT, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_FILTER_TEXT, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -50,6 +50,8 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
       QUERY_INTERVAL_LIST = _typesIntervals.QUERY_INTERVAL_LIST;
     }, function (_typesAggregations) {
       AGGREGATION_LIST = _typesAggregations.AGGREGATION_LIST;
+    }, function (_typesResultFormat) {
+      ResultFormat = _typesResultFormat.ResultFormat;
     }],
     execute: function () {
       _createClass = function () {
@@ -89,7 +91,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
           _this.fields = ATTRIBUTE_LIST;
           _this.operators = OPERATOR_LIST;
           _this.licenses = [];
-          _this.resultFormats = ['time_series', 'table'];
+          _this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
           _this.intervals = QUERY_INTERVAL_LIST;
           _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
           _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
