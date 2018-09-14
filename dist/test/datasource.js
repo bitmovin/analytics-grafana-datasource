@@ -70,7 +70,7 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
 
       var targetResponsePromises = _lodash2.default.map(query.targets, function (target) {
         target.metric = target.metric || _aggregations.AGGREGATION.COUNT;
-        target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.LICENSE_KEY;
+        target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.IMPRESSION_ID;
         target.resultFormat = target.resultFormat || 'time_series';
         target.interval = target.interval || _intervals.QUERY_INTERVAL.HOUR;
 

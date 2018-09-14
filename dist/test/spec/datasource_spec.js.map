@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../spec/datasource_spec.js"],"names":["describe"],"mappings":";;AAAA;;AACA;;;;;;AAEAA,SAAS,6BAAT,EAAwC,YAAW,CAElD,CAFD","file":"datasource_spec.js","sourcesContent":["import {Datasource} from \"../module\";\nimport Q from \"q\";\n\ndescribe('BitmovinAnalyticsDatasource', function() {\n\n});\n"]}
