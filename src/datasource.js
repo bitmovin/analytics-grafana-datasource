@@ -2,6 +2,8 @@ import _ from 'lodash';
 import {convertFilterValueToProperType, ATTRIBUTE} from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
 import { QUERY_INTERVAL } from './types/intervals';
+import { transform } from './result_transformer';
+import { ResultFormat } from './types/resultFormat';
 
 export class BitmovinAnalyticsDatasource {
 
@@ -30,7 +32,7 @@ export class BitmovinAnalyticsDatasource {
   }
 
   query(options) {
-    var query = this.buildQueryParameters(options);
+    const query = this.buildQueryParameters(options);
     query.targets = query.targets.filter(t => !t.hide);
 
     if (query.targets.length <= 0) {
@@ -43,36 +45,37 @@ export class BitmovinAnalyticsDatasource {
       query.adhocFilters = [];
     }
 
-    let targetResponsePromises = _.map(query.targets, target => {
+    const targetResponsePromises = _.map(query.targets, target => {
       target.metric = target.metric || AGGREGATION.COUNT;
       target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
-      target.resultFormat = target.resultFormat || 'time_series';
+      target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
       target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
-      var data = {
+      const filters = _.map(target.filter, filter => {
+        return {
+          name: filter.name,
+          operator: filter.operator,
+          value: convertFilterValueToProperType(filter)
+        }
+      });
+      const data = {
         licenseKey: target.license,
         dimension: target.dimension,
         start: options.range.from.toISOString(),
         end: options.range.to.toISOString(),
-        filters: _.map(target.filter, filter => {
-          return {
-            name: filter.name,
-            operator: filter.operator,
-            value: convertFilterValueToProperType(filter)
-          }
-        })
+        filters
       };
 
       if (target.metric === 'percentile') {
         data['percentile'] = target.percentileValue;
       }
 
-      if (target.resultFormat === 'time_series') {
+      if (target.resultFormat === ResultFormat.TIME_SERIES) {
         data['interval'] = target.interval;
       } else if (target.resultFormat === 'table'){
-        data['groupBy'] = target.groupBy;
         data['limit'] = target.limit;
       }
+      data['groupBy'] = target.groupBy;
 
       return this.doRequest({
         url: this.url + '/analytics/queries/' + target.metric,
@@ -84,21 +87,13 @@ export class BitmovinAnalyticsDatasource {
     });
 
     return Promise.all(targetResponsePromises).then(targetResponses => {
+      let result = [];
+      _.map(targetResponses, response => {
+        const series = transform(response, options);
+        result = [...result, ...series];
+      });
       return {
-        data: _.map(targetResponses, response => {
-          var datapoints = _.map(response.data.data.result.rows, row => {
-            return [row[1], row[0]]; // value, timestamp
-          });
-
-          if (response.config.resultFormat === 'time_series') {
-            datapoints = _.orderBy(datapoints, [1], 'asc')
-          }
-
-          return {
-            target: response.config.resultTarget,
-            datapoints: datapoints
-          };
-        })
+        data: result
       };
     });
   }

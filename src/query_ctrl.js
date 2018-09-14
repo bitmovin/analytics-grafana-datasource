@@ -6,6 +6,7 @@ import { ATTRIBUTE_LIST, convertFilterValueToProperType } from './types/queryAtt
 import { OPERATOR_LIST } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
+import { ResultFormat } from './types/resultFormat';
 
 const REMOVE_FILTER_TEXT = '-- Remove Filter --';
 const DEFAULT_OPERATOR = 'EQ';
@@ -23,7 +24,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.fields = ATTRIBUTE_LIST;
     this.operators = OPERATOR_LIST;
     this.licenses = [];
-    this.resultFormats = ['time_series', 'table'];
+    this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
     this.intervals = QUERY_INTERVAL_LIST;
     this.filterSegment = this.uiSegmentSrv.newPlusButton();
     this.groupBySegment = this.uiSegmentSrv.newPlusButton();
