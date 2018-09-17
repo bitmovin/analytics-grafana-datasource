@@ -3,7 +3,7 @@
 System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './types/queryAttributes', './types/operators', './types/intervals', './types/aggregations', './types/resultFormat'], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_FILTER_TEXT, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, OPERATOR, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_FILTER_TEXT, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -45,6 +45,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
       convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
     }, function (_typesOperators) {
       OPERATOR_LIST = _typesOperators.OPERATOR_LIST;
+      OPERATOR = _typesOperators.OPERATOR;
     }, function (_typesIntervals) {
       QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
       QUERY_INTERVAL_LIST = _typesIntervals.QUERY_INTERVAL_LIST;
@@ -73,7 +74,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
       }();
 
       REMOVE_FILTER_TEXT = '-- Remove Filter --';
-      DEFAULT_OPERATOR = 'EQ';
+      DEFAULT_OPERATOR = OPERATOR.EQ;
 
       _export('BitmovinAnalyticsDatasourceQueryCtrl', BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
         _inherits(BitmovinAnalyticsDatasourceQueryCtrl, _QueryCtrl);

@@ -3,13 +3,13 @@ import './css/query-editor.css!'
 
 import _ from 'lodash';
 import { ATTRIBUTE_LIST, convertFilterValueToProperType } from './types/queryAttributes';
-import { OPERATOR_LIST } from './types/operators';
+import { OPERATOR_LIST, OPERATOR } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
 
 const REMOVE_FILTER_TEXT = '-- Remove Filter --';
-const DEFAULT_OPERATOR = 'EQ';
+const DEFAULT_OPERATOR = OPERATOR.EQ;
 
 export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
