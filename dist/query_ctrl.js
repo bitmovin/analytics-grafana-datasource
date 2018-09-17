@@ -3,7 +3,7 @@
 System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './types/queryAttributes', './types/operators', './types/intervals', './types/aggregations', './types/resultFormat'], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, OPERATOR, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_FILTER_TEXT, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, OPERATOR, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_FILTER_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -74,6 +74,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
       }();
 
       REMOVE_FILTER_TEXT = '-- Remove Filter --';
+      DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
       DEFAULT_OPERATOR = OPERATOR.EQ;
 
       _export('BitmovinAnalyticsDatasourceQueryCtrl', BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
@@ -116,7 +117,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
 
           _this.datasource.getLicenses().then(function (response) {
             if (response.status === 200) {
-              _this.licenses = [];
+              _this.licenses = [DEFAULT_LICENSE];
 
               var _iteratorNormalCompletion = true;
               var _didIteratorError = false;
@@ -147,7 +148,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
               if (!_this.target.license || !_this.licenses.find(function (l) {
                 return l.licenseKey === _this.target.license;
               })) {
-                _this.target.license = _this.licenses[0].licenseKey;
+                _this.target.license = DEFAULT_LICENSE.licenseKey;
               }
             }
           });

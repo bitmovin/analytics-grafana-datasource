@@ -34,6 +34,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var REMOVE_FILTER_TEXT = '-- Remove Filter --';
+var DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
 var DEFAULT_OPERATOR = _operators.OPERATOR.EQ;
 
 var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
@@ -76,7 +77,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
 
     _this.datasource.getLicenses().then(function (response) {
       if (response.status === 200) {
-        _this.licenses = [];
+        _this.licenses = [DEFAULT_LICENSE];
 
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -107,7 +108,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
         if (!_this.target.license || !_this.licenses.find(function (l) {
           return l.licenseKey === _this.target.license;
         })) {
-          _this.target.license = _this.licenses[0].licenseKey;
+          _this.target.license = DEFAULT_LICENSE.licenseKey;
         }
       }
     });
