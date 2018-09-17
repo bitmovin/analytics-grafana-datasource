@@ -9,6 +9,7 @@ import { AGGREGATION_LIST } from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
 
 const REMOVE_FILTER_TEXT = '-- Remove Filter --';
+const DEFAULT_LICENSE = {licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --'};
 const DEFAULT_OPERATOR = OPERATOR.EQ;
 
 export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
@@ -44,7 +45,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
     this.datasource.getLicenses().then(response => {
       if (response.status === 200) {
-        this.licenses = [];
+        this.licenses = [DEFAULT_LICENSE];
 
         for (var item of response.data.data.result.items) {
           item['label'] = item.name ? item.name : item.licenseKey;
@@ -52,7 +53,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
         }
 
         if (!this.target.license || !this.licenses.find(l => l.licenseKey === this.target.license)) {
-          this.target.license = this.licenses[0].licenseKey;
+          this.target.license = DEFAULT_LICENSE.licenseKey;
         }
       }
     });
