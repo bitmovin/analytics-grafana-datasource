@@ -17,7 +17,13 @@ var _aggregations = require('./types/aggregations');
 
 var _intervals = require('./types/intervals');
 
+var _result_transformer = require('./result_transformer');
+
+var _resultFormat = require('./types/resultFormat');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -70,34 +76,35 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
 
       var targetResponsePromises = _lodash2.default.map(query.targets, function (target) {
         target.metric = target.metric || _aggregations.AGGREGATION.COUNT;
-        target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.IMPRESSION_ID;
-        target.resultFormat = target.resultFormat || 'time_series';
+        target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.LICENSE_KEY;
+        target.resultFormat = target.resultFormat || _resultFormat.ResultFormat.TIME_SERIES;
         target.interval = target.interval || _intervals.QUERY_INTERVAL.HOUR;
 
+        var filters = _lodash2.default.map(target.filter, function (filter) {
+          return {
+            name: filter.name,
+            operator: filter.operator,
+            value: (0, _queryAttributes.convertFilterValueToProperType)(filter)
+          };
+        });
         var data = {
           licenseKey: target.license,
           dimension: target.dimension,
           start: options.range.from.toISOString(),
           end: options.range.to.toISOString(),
-          filters: _lodash2.default.map(target.filter, function (filter) {
-            return {
-              name: filter.name,
-              operator: filter.operator,
-              value: (0, _queryAttributes.convertFilterValueToProperType)(filter)
-            };
-          })
+          filters: filters
         };
 
         if (target.metric === 'percentile') {
           data['percentile'] = target.percentileValue;
         }
 
-        if (target.resultFormat === 'time_series') {
+        if (target.resultFormat === _resultFormat.ResultFormat.TIME_SERIES) {
           data['interval'] = target.interval;
         } else if (target.resultFormat === 'table') {
-          data['groupBy'] = target.groupBy;
           data['limit'] = target.limit;
         }
+        data['groupBy'] = target.groupBy;
 
         return _this.doRequest({
           url: _this.url + '/analytics/queries/' + target.metric,
@@ -109,21 +116,13 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
       });
 
       return Promise.all(targetResponsePromises).then(function (targetResponses) {
+        var result = [];
+        _lodash2.default.map(targetResponses, function (response) {
+          var series = (0, _result_transformer.transform)(response, options);
+          result = [].concat(_toConsumableArray(result), _toConsumableArray(series));
+        });
         return {
-          data: _lodash2.default.map(targetResponses, function (response) {
-            var datapoints = _lodash2.default.map(response.data.data.result.rows, function (row) {
-              return [row[1], row[0]]; // value, timestamp
-            });
-
-            if (response.config.resultFormat === 'time_series') {
-              datapoints = _lodash2.default.orderBy(datapoints, [1], 'asc');
-            }
-
-            return {
-              target: response.config.resultTarget,
-              datapoints: datapoints
-            };
-          })
+          data: result
         };
       });
     }

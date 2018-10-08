@@ -1,9 +1,21 @@
 'use strict';
 
-System.register(['lodash', './types/queryAttributes', './types/aggregations', './types/intervals'], function (_export, _context) {
+System.register(['lodash', './types/queryAttributes', './types/aggregations', './types/intervals', './result_transformer', './types/resultFormat'], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, QUERY_INTERVAL, _createClass, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, QUERY_INTERVAL, transform, ResultFormat, _createClass, BitmovinAnalyticsDatasource;
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -21,6 +33,10 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
       AGGREGATION = _typesAggregations.AGGREGATION;
     }, function (_typesIntervals) {
       QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
+    }, function (_result_transformer) {
+      transform = _result_transformer.transform;
+    }, function (_typesResultFormat) {
+      ResultFormat = _typesResultFormat.ResultFormat;
     }],
     execute: function () {
       _createClass = function () {
@@ -90,34 +106,35 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
 
             var targetResponsePromises = _.map(query.targets, function (target) {
               target.metric = target.metric || AGGREGATION.COUNT;
-              target.dimension = target.dimension || ATTRIBUTE.IMPRESSION_ID;
-              target.resultFormat = target.resultFormat || 'time_series';
+              target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
+              target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
               target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
+              var filters = _.map(target.filter, function (filter) {
+                return {
+                  name: filter.name,
+                  operator: filter.operator,
+                  value: convertFilterValueToProperType(filter)
+                };
+              });
               var data = {
                 licenseKey: target.license,
                 dimension: target.dimension,
                 start: options.range.from.toISOString(),
                 end: options.range.to.toISOString(),
-                filters: _.map(target.filter, function (filter) {
-                  return {
-                    name: filter.name,
-                    operator: filter.operator,
-                    value: convertFilterValueToProperType(filter)
-                  };
-                })
+                filters: filters
               };
 
               if (target.metric === 'percentile') {
                 data['percentile'] = target.percentileValue;
               }
 
-              if (target.resultFormat === 'time_series') {
+              if (target.resultFormat === ResultFormat.TIME_SERIES) {
                 data['interval'] = target.interval;
               } else if (target.resultFormat === 'table') {
-                data['groupBy'] = target.groupBy;
                 data['limit'] = target.limit;
               }
+              data['groupBy'] = target.groupBy;
 
               return _this.doRequest({
                 url: _this.url + '/analytics/queries/' + target.metric,
@@ -129,21 +146,13 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
             });
 
             return Promise.all(targetResponsePromises).then(function (targetResponses) {
+              var result = [];
+              _.map(targetResponses, function (response) {
+                var series = transform(response, options);
+                result = [].concat(_toConsumableArray(result), _toConsumableArray(series));
+              });
               return {
-                data: _.map(targetResponses, function (response) {
-                  var datapoints = _.map(response.data.data.result.rows, function (row) {
-                    return [row[1], row[0]]; // value, timestamp
-                  });
-
-                  if (response.config.resultFormat === 'time_series') {
-                    datapoints = _.orderBy(datapoints, [1], 'asc');
-                  }
-
-                  return {
-                    target: response.config.resultTarget,
-                    datapoints: datapoints
-                  };
-                })
+                data: result
               };
             });
           }

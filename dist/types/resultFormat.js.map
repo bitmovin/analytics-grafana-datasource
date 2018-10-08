@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/types/resultFormat.js"],"names":["ResultFormat","TABLE","TIME_SERIES"],"mappings":";;;;;;;;;8BAAaA,Y,GAAe;AAC1BC,eAAO,OADmB;AAE1BC,qBAAa;AAFa,O","file":"resultFormat.js","sourcesContent":["export const ResultFormat = {\n  TABLE: 'table',\n  TIME_SERIES: 'time_series'\n};\n"]}

@@ -23,6 +23,8 @@ var _intervals = require('./types/intervals');
 
 var _aggregations = require('./types/aggregations');
 
+var _resultFormat = require('./types/resultFormat');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32,7 +34,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var REMOVE_FILTER_TEXT = '-- Remove Filter --';
-var DEFAULT_OPERATOR = 'EQ';
+var DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
+var DEFAULT_OPERATOR = _operators.OPERATOR.EQ;
 
 var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
   _inherits(BitmovinAnalyticsDatasourceQueryCtrl, _QueryCtrl);
@@ -50,7 +53,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.fields = _queryAttributes.ATTRIBUTE_LIST;
     _this.operators = _operators.OPERATOR_LIST;
     _this.licenses = [];
-    _this.resultFormats = ['time_series', 'table'];
+    _this.resultFormats = [_resultFormat.ResultFormat.TIME_SERIES, _resultFormat.ResultFormat.TABLE];
     _this.intervals = _intervals.QUERY_INTERVAL_LIST;
     _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
     _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
@@ -74,7 +77,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
 
     _this.datasource.getLicenses().then(function (response) {
       if (response.status === 200) {
-        _this.licenses = [];
+        _this.licenses = [DEFAULT_LICENSE];
 
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -105,7 +108,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
         if (!_this.target.license || !_this.licenses.find(function (l) {
           return l.licenseKey === _this.target.license;
         })) {
-          _this.target.license = _this.licenses[0].licenseKey;
+          _this.target.license = DEFAULT_LICENSE.licenseKey;
         }
       }
     });

@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './types/queryAttributes', './types/operators', './types/intervals', './types/aggregations'], function (_export, _context) {
+System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './types/queryAttributes', './types/operators', './types/intervals', './types/aggregations', './types/resultFormat'], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, _createClass, REMOVE_FILTER_TEXT, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, OPERATOR, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_FILTER_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -45,11 +45,14 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
       convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
     }, function (_typesOperators) {
       OPERATOR_LIST = _typesOperators.OPERATOR_LIST;
+      OPERATOR = _typesOperators.OPERATOR;
     }, function (_typesIntervals) {
       QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
       QUERY_INTERVAL_LIST = _typesIntervals.QUERY_INTERVAL_LIST;
     }, function (_typesAggregations) {
       AGGREGATION_LIST = _typesAggregations.AGGREGATION_LIST;
+    }, function (_typesResultFormat) {
+      ResultFormat = _typesResultFormat.ResultFormat;
     }],
     execute: function () {
       _createClass = function () {
@@ -71,7 +74,8 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
       }();
 
       REMOVE_FILTER_TEXT = '-- Remove Filter --';
-      DEFAULT_OPERATOR = 'EQ';
+      DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
+      DEFAULT_OPERATOR = OPERATOR.EQ;
 
       _export('BitmovinAnalyticsDatasourceQueryCtrl', BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
         _inherits(BitmovinAnalyticsDatasourceQueryCtrl, _QueryCtrl);
@@ -89,7 +93,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
           _this.fields = ATTRIBUTE_LIST;
           _this.operators = OPERATOR_LIST;
           _this.licenses = [];
-          _this.resultFormats = ['time_series', 'table'];
+          _this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
           _this.intervals = QUERY_INTERVAL_LIST;
           _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
           _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
@@ -113,7 +117,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
 
           _this.datasource.getLicenses().then(function (response) {
             if (response.status === 200) {
-              _this.licenses = [];
+              _this.licenses = [DEFAULT_LICENSE];
 
               var _iteratorNormalCompletion = true;
               var _didIteratorError = false;
@@ -144,7 +148,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
               if (!_this.target.license || !_this.licenses.find(function (l) {
                 return l.licenseKey === _this.target.license;
               })) {
-                _this.target.license = _this.licenses[0].licenseKey;
+                _this.target.license = DEFAULT_LICENSE.licenseKey;
               }
             }
           });

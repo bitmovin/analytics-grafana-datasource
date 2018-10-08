@@ -3,12 +3,14 @@ import './css/query-editor.css!'
 
 import _ from 'lodash';
 import { ATTRIBUTE_LIST, convertFilterValueToProperType } from './types/queryAttributes';
-import { OPERATOR_LIST } from './types/operators';
+import { OPERATOR_LIST, OPERATOR } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
+import { ResultFormat } from './types/resultFormat';
 
 const REMOVE_FILTER_TEXT = '-- Remove Filter --';
-const DEFAULT_OPERATOR = 'EQ';
+const DEFAULT_LICENSE = {licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --'};
+const DEFAULT_OPERATOR = OPERATOR.EQ;
 
 export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
@@ -23,7 +25,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.fields = ATTRIBUTE_LIST;
     this.operators = OPERATOR_LIST;
     this.licenses = [];
-    this.resultFormats = ['time_series', 'table'];
+    this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
     this.intervals = QUERY_INTERVAL_LIST;
     this.filterSegment = this.uiSegmentSrv.newPlusButton();
     this.groupBySegment = this.uiSegmentSrv.newPlusButton();
@@ -43,7 +45,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
     this.datasource.getLicenses().then(response => {
       if (response.status === 200) {
-        this.licenses = [];
+        this.licenses = [DEFAULT_LICENSE];
 
         for (var item of response.data.data.result.items) {
           item['label'] = item.name ? item.name : item.licenseKey;
@@ -51,7 +53,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
         }
 
         if (!this.target.license || !this.licenses.find(l => l.licenseKey === this.target.license)) {
-          this.target.license = this.licenses[0].licenseKey;
+          this.target.license = DEFAULT_LICENSE.licenseKey;
         }
       }
     });
