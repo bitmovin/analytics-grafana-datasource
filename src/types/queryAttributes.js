@@ -120,8 +120,20 @@ export const convertFilterValueToProperType = (filter) => {
     case ATTRIBUTE.PLAYER_STARTUPTIME:
     case ATTRIBUTE.STARTUPTIME:
     case ATTRIBUTE.VIDEO_STARTUPTIME:
+    case ATTRIBUTE.VIDEO_BITRATE:
+    case ATTRIBUTE.VIDEO_DURATION:
+    case ATTRIBUTE.REBUFFER_PERCENTAGE:
+    case ATTRIBUTE.DROPPED_FRAMES:
+    case ATTRIBUTE.DURATION:
+    case ATTRIBUTE.BUFFERED:
+    case ATTRIBUTE.PAUSED:
+    case ATTRIBUTE.PLAYED:
+    case ATTRIBUTE.SEEKED:
+    case ATTRIBUTE.VIDEOTIME_START:
+    case ATTRIBUTE.VIDEOTIME_END:
     case ATTRIBUTE.VIDEOTIME:
-    case ATTRIBUTE.VIDEOTIME: return parseInt(filter.value, 10);
+    case ATTRIBUTE.VIEWTIME:
+    case ATTRIBUTE.DRM_LOAD_TIME: return parseInt(filter.value, 10);
     default: return filter.value
   }
 }
