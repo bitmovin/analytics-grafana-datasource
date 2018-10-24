@@ -3,7 +3,7 @@
 System.register(['lodash', './types/queryAttributes', './types/aggregations', './types/intervals', './result_transformer', './types/resultFormat'], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, QUERY_INTERVAL, transform, ResultFormat, _createClass, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, _createClass, BitmovinAnalyticsDatasource;
 
   function _toConsumableArray(arr) {
     if (Array.isArray(arr)) {
@@ -32,6 +32,7 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
     }, function (_typesAggregations) {
       AGGREGATION = _typesAggregations.AGGREGATION;
     }, function (_typesIntervals) {
+      calculateAutoInterval = _typesIntervals.calculateAutoInterval;
       QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
     }, function (_result_transformer) {
       transform = _result_transformer.transform;
@@ -130,7 +131,7 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
               }
 
               if (target.resultFormat === ResultFormat.TIME_SERIES) {
-                data['interval'] = target.interval;
+                data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
               } else if (target.resultFormat === 'table') {
                 data['limit'] = target.limit;
               }

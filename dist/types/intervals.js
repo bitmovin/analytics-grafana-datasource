@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var QUERY_INTERVAL, QUERY_INTERVAL_LIST;
+  var QUERY_INTERVAL, QUERY_INTERVAL_LIST, calculateAutoInterval;
   return {
     setters: [],
     execute: function () {
@@ -11,7 +11,8 @@ System.register([], function (_export, _context) {
         MINUTE: 'MINUTE',
         HOUR: 'HOUR',
         DAY: 'DAY',
-        MONTH: 'MONTH'
+        MONTH: 'MONTH',
+        AUTO: 'AUTO'
       });
 
       _export('QUERY_INTERVAL', QUERY_INTERVAL);
@@ -21,6 +22,20 @@ System.register([], function (_export, _context) {
       }));
 
       _export('QUERY_INTERVAL_LIST', QUERY_INTERVAL_LIST);
+
+      _export('calculateAutoInterval', calculateAutoInterval = function calculateAutoInterval(intervalMs) {
+        if (intervalMs < 60000) {
+          return QUERY_INTERVAL.MINUTE;
+        } else if (intervalMs >= 60000 && intervalMs < 604800) {
+          return QUERY_INTERVAL.HOUR;
+        } else if (intervalMs >= 604800 && intervalMs < 2592000) {
+          return QUERY_INTERVAL.DAY;
+        } else {
+          return QUERY_INTERVAL.MONTH;
+        }
+      });
+
+      _export('calculateAutoInterval', calculateAutoInterval);
     }
   };
 });
