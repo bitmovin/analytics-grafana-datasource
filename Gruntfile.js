@@ -22,7 +22,21 @@ module.exports = function(grunt) {
         dest: 'dist'
       }
     },
-
+    replace: {
+      dist: {
+        options: {
+          patterns: [
+            {
+              match: 'timestamp',
+              replacement: '<%= grunt.template.today("yyyy-mm-dd") %>'
+            }
+          ]
+        },
+        files: [
+          {expand: true, flatten: true, src: ['dist/plugin.json'], dest: 'dist/'}
+        ]
+      }
+    },
     watch: {
       rebuild_all: {
         files: ['src/**/*'],
@@ -78,5 +92,5 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'babel', 'mochaTest']);
+  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'replace', 'babel', 'mochaTest']);
 };
