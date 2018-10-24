@@ -114,14 +114,30 @@ export const convertFilterValueToProperType = (filter) => {
     case ATTRIBUTE.IS_CASTING:
     case ATTRIBUTE.IS_LIVE:
     case ATTRIBUTE.IS_MUTED: return filter.value === 'true';
+    case ATTRIBUTE.AUDIO_BITRATE:
+    case ATTRIBUTE.BUFFERED:
     case ATTRIBUTE.CLIENT_TIME:
+    case ATTRIBUTE.DRM_LOAD_TIME:
+    case ATTRIBUTE.DROPPED_FRAMES:
+    case ATTRIBUTE.DURATION:
     case ATTRIBUTE.ERROR_CODE:
     case ATTRIBUTE.PAGE_LOAD_TIME:
+    case ATTRIBUTE.PAGE_LOAD_TYPE:
+    case ATTRIBUTE.PAUSED:
+    case ATTRIBUTE.PLAYED:
     case ATTRIBUTE.PLAYER_STARTUPTIME:
+    case ATTRIBUTE.REBUFFER_PERCENTAGE:
+    case ATTRIBUTE.SCREEN_HEIGHT:
+    case ATTRIBUTE.SCREEN_WIDTH:
+    case ATTRIBUTE.SEEKED:
     case ATTRIBUTE.STARTUPTIME:
+    case ATTRIBUTE.VIDEO_BITRATE:
+    case ATTRIBUTE.VIDEO_DURATION:
     case ATTRIBUTE.VIDEO_STARTUPTIME:
     case ATTRIBUTE.VIDEOTIME:
-    case ATTRIBUTE.VIDEOTIME: return parseInt(filter.value, 10);
+    case ATTRIBUTE.VIDEOTIME_END:
+    case ATTRIBUTE.VIDEOTIME_START:
+    case ATTRIBUTE.VIEWTIME: return parseInt(filter.value, 10);
     default: return filter.value
   }
 }
