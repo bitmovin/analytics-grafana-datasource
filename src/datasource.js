@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {convertFilterValueToProperType, ATTRIBUTE} from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import { QUERY_INTERVAL } from './types/intervals';
+import {calculateAutoInterval, QUERY_INTERVAL} from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
@@ -71,7 +71,7 @@ export class BitmovinAnalyticsDatasource {
       }
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
-        data['interval'] = target.interval;
+        data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
       } else if (target.resultFormat === 'table'){
         data['limit'] = target.limit;
       }
