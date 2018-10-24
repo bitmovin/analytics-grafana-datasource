@@ -114,6 +114,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
           _this.target.groupBy = _this.target.groupBy || [];
           _this.target.filter = _this.target.filter || [];
           _this.target.limit = _this.target.limit;
+          _this.lastQueryError = [];
 
           _this.datasource.getLicenses().then(function (response) {
             if (response.status === 200) {
@@ -152,10 +153,42 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
               }
             }
           });
+
+          _this.panelCtrl.events.on('data-received', _this.onDataReceived.bind(_this), $scope);
+          _this.panelCtrl.events.on('data-error', _this.onDataError.bind(_this), $scope);
           return _this;
         }
 
         _createClass(BitmovinAnalyticsDatasourceQueryCtrl, [{
+          key: 'onDataReceived',
+          value: function onDataReceived(dataList) {
+            this.lastQueryError = [];
+          }
+        }, {
+          key: 'onDataError',
+          value: function onDataError(err) {
+            this.handleQueryCtrlError(err);
+          }
+        }, {
+          key: 'handleQueryCtrlError',
+          value: function handleQueryCtrlError(err) {
+            if (err.config && err.config.data && err.config.resultTarget !== this.target.refId && err.config.resultTarget !== this.target.alias) {
+              return;
+            }
+
+            if (err.error && err.error.data && err.error.data.error) {
+              this.lastQueryError[this.target.refId] = err.error.data.error.message;
+            } else if (err.error && err.error.data) {
+              this.lastQueryError[this.target.refId] = err.error.data.message;
+            } else if (err.data && err.data.error) {
+              this.lastQueryError[this.target.refId] = err.data.error.message;
+            } else if (err.data && err.data.message) {
+              this.lastQueryError[this.target.refId] = err.data.message;
+            } else {
+              this.lastQueryError[this.target.refId] = err;
+            }
+          }
+        }, {
           key: 'onChangeInternal',
           value: function onChangeInternal() {
             this.panelCtrl.refresh(); // Asks the panel to refresh data.

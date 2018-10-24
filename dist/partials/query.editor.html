@@ -141,5 +141,7 @@
       </div>
     </div>
   </div>
-
+  <div class="gf-form" ng-show="ctrl.lastQueryError[ctrl.target.refId]">
+    <pre class="gf-form-pre alert alert-error">{{ctrl.lastQueryError[ctrl.target.refId].data ? ctrl.lastQueryError[ctrl.target.refId].data.data.message : ctrl.lastQueryError[ctrl.target.refId]}}</pre>
+  </div>
 </query-editor-row>
