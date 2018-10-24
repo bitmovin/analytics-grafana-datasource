@@ -101,7 +101,7 @@
             }
           ],
           "groupBy": [],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "metric": "count",
           "percentileValue": 95,
@@ -124,7 +124,7 @@
             }
           ],
           "groupBy": [],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "metric": "count",
           "percentileValue": 95,
@@ -221,7 +221,7 @@
           "groupBy": [
             "BROWSER"
           ],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "metric": "count",
           "percentileValue": 95,
@@ -318,7 +318,7 @@
           "groupBy": [
             "COUNTRY"
           ],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "metric": "count",
           "percentileValue": 95,
@@ -415,7 +415,7 @@
           "groupBy": [
             "PLAYER_TECH"
           ],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "metric": "count",
           "percentileValue": 95,
@@ -512,7 +512,7 @@
           "groupBy": [
             "OPERATINGSYSTEM"
           ],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "metric": "count",
           "percentileValue": 95,
@@ -632,7 +632,7 @@
           "groupBy": [
             "BROWSER"
           ],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "limit": "10",
           "metric": "count",
@@ -718,7 +718,7 @@
           "groupBy": [
             "COUNTRY"
           ],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "limit": "10",
           "metric": "count",
@@ -802,7 +802,7 @@
           "groupBy": [
             "OPERATINGSYSTEM"
           ],
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "limit": "10",
           "metric": "count",
@@ -901,7 +901,7 @@
             "PLAYER_TECH"
           ],
           "hide": false,
-          "interval": "HOUR",
+          "interval": "AUTO",
           "license": "<YOUR LICENSE KEY>",
           "limit": "10",
           "metric": "count",
