@@ -52,3 +52,6 @@ Build the plugin dist:
 ```
 grunt
 ```
+
+## Support
+Please refer to our [Analytics Api Reference](https://bitmovin.com/docs/analytics) for more information or reach out to us at [bitmovin.com](https://bitmovin.com/contact-bitmovin/).
