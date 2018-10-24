@@ -133,6 +133,10 @@ export const convertFilterValueToProperType = (filter) => {
     case ATTRIBUTE.VIDEOTIME_END:
     case ATTRIBUTE.VIDEOTIME:
     case ATTRIBUTE.VIEWTIME:
+    case ATTRIBUTE.AUDIO_BITRATE:
+    case ATTRIBUTE.PAGE_LOAD_TYPE:
+    case ATTRIBUTE.SCREEN_HEIGHT:
+    case ATTRIBUTE.SCREEN_WIDTH:
     case ATTRIBUTE.DRM_LOAD_TIME: return parseInt(filter.value, 10);
     default: return filter.value
   }
