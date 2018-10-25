@@ -42,6 +42,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.target.groupBy = this.target.groupBy || [];
     this.target.filter = this.target.filter || [];
     this.target.limit = this.target.limit;
+    this.lastQueryError = [];
 
     this.datasource.getLicenses().then(response => {
       if (response.status === 200) {
@@ -57,6 +58,35 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
         }
       }
     });
+
+    this.panelCtrl.events.on('data-received', this.onDataReceived.bind(this), $scope);
+    this.panelCtrl.events.on('data-error', this.onDataError.bind(this), $scope);
+  }
+
+  onDataReceived(dataList) {
+    this.lastQueryError = [];
+  }
+
+  onDataError(err) {
+    this.handleQueryCtrlError(err);
+  }
+
+  handleQueryCtrlError(err) {
+    if (err.config && err.config.data && err.config.resultTarget !== this.target.refId && err.config.resultTarget !== this.target.alias) {
+      return;
+    }
+
+    if (err.error && err.error.data && err.error.data.error) {
+      this.lastQueryError[this.target.refId] = err.error.data.error.message;
+    } else if (err.error && err.error.data) {
+      this.lastQueryError[this.target.refId] = err.error.data.message;
+    } else if (err.data && err.data.error) {
+      this.lastQueryError[this.target.refId] = err.data.error.message;
+    } else if (err.data && err.data.message) {
+      this.lastQueryError[this.target.refId] = err.data.message;
+    } else {
+      this.lastQueryError[this.target.refId] = err;
+    }
   }
 
   onChangeInternal() {
