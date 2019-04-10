@@ -8,7 +8,7 @@ import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
 
-const REMOVE_FILTER_TEXT = '-- Remove Filter --';
+const REMOVE_ITEM_TEXT = '-- Remove --';
 const DEFAULT_LICENSE = {licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --'};
 const DEFAULT_OPERATOR = OPERATOR.EQ;
 
@@ -107,8 +107,8 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     var options = getAsOptionsList(this.fields);
 
     options.unshift({
-      value: REMOVE_FILTER_TEXT,
-      text: REMOVE_FILTER_TEXT
+      value: REMOVE_ITEM_TEXT,
+      text: REMOVE_ITEM_TEXT
     })
 
     return Promise.resolve(options);
@@ -187,7 +187,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   filterSegmentUpdate(segment, $index) {
-    if (segment.value === REMOVE_FILTER_TEXT) {
+    if (segment.value === REMOVE_ITEM_TEXT) {
       this.target.filter.splice($index, 1);
       this.filterSegments.splice($index, 1);
     } else {
