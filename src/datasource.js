@@ -58,12 +58,14 @@ export class BitmovinAnalyticsDatasource {
           value: convertFilterValueToProperType(filter)
         }
       });
+      const orderBy = _.map(target.orderBy, e => ({name: e.name, order: e.order}));
       const data = {
         licenseKey: target.license,
         dimension: target.dimension,
         start: options.range.from.toISOString(),
         end: options.range.to.toISOString(),
-        filters
+        filters,
+        orderBy
       };
 
       if (target.metric === 'percentile') {

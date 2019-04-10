@@ -106,6 +106,31 @@
 
     <div class="gf-form-inline">
       <div class="gf-form">
+        <label class="gf-form-label query-keyword width-7">
+          <span>Order By</span>
+        </label>
+        <div class="gf-form" ng-repeat="segment in ctrl.orderBySegments">
+          <div ng-if="$index > 0">
+            <label class="gf-form-label query-keyword">
+              <span>And</span>
+            </label>
+          </div>
+          <metric-segment segment="segment" get-options="ctrl.getOrderByDimensionOptions()" on-change="ctrl.orderByDimensionSegmentUpdate(segment, $index)"></metric-segment>
+          <metric-segment segment="segment.order" get-options="ctrl.getOrderByOperatorOptions()" on-change="ctrl.orderByOrderSegmentUpdate(segment, $index)"></metric-segment>
+        </div>
+      </div>
+
+      <div class="gf-form">
+        <metric-segment segment="ctrl.orderBySegment" get-options="ctrl.getOrderByDimensionOptions()" on-change="ctrl.orderByAction(part, $index)"></metric-segment>
+      </div>
+
+      <div class="gf-form gf-form--grow">
+        <div class="gf-form-label gf-form-label--grow"></div>
+      </div>
+    </div>
+
+    <div class="gf-form-inline">
+      <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Limit</label>
         <input type="text" class="gf-form-input width-9" ng-model="ctrl.target.limit" spellcheck='false' placeholder="No Limit" ng-blur="ctrl.refresh()">
       </div>

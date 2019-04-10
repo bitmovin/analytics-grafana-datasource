@@ -9,4 +9,10 @@ export const OPERATOR = {
   NOTCONTAINS: 'NOTCONTAINS'
 };
 
+export const ORDERBY = {
+  ASC: 'ASC',
+  DESC: 'DESC'
+};
+
 export const OPERATOR_LIST = Object.keys(OPERATOR).map(key => OPERATOR[key]);
+export const ORDERBY_LIST = Object.keys(ORDERBY).map(key => ORDERBY[key]);

@@ -3,7 +3,7 @@ import './css/query-editor.css!'
 
 import _ from 'lodash';
 import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList } from './types/queryAttributes';
-import { OPERATOR_LIST, OPERATOR } from './types/operators';
+import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
@@ -11,6 +11,7 @@ import { ResultFormat } from './types/resultFormat';
 const REMOVE_ITEM_TEXT = '-- Remove --';
 const DEFAULT_LICENSE = {licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --'};
 const DEFAULT_OPERATOR = OPERATOR.EQ;
+const GROUPBY_DEFAULT_ORDER = ORDERBY.ASC;
 
 export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
@@ -24,12 +25,15 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.metrics = AGGREGATION_LIST;
     this.fields = ATTRIBUTE_LIST;
     this.operators = OPERATOR_LIST;
+    this.orderByOperators = ORDERBY_LIST;
     this.licenses = [];
     this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
     this.intervals = QUERY_INTERVAL_LIST;
     this.filterSegment = this.uiSegmentSrv.newPlusButton();
     this.groupBySegment = this.uiSegmentSrv.newPlusButton();
+    this.orderBySegment = this.uiSegmentSrv.newPlusButton();
     this.groupByParts = this.target.groupBy ? this.target.groupBy.map(e => this.createGroupByPartsEntry(e)) : [];
+    this.orderBySegments = this.target.orderBy ? this.target.orderBy.map(e => this.createOrderBySegment(e)) : [];
     this.filterSegments = this.target.filter ? this.target.filter.map(f => this.createFilterSegment(f)) : [];
 
     this.target.metric = this.target.metric || this.metrics[0];
@@ -40,6 +44,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.target.interval = this.target.interval || QUERY_INTERVAL.HOUR;
     this.target.alias = this.target.alias || '';
     this.target.groupBy = this.target.groupBy || [];
+    this.target.orderBy = this.target.orderBy || [];
     this.target.filter = this.target.filter || [];
     this.target.limit = this.target.limit;
     this.lastQueryError = [];
@@ -124,6 +129,22 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     return Promise.resolve([]);
   }
 
+  getOrderByDimensionOptions() {
+    var options = getAsOptionsList(this.fields);
+
+    options.unshift({
+      value: REMOVE_ITEM_TEXT,
+      text: REMOVE_ITEM_TEXT
+    })
+
+    return Promise.resolve(options);
+  }
+
+  getOrderByOperatorOptions() {
+    let options = getAsOptionsList(this.orderByOperators);
+    return Promise.resolve(options);
+  }
+
   createGroupByPartsEntry(groupByValue) {
     return {
       params: [groupByValue],
@@ -157,6 +178,14 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     return {html: filter.name, operator: {html: filter.operator || DEFAULT_OPERATOR}, filterValue: {html: filter.value || 'set filter value'}};
   }
 
+  createOrderBy(name, order) {
+    return {name, order: order || GROUPBY_DEFAULT_ORDER};
+  }
+
+  createOrderBySegment(orderBy) {
+    return {html: orderBy.name, order: {html: orderBy.order || GROUPBY_DEFAULT_ORDER}};
+  }
+
   filterAction() {
     const filter = this.target.filter.find(f => f.name === this.filterSegment.name);
     if (!filter) {
@@ -169,6 +198,21 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     const plusButton = this.uiSegmentSrv.newPlusButton();
     this.filterSegment.value = plusButton.value;
     this.filterSegment.html = plusButton.html;
+    this.panelCtrl.refresh();
+  }
+
+  orderByAction() {
+    const orderBy = this.target.orderBy.find(e => e.name === this.orderBySegment.name);
+    if (!orderBy) {
+      const newOrderBy = this.createOrderBy(this.orderBySegment.value)
+      this.target.orderBy.push(newOrderBy);
+
+      this.orderBySegments.push(this.createOrderBySegment(newOrderBy));
+    }
+
+    const plusButton = this.uiSegmentSrv.newPlusButton();
+    this.orderBySegment.value = plusButton.value;
+    this.orderBySegment.html = plusButton.html;
     this.panelCtrl.refresh();
   }
 
@@ -204,6 +248,22 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
   filterValueSegmentUpdate(segment, $index) {
     this.target.filter[$index].value = segment.filterValue.value;
+    this.panelCtrl.refresh();
+  }
+
+  orderByDimensionSegmentUpdate(segment, $index) {
+    if (segment.value === REMOVE_ITEM_TEXT) {
+      this.target.orderBy.splice($index, 1);
+      this.orderBySegments.splice($index, 1);
+    } else {
+      this.target.orderBy[$index].name = segment.value;
+    }
+
+    this.panelCtrl.refresh();
+  }
+
+  orderByOrderSegmentUpdate(segment, $index) {
+    this.target.orderBy[$index].order = segment.order.value;
     this.panelCtrl.refresh();
   }
 }
