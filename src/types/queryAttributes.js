@@ -87,6 +87,10 @@ export const ATTRIBUTE = {
 
 export const ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(key => ATTRIBUTE[key]);
 
+export const getAsOptionsList = (list) => {
+  return _.map(list, (e) => ({ value: e, text: e }));
+}
+
 
 export const isNullFilter = (filter) => {
   switch(filter.name) {

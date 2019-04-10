@@ -2,7 +2,7 @@ import {QueryCtrl} from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
 import _ from 'lodash';
-import { ATTRIBUTE_LIST, convertFilterValueToProperType } from './types/queryAttributes';
+import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList } from './types/queryAttributes';
 import { OPERATOR_LIST, OPERATOR } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
@@ -94,25 +94,17 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   getGroupByOptions() {
-    let options = _.map(this.fields, function(field) {
-      return { value: field, text: field };
-    });
-
+    let options = getAsOptionsList(this.fields);
     return Promise.resolve(options);
   }
 
   getFilterOptions() {
-    let options = _.map(this.fields, function(field) {
-      return { value: field, text: field };
-    });
-
+    let options = getAsOptionsList(this.fields);
     return Promise.resolve(options);
   }
 
   getFilterSegmentOptions() {
-    var options = _.map(this.fields, function(field) {
-      return { value: field, text: field };
-    });
+    var options = getAsOptionsList(this.fields);
 
     options.unshift({
       value: REMOVE_FILTER_TEXT,
@@ -123,9 +115,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   getFilterOperatorOptions() {
-    let options = _.map(this.operators, function(op) {
-      return { value: op, text: op };
-    });
+    let options = getAsOptionsList(this.operators);
 
     return Promise.resolve(options);
   }
