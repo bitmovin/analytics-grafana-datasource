@@ -33,9 +33,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var REMOVE_FILTER_TEXT = '-- Remove Filter --';
+var REMOVE_ITEM_TEXT = '-- Remove --';
 var DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
 var DEFAULT_OPERATOR = _operators.OPERATOR.EQ;
+var GROUPBY_DEFAULT_ORDER = _operators.ORDERBY.ASC;
 
 var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
   _inherits(BitmovinAnalyticsDatasourceQueryCtrl, _QueryCtrl);
@@ -52,13 +53,18 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.metrics = _aggregations.AGGREGATION_LIST;
     _this.fields = _queryAttributes.ATTRIBUTE_LIST;
     _this.operators = _operators.OPERATOR_LIST;
+    _this.orderByOperators = _operators.ORDERBY_LIST;
     _this.licenses = [];
     _this.resultFormats = [_resultFormat.ResultFormat.TIME_SERIES, _resultFormat.ResultFormat.TABLE];
     _this.intervals = _intervals.QUERY_INTERVAL_LIST;
     _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
     _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
+    _this.orderBySegment = _this.uiSegmentSrv.newPlusButton();
     _this.groupByParts = _this.target.groupBy ? _this.target.groupBy.map(function (e) {
       return _this.createGroupByPartsEntry(e);
+    }) : [];
+    _this.orderBySegments = _this.target.orderBy ? _this.target.orderBy.map(function (e) {
+      return _this.createOrderBySegment(e);
     }) : [];
     _this.filterSegments = _this.target.filter ? _this.target.filter.map(function (f) {
       return _this.createFilterSegment(f);
@@ -72,6 +78,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.target.interval = _this.target.interval || _intervals.QUERY_INTERVAL.HOUR;
     _this.target.alias = _this.target.alias || '';
     _this.target.groupBy = _this.target.groupBy || [];
+    _this.target.orderBy = _this.target.orderBy || [];
     _this.target.filter = _this.target.filter || [];
     _this.target.limit = _this.target.limit;
     _this.lastQueryError = [];
@@ -156,31 +163,23 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
   }, {
     key: 'getGroupByOptions',
     value: function getGroupByOptions() {
-      var options = _lodash2.default.map(this.fields, function (field) {
-        return { value: field, text: field };
-      });
-
+      var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
       return Promise.resolve(options);
     }
   }, {
     key: 'getFilterOptions',
     value: function getFilterOptions() {
-      var options = _lodash2.default.map(this.fields, function (field) {
-        return { value: field, text: field };
-      });
-
+      var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
       return Promise.resolve(options);
     }
   }, {
     key: 'getFilterSegmentOptions',
     value: function getFilterSegmentOptions() {
-      var options = _lodash2.default.map(this.fields, function (field) {
-        return { value: field, text: field };
-      });
+      var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
 
       options.unshift({
-        value: REMOVE_FILTER_TEXT,
-        text: REMOVE_FILTER_TEXT
+        value: REMOVE_ITEM_TEXT,
+        text: REMOVE_ITEM_TEXT
       });
 
       return Promise.resolve(options);
@@ -188,9 +187,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
   }, {
     key: 'getFilterOperatorOptions',
     value: function getFilterOperatorOptions() {
-      var options = _lodash2.default.map(this.operators, function (op) {
-        return { value: op, text: op };
-      });
+      var options = (0, _queryAttributes.getAsOptionsList)(this.operators);
 
       return Promise.resolve(options);
     }
@@ -198,6 +195,24 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     key: 'getFilterValueOptions',
     value: function getFilterValueOptions(segment, $index) {
       return Promise.resolve([]);
+    }
+  }, {
+    key: 'getOrderByDimensionOptions',
+    value: function getOrderByDimensionOptions() {
+      var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
+
+      options.unshift({
+        value: REMOVE_ITEM_TEXT,
+        text: REMOVE_ITEM_TEXT
+      });
+
+      return Promise.resolve(options);
+    }
+  }, {
+    key: 'getOrderByOperatorOptions',
+    value: function getOrderByOperatorOptions() {
+      var options = (0, _queryAttributes.getAsOptionsList)(this.orderByOperators);
+      return Promise.resolve(options);
     }
   }, {
     key: 'createGroupByPartsEntry',
@@ -239,6 +254,16 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
     }
   }, {
+    key: 'createOrderBy',
+    value: function createOrderBy(name, order) {
+      return { name: name, order: order || GROUPBY_DEFAULT_ORDER };
+    }
+  }, {
+    key: 'createOrderBySegment',
+    value: function createOrderBySegment(orderBy) {
+      return { html: orderBy.name, order: { html: orderBy.order || GROUPBY_DEFAULT_ORDER } };
+    }
+  }, {
     key: 'filterAction',
     value: function filterAction() {
       var _this2 = this;
@@ -256,6 +281,26 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       var plusButton = this.uiSegmentSrv.newPlusButton();
       this.filterSegment.value = plusButton.value;
       this.filterSegment.html = plusButton.html;
+      this.panelCtrl.refresh();
+    }
+  }, {
+    key: 'orderByAction',
+    value: function orderByAction() {
+      var _this3 = this;
+
+      var orderBy = this.target.orderBy.find(function (e) {
+        return e.name === _this3.orderBySegment.name;
+      });
+      if (!orderBy) {
+        var newOrderBy = this.createOrderBy(this.orderBySegment.value);
+        this.target.orderBy.push(newOrderBy);
+
+        this.orderBySegments.push(this.createOrderBySegment(newOrderBy));
+      }
+
+      var plusButton = this.uiSegmentSrv.newPlusButton();
+      this.orderBySegment.value = plusButton.value;
+      this.orderBySegment.html = plusButton.html;
       this.panelCtrl.refresh();
     }
   }, {
@@ -278,7 +323,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
   }, {
     key: 'filterSegmentUpdate',
     value: function filterSegmentUpdate(segment, $index) {
-      if (segment.value === REMOVE_FILTER_TEXT) {
+      if (segment.value === REMOVE_ITEM_TEXT) {
         this.target.filter.splice($index, 1);
         this.filterSegments.splice($index, 1);
       } else {
@@ -297,6 +342,24 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     key: 'filterValueSegmentUpdate',
     value: function filterValueSegmentUpdate(segment, $index) {
       this.target.filter[$index].value = segment.filterValue.value;
+      this.panelCtrl.refresh();
+    }
+  }, {
+    key: 'orderByDimensionSegmentUpdate',
+    value: function orderByDimensionSegmentUpdate(segment, $index) {
+      if (segment.value === REMOVE_ITEM_TEXT) {
+        this.target.orderBy.splice($index, 1);
+        this.orderBySegments.splice($index, 1);
+      } else {
+        this.target.orderBy[$index].name = segment.value;
+      }
+
+      this.panelCtrl.refresh();
+    }
+  }, {
+    key: 'orderByOrderSegmentUpdate',
+    value: function orderByOrderSegmentUpdate(segment, $index) {
+      this.target.orderBy[$index].order = segment.order.value;
       this.panelCtrl.refresh();
     }
   }]);

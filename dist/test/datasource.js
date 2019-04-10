@@ -87,12 +87,16 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
             value: (0, _queryAttributes.convertFilterValueToProperType)(filter)
           };
         });
+        var orderBy = _lodash2.default.map(target.orderBy, function (e) {
+          return { name: e.name, order: e.order };
+        });
         var data = {
           licenseKey: target.license,
           dimension: target.dimension,
           start: options.range.from.toISOString(),
           end: options.range.to.toISOString(),
-          filters: filters
+          filters: filters,
+          orderBy: orderBy
         };
 
         if (target.metric === 'percentile') {
@@ -101,10 +105,9 @@ var BitmovinAnalyticsDatasource = exports.BitmovinAnalyticsDatasource = function
 
         if (target.resultFormat === _resultFormat.ResultFormat.TIME_SERIES) {
           data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoInterval)(options.intervalMs) : target.interval;
-        } else if (target.resultFormat === 'table') {
-          data['limit'] = target.limit;
         }
         data['groupBy'] = target.groupBy;
+        data['limit'] = Number(target.limit) || undefined;
 
         return _this.doRequest({
           url: _this.url + '/analytics/queries/' + target.metric,

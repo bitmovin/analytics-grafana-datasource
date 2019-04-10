@@ -94,6 +94,12 @@ var ATTRIBUTE_LIST = exports.ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(functio
   return ATTRIBUTE[key];
 });
 
+var getAsOptionsList = exports.getAsOptionsList = function getAsOptionsList(list) {
+  return _.map(list, function (e) {
+    return { value: e, text: e };
+  });
+};
+
 var isNullFilter = exports.isNullFilter = function isNullFilter(filter) {
   switch (filter.name) {
     case ATTRIBUTE.CDN_PROVIDER:

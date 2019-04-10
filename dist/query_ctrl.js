@@ -3,7 +3,7 @@
 System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './types/queryAttributes', './types/operators', './types/intervals', './types/aggregations', './types/resultFormat'], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, OPERATOR_LIST, OPERATOR, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_FILTER_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, _createClass, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -43,9 +43,12 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
     }, function (_typesQueryAttributes) {
       ATTRIBUTE_LIST = _typesQueryAttributes.ATTRIBUTE_LIST;
       convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
+      getAsOptionsList = _typesQueryAttributes.getAsOptionsList;
     }, function (_typesOperators) {
       OPERATOR_LIST = _typesOperators.OPERATOR_LIST;
       OPERATOR = _typesOperators.OPERATOR;
+      ORDERBY_LIST = _typesOperators.ORDERBY_LIST;
+      ORDERBY = _typesOperators.ORDERBY;
     }, function (_typesIntervals) {
       QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
       QUERY_INTERVAL_LIST = _typesIntervals.QUERY_INTERVAL_LIST;
@@ -73,9 +76,10 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
         };
       }();
 
-      REMOVE_FILTER_TEXT = '-- Remove Filter --';
+      REMOVE_ITEM_TEXT = '-- Remove --';
       DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
       DEFAULT_OPERATOR = OPERATOR.EQ;
+      GROUPBY_DEFAULT_ORDER = ORDERBY.ASC;
 
       _export('BitmovinAnalyticsDatasourceQueryCtrl', BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
         _inherits(BitmovinAnalyticsDatasourceQueryCtrl, _QueryCtrl);
@@ -92,13 +96,18 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
           _this.metrics = AGGREGATION_LIST;
           _this.fields = ATTRIBUTE_LIST;
           _this.operators = OPERATOR_LIST;
+          _this.orderByOperators = ORDERBY_LIST;
           _this.licenses = [];
           _this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
           _this.intervals = QUERY_INTERVAL_LIST;
           _this.filterSegment = _this.uiSegmentSrv.newPlusButton();
           _this.groupBySegment = _this.uiSegmentSrv.newPlusButton();
+          _this.orderBySegment = _this.uiSegmentSrv.newPlusButton();
           _this.groupByParts = _this.target.groupBy ? _this.target.groupBy.map(function (e) {
             return _this.createGroupByPartsEntry(e);
+          }) : [];
+          _this.orderBySegments = _this.target.orderBy ? _this.target.orderBy.map(function (e) {
+            return _this.createOrderBySegment(e);
           }) : [];
           _this.filterSegments = _this.target.filter ? _this.target.filter.map(function (f) {
             return _this.createFilterSegment(f);
@@ -112,6 +121,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
           _this.target.interval = _this.target.interval || QUERY_INTERVAL.HOUR;
           _this.target.alias = _this.target.alias || '';
           _this.target.groupBy = _this.target.groupBy || [];
+          _this.target.orderBy = _this.target.orderBy || [];
           _this.target.filter = _this.target.filter || [];
           _this.target.limit = _this.target.limit;
           _this.lastQueryError = [];
@@ -196,31 +206,23 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
         }, {
           key: 'getGroupByOptions',
           value: function getGroupByOptions() {
-            var options = _.map(this.fields, function (field) {
-              return { value: field, text: field };
-            });
-
+            var options = getAsOptionsList(this.fields);
             return Promise.resolve(options);
           }
         }, {
           key: 'getFilterOptions',
           value: function getFilterOptions() {
-            var options = _.map(this.fields, function (field) {
-              return { value: field, text: field };
-            });
-
+            var options = getAsOptionsList(this.fields);
             return Promise.resolve(options);
           }
         }, {
           key: 'getFilterSegmentOptions',
           value: function getFilterSegmentOptions() {
-            var options = _.map(this.fields, function (field) {
-              return { value: field, text: field };
-            });
+            var options = getAsOptionsList(this.fields);
 
             options.unshift({
-              value: REMOVE_FILTER_TEXT,
-              text: REMOVE_FILTER_TEXT
+              value: REMOVE_ITEM_TEXT,
+              text: REMOVE_ITEM_TEXT
             });
 
             return Promise.resolve(options);
@@ -228,9 +230,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
         }, {
           key: 'getFilterOperatorOptions',
           value: function getFilterOperatorOptions() {
-            var options = _.map(this.operators, function (op) {
-              return { value: op, text: op };
-            });
+            var options = getAsOptionsList(this.operators);
 
             return Promise.resolve(options);
           }
@@ -238,6 +238,24 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
           key: 'getFilterValueOptions',
           value: function getFilterValueOptions(segment, $index) {
             return Promise.resolve([]);
+          }
+        }, {
+          key: 'getOrderByDimensionOptions',
+          value: function getOrderByDimensionOptions() {
+            var options = getAsOptionsList(this.fields);
+
+            options.unshift({
+              value: REMOVE_ITEM_TEXT,
+              text: REMOVE_ITEM_TEXT
+            });
+
+            return Promise.resolve(options);
+          }
+        }, {
+          key: 'getOrderByOperatorOptions',
+          value: function getOrderByOperatorOptions() {
+            var options = getAsOptionsList(this.orderByOperators);
+            return Promise.resolve(options);
           }
         }, {
           key: 'createGroupByPartsEntry',
@@ -279,6 +297,16 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
             return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
           }
         }, {
+          key: 'createOrderBy',
+          value: function createOrderBy(name, order) {
+            return { name: name, order: order || GROUPBY_DEFAULT_ORDER };
+          }
+        }, {
+          key: 'createOrderBySegment',
+          value: function createOrderBySegment(orderBy) {
+            return { html: orderBy.name, order: { html: orderBy.order || GROUPBY_DEFAULT_ORDER } };
+          }
+        }, {
           key: 'filterAction',
           value: function filterAction() {
             var _this2 = this;
@@ -296,6 +324,26 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
             var plusButton = this.uiSegmentSrv.newPlusButton();
             this.filterSegment.value = plusButton.value;
             this.filterSegment.html = plusButton.html;
+            this.panelCtrl.refresh();
+          }
+        }, {
+          key: 'orderByAction',
+          value: function orderByAction() {
+            var _this3 = this;
+
+            var orderBy = this.target.orderBy.find(function (e) {
+              return e.name === _this3.orderBySegment.name;
+            });
+            if (!orderBy) {
+              var newOrderBy = this.createOrderBy(this.orderBySegment.value);
+              this.target.orderBy.push(newOrderBy);
+
+              this.orderBySegments.push(this.createOrderBySegment(newOrderBy));
+            }
+
+            var plusButton = this.uiSegmentSrv.newPlusButton();
+            this.orderBySegment.value = plusButton.value;
+            this.orderBySegment.html = plusButton.html;
             this.panelCtrl.refresh();
           }
         }, {
@@ -318,7 +366,7 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
         }, {
           key: 'filterSegmentUpdate',
           value: function filterSegmentUpdate(segment, $index) {
-            if (segment.value === REMOVE_FILTER_TEXT) {
+            if (segment.value === REMOVE_ITEM_TEXT) {
               this.target.filter.splice($index, 1);
               this.filterSegments.splice($index, 1);
             } else {
@@ -337,6 +385,24 @@ System.register(['app/plugins/sdk', './css/query-editor.css!', 'lodash', './type
           key: 'filterValueSegmentUpdate',
           value: function filterValueSegmentUpdate(segment, $index) {
             this.target.filter[$index].value = segment.filterValue.value;
+            this.panelCtrl.refresh();
+          }
+        }, {
+          key: 'orderByDimensionSegmentUpdate',
+          value: function orderByDimensionSegmentUpdate(segment, $index) {
+            if (segment.value === REMOVE_ITEM_TEXT) {
+              this.target.orderBy.splice($index, 1);
+              this.orderBySegments.splice($index, 1);
+            } else {
+              this.target.orderBy[$index].name = segment.value;
+            }
+
+            this.panelCtrl.refresh();
+          }
+        }, {
+          key: 'orderByOrderSegmentUpdate',
+          value: function orderByOrderSegmentUpdate(segment, $index) {
+            this.target.orderBy[$index].order = segment.order.value;
             this.panelCtrl.refresh();
           }
         }]);

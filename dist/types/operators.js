@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var OPERATOR, OPERATOR_LIST;
+  var OPERATOR, ORDERBY, OPERATOR_LIST, ORDERBY_LIST;
   return {
     setters: [],
     execute: function () {
@@ -20,11 +20,24 @@ System.register([], function (_export, _context) {
 
       _export('OPERATOR', OPERATOR);
 
+      _export('ORDERBY', ORDERBY = {
+        ASC: 'ASC',
+        DESC: 'DESC'
+      });
+
+      _export('ORDERBY', ORDERBY);
+
       _export('OPERATOR_LIST', OPERATOR_LIST = Object.keys(OPERATOR).map(function (key) {
         return OPERATOR[key];
       }));
 
       _export('OPERATOR_LIST', OPERATOR_LIST);
+
+      _export('ORDERBY_LIST', ORDERBY_LIST = Object.keys(ORDERBY).map(function (key) {
+        return ORDERBY[key];
+      }));
+
+      _export('ORDERBY_LIST', ORDERBY_LIST);
     }
   };
 });

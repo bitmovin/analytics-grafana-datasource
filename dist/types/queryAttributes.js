@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var ATTRIBUTE, ATTRIBUTE_LIST, isNullFilter, convertFilterValueToProperType;
+  var ATTRIBUTE, ATTRIBUTE_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
   return {
     setters: [],
     execute: function () {
@@ -101,6 +101,14 @@ System.register([], function (_export, _context) {
       }));
 
       _export('ATTRIBUTE_LIST', ATTRIBUTE_LIST);
+
+      _export('getAsOptionsList', getAsOptionsList = function getAsOptionsList(list) {
+        return _.map(list, function (e) {
+          return { value: e, text: e };
+        });
+      });
+
+      _export('getAsOptionsList', getAsOptionsList);
 
       _export('isNullFilter', isNullFilter = function isNullFilter(filter) {
         switch (filter.name) {

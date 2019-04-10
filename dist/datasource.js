@@ -118,12 +118,16 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
                   value: convertFilterValueToProperType(filter)
                 };
               });
+              var orderBy = _.map(target.orderBy, function (e) {
+                return { name: e.name, order: e.order };
+              });
               var data = {
                 licenseKey: target.license,
                 dimension: target.dimension,
                 start: options.range.from.toISOString(),
                 end: options.range.to.toISOString(),
-                filters: filters
+                filters: filters,
+                orderBy: orderBy
               };
 
               if (target.metric === 'percentile') {
@@ -132,10 +136,9 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
 
               if (target.resultFormat === ResultFormat.TIME_SERIES) {
                 data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
-              } else if (target.resultFormat === 'table') {
-                data['limit'] = target.limit;
               }
               data['groupBy'] = target.groupBy;
+              data['limit'] = Number(target.limit) || undefined;
 
               return _this.doRequest({
                 url: _this.url + '/analytics/queries/' + target.metric,
