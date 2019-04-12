@@ -2,7 +2,7 @@ import {QueryCtrl} from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
 import _ from 'lodash';
-import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList } from './types/queryAttributes';
+import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTE_LIST } from './types/queryAttributes';
 import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
@@ -127,7 +127,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   getOrderByDimensionOptions() {
-    var options = getAsOptionsList(this.fields);
+    var options = getAsOptionsList(ORDERBY_ATTRIBUTE_LIST);
 
     options.unshift({
       value: REMOVE_ITEM_TEXT,
