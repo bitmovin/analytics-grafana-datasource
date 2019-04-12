@@ -28,7 +28,6 @@ export const ATTRIBUTE = {
   ERROR_CODE: 'ERROR_CODE',
   ERROR_MESSAGE: 'ERROR_MESSAGE',
   EXPERIMENT_NAME: 'EXPERIMENT_NAME',
-  FUNCTION: 'FUNCTION',
   HOUR: 'HOUR',
   IMPRESSION_ID: 'IMPRESSION_ID',
   IP_ADDRESS: 'IP_ADDRESS',
@@ -85,7 +84,13 @@ export const ATTRIBUTE = {
   ASN: 'ASN'
 };
 
+export const ORDERBY_ATTRIBUTE = {
+  ...ATTRIBUTE,
+  FUNCTION: 'FUNCTION'
+}
+
 export const ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(key => ATTRIBUTE[key]);
+export const ORDERBY_ATTRIBUTE_LIST = Object.keys(ORDERBY_ATTRIBUTE).map(key => ORDERBY_ATTRIBUTE[key]);
 
 export const getAsOptionsList = (list) => {
   return _.map(list, (e) => ({ value: e, text: e }));
