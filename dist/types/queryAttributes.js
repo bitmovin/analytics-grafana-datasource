@@ -1,13 +1,18 @@
-'use strict';
+"use strict";
 
 System.register([], function (_export, _context) {
   "use strict";
 
-  var ATTRIBUTE, ATTRIBUTE_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
+  var ATTRIBUTE, ORDERBY_ATTRIBUTE, ATTRIBUTE_LIST, ORDERBY_ATTRIBUTE_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
+
+  function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+  function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
   return {
     setters: [],
     execute: function () {
-      _export('ATTRIBUTE', ATTRIBUTE = {
+      _export("ATTRIBUTE", ATTRIBUTE = {
         ID: 'ID',
         LICENSE_KEY: 'LICENSE_KEY',
         AD: 'AD',
@@ -37,7 +42,6 @@ System.register([], function (_export, _context) {
         ERROR_CODE: 'ERROR_CODE',
         ERROR_MESSAGE: 'ERROR_MESSAGE',
         EXPERIMENT_NAME: 'EXPERIMENT_NAME',
-        FUNCTION: 'FUNCTION',
         HOUR: 'HOUR',
         IMPRESSION_ID: 'IMPRESSION_ID',
         IP_ADDRESS: 'IP_ADDRESS',
@@ -94,23 +98,28 @@ System.register([], function (_export, _context) {
         ASN: 'ASN'
       });
 
-      _export('ATTRIBUTE', ATTRIBUTE);
+      _export("ORDERBY_ATTRIBUTE", ORDERBY_ATTRIBUTE = _objectSpread({}, ATTRIBUTE, {
+        FUNCTION: 'FUNCTION'
+      }));
 
-      _export('ATTRIBUTE_LIST', ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(function (key) {
+      _export("ATTRIBUTE_LIST", ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(function (key) {
         return ATTRIBUTE[key];
       }));
 
-      _export('ATTRIBUTE_LIST', ATTRIBUTE_LIST);
+      _export("ORDERBY_ATTRIBUTE_LIST", ORDERBY_ATTRIBUTE_LIST = Object.keys(ORDERBY_ATTRIBUTE).map(function (key) {
+        return ORDERBY_ATTRIBUTE[key];
+      }));
 
-      _export('getAsOptionsList', getAsOptionsList = function getAsOptionsList(list) {
+      _export("getAsOptionsList", getAsOptionsList = function getAsOptionsList(list) {
         return _.map(list, function (e) {
-          return { value: e, text: e };
+          return {
+            value: e,
+            text: e
+          };
         });
       });
 
-      _export('getAsOptionsList', getAsOptionsList);
-
-      _export('isNullFilter', isNullFilter = function isNullFilter(filter) {
+      _export("isNullFilter", isNullFilter = function isNullFilter(filter) {
         switch (filter.name) {
           case ATTRIBUTE.CDN_PROVIDER:
           case ATTRIBUTE.CUSTOM_DATA_1:
@@ -125,22 +134,23 @@ System.register([], function (_export, _context) {
           case ATTRIBUTE.PLAYER_VERSION:
           case ATTRIBUTE.VIDEO_ID:
             return true;
+
           default:
             return false;
         }
       });
 
-      _export('isNullFilter', isNullFilter);
-
-      _export('convertFilterValueToProperType', convertFilterValueToProperType = function convertFilterValueToProperType(filter) {
+      _export("convertFilterValueToProperType", convertFilterValueToProperType = function convertFilterValueToProperType(filter) {
         if ((!filter.value || filter.value === '') && isNullFilter(filter)) {
           return null;
         }
+
         switch (filter.name) {
           case ATTRIBUTE.IS_CASTING:
           case ATTRIBUTE.IS_LIVE:
           case ATTRIBUTE.IS_MUTED:
             return filter.value === 'true';
+
           case ATTRIBUTE.AUDIO_BITRATE:
           case ATTRIBUTE.BUFFERED:
           case ATTRIBUTE.CLIENT_TIME:
@@ -166,12 +176,11 @@ System.register([], function (_export, _context) {
           case ATTRIBUTE.VIDEOTIME_START:
           case ATTRIBUTE.VIEWTIME:
             return parseInt(filter.value, 10);
+
           default:
             return filter.value;
         }
       });
-
-      _export('convertFilterValueToProperType', convertFilterValueToProperType);
     }
   };
 });

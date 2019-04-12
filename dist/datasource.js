@@ -1,27 +1,23 @@
-'use strict';
+"use strict";
 
-System.register(['lodash', './types/queryAttributes', './types/aggregations', './types/intervals', './result_transformer', './types/resultFormat'], function (_export, _context) {
+System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat"], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, _createClass, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, BitmovinAnalyticsDatasource;
 
-  function _toConsumableArray(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
-        arr2[i] = arr[i];
-      }
+  function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
-      return arr2;
-    } else {
-      return Array.from(arr);
-    }
-  }
+  function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
+  function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+  function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+  function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+  function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
   return {
     setters: [function (_lodash) {
@@ -40,25 +36,9 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
       ResultFormat = _typesResultFormat.ResultFormat;
     }],
     execute: function () {
-      _createClass = function () {
-        function defineProperties(target, props) {
-          for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];
-            descriptor.enumerable = descriptor.enumerable || false;
-            descriptor.configurable = true;
-            if ("value" in descriptor) descriptor.writable = true;
-            Object.defineProperty(target, descriptor.key, descriptor);
-          }
-        }
-
-        return function (Constructor, protoProps, staticProps) {
-          if (protoProps) defineProperties(Constructor.prototype, protoProps);
-          if (staticProps) defineProperties(Constructor, staticProps);
-          return Constructor;
-        };
-      }();
-
-      _export('BitmovinAnalyticsDatasource', BitmovinAnalyticsDatasource = function () {
+      _export("BitmovinAnalyticsDatasource", BitmovinAnalyticsDatasource =
+      /*#__PURE__*/
+      function () {
         function BitmovinAnalyticsDatasource(instanceSettings, $q, backendSrv, templateSrv) {
           _classCallCheck(this, BitmovinAnalyticsDatasource);
 
@@ -69,13 +49,12 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
           this.backendSrv = backendSrv;
           this.templateSrv = templateSrv;
           this.withCredentials = instanceSettings.withCredentials;
-
           this.headers = {
             'Content-Type': 'application/json',
             'X-Api-Key': instanceSettings.jsonData.apiKey
           };
-
           var tenantOrgId = instanceSettings.jsonData.tenantOrgId;
+
           if (typeof tenantOrgId === 'string' && tenantOrgId.length > 0) {
             this.headers['X-Tenant-Org-Id'] = tenantOrgId;
           }
@@ -86,7 +65,7 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
         }
 
         _createClass(BitmovinAnalyticsDatasource, [{
-          key: 'query',
+          key: "query",
           value: function query(options) {
             var _this = this;
 
@@ -96,7 +75,9 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
             });
 
             if (query.targets.length <= 0) {
-              return this.q.when({ data: [] });
+              return this.q.when({
+                data: []
+              });
             }
 
             if (this.templateSrv.getAdhocFilters) {
@@ -118,9 +99,14 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
                   value: convertFilterValueToProperType(filter)
                 };
               });
+
               var orderBy = _.map(target.orderBy, function (e) {
-                return { name: e.name, order: e.order };
+                return {
+                  name: e.name,
+                  order: e.order
+                };
               });
+
               var data = {
                 licenseKey: target.license,
                 dimension: target.dimension,
@@ -137,9 +123,9 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
               if (target.resultFormat === ResultFormat.TIME_SERIES) {
                 data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
               }
+
               data['groupBy'] = target.groupBy;
               data['limit'] = Number(target.limit) || undefined;
-
               return _this.doRequest({
                 url: _this.url + '/analytics/queries/' + target.metric,
                 data: data,
@@ -151,45 +137,50 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
 
             return Promise.all(targetResponsePromises).then(function (targetResponses) {
               var result = [];
+
               _.map(targetResponses, function (response) {
                 var series = transform(response, options);
                 result = [].concat(_toConsumableArray(result), _toConsumableArray(series));
               });
+
               return {
                 data: result
               };
             });
           }
         }, {
-          key: 'testDatasource',
+          key: "testDatasource",
           value: function testDatasource() {
             return this.getLicenses().then(function (response) {
               if (response.status === 200) {
-                return { status: "success", message: "Data source is working", title: "Success" };
+                return {
+                  status: "success",
+                  message: "Data source is working",
+                  title: "Success"
+                };
               }
             });
           }
         }, {
-          key: 'annotationQuery',
+          key: "annotationQuery",
           value: function annotationQuery(options) {}
         }, {
-          key: 'metricFindQuery',
+          key: "metricFindQuery",
           value: function metricFindQuery(query) {}
         }, {
-          key: 'doRequest',
+          key: "doRequest",
           value: function doRequest(options) {
             options.withCredentials = this.withCredentials;
             options.headers = this.headers;
-
             return this.backendSrv.datasourceRequest(options);
           }
         }, {
-          key: 'buildQueryParameters',
+          key: "buildQueryParameters",
           value: function buildQueryParameters(options) {
             return options;
           }
         }, {
-          key: 'getLicenses',
+          key: "getLicenses",
           value: function getLicenses() {
             return this.doRequest({
               url: this.url + '/analytics/licenses',
@@ -200,8 +191,6 @@ System.register(['lodash', './types/queryAttributes', './types/aggregations', '.
 
         return BitmovinAnalyticsDatasource;
       }());
-
-      _export('BitmovinAnalyticsDatasource', BitmovinAnalyticsDatasource);
     }
   };
 });

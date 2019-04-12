@@ -1,9 +1,10 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var AGGREGATION = exports.AGGREGATION = {
+exports.AGGREGATION_LIST = exports.AGGREGATION = void 0;
+var AGGREGATION = {
   COUNT: 'count',
   SUM: 'sum',
   AVG: 'avg',
@@ -14,8 +15,9 @@ var AGGREGATION = exports.AGGREGATION = {
   VARIANCE: 'variance',
   MEDIAN: 'median'
 };
-
-var AGGREGATION_LIST = exports.AGGREGATION_LIST = Object.keys(AGGREGATION).map(function (key) {
+exports.AGGREGATION = AGGREGATION;
+var AGGREGATION_LIST = Object.keys(AGGREGATION).map(function (key) {
   return AGGREGATION[key];
 });
+exports.AGGREGATION_LIST = AGGREGATION_LIST;
 //# sourceMappingURL=aggregations.js.map

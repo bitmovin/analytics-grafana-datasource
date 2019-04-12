@@ -1,10 +1,12 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var ResultFormat = exports.ResultFormat = {
+exports.ResultFormat = void 0;
+var ResultFormat = {
   TABLE: 'table',
   TIME_SERIES: 'time_series'
 };
+exports.ResultFormat = ResultFormat;
 //# sourceMappingURL=resultFormat.js.map

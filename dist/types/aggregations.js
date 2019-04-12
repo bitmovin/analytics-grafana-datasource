@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 System.register([], function (_export, _context) {
   "use strict";
@@ -7,7 +7,7 @@ System.register([], function (_export, _context) {
   return {
     setters: [],
     execute: function () {
-      _export('AGGREGATION', AGGREGATION = {
+      _export("AGGREGATION", AGGREGATION = {
         COUNT: 'count',
         SUM: 'sum',
         AVG: 'avg',
@@ -19,13 +19,9 @@ System.register([], function (_export, _context) {
         MEDIAN: 'median'
       });
 
-      _export('AGGREGATION', AGGREGATION);
-
-      _export('AGGREGATION_LIST', AGGREGATION_LIST = Object.keys(AGGREGATION).map(function (key) {
+      _export("AGGREGATION_LIST", AGGREGATION_LIST = Object.keys(AGGREGATION).map(function (key) {
         return AGGREGATION[key];
       }));
-
-      _export('AGGREGATION_LIST', AGGREGATION_LIST);
     }
   };
 });

@@ -1,59 +1,70 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.BitmovinAnalyticsDatasourceQueryCtrl = undefined;
+exports.BitmovinAnalyticsDatasourceQueryCtrl = void 0;
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _sdk = require("app/plugins/sdk");
 
-var _sdk = require('app/plugins/sdk');
+require("./css/query-editor.css!");
 
-require('./css/query-editor.css!');
+var _lodash = _interopRequireDefault(require("lodash"));
 
-var _lodash = require('lodash');
+var _queryAttributes = require("./types/queryAttributes");
 
-var _lodash2 = _interopRequireDefault(_lodash);
+var _operators = require("./types/operators");
 
-var _queryAttributes = require('./types/queryAttributes');
+var _intervals = require("./types/intervals");
 
-var _operators = require('./types/operators');
+var _aggregations = require("./types/aggregations");
 
-var _intervals = require('./types/intervals');
+var _resultFormat = require("./types/resultFormat");
 
-var _aggregations = require('./types/aggregations');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var _resultFormat = require('./types/resultFormat');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 var REMOVE_ITEM_TEXT = '-- Remove --';
-var DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
+var DEFAULT_LICENSE = {
+  licenseKey: '<YOUR LICENSE KEY>',
+  label: '-- Select License --'
+};
 var DEFAULT_OPERATOR = _operators.OPERATOR.EQ;
 var GROUPBY_DEFAULT_ORDER = _operators.ORDERBY.ASC;
 
-var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQueryCtrl = function (_QueryCtrl) {
+var BitmovinAnalyticsDatasourceQueryCtrl =
+/*#__PURE__*/
+function (_QueryCtrl) {
   _inherits(BitmovinAnalyticsDatasourceQueryCtrl, _QueryCtrl);
 
   function BitmovinAnalyticsDatasourceQueryCtrl($scope, $injector, templateSrv, $q, uiSegmentSrv) {
+    var _this;
+
     _classCallCheck(this, BitmovinAnalyticsDatasourceQueryCtrl);
 
-    var _this = _possibleConstructorReturn(this, (BitmovinAnalyticsDatasourceQueryCtrl.__proto__ || Object.getPrototypeOf(BitmovinAnalyticsDatasourceQueryCtrl)).call(this, $scope, $injector));
-
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BitmovinAnalyticsDatasourceQueryCtrl).call(this, $scope, $injector));
     _this.scope = $scope;
     _this.$q = $q;
     _this.uiSegmentSrv = uiSegmentSrv;
-
     _this.metrics = _aggregations.AGGREGATION_LIST;
     _this.fields = _queryAttributes.ATTRIBUTE_LIST;
-    _this.operators = _operators.OPERATOR_LIST;
-    _this.orderByOperators = _operators.ORDERBY_LIST;
     _this.licenses = [];
     _this.resultFormats = [_resultFormat.ResultFormat.TIME_SERIES, _resultFormat.ResultFormat.TABLE];
     _this.intervals = _intervals.QUERY_INTERVAL_LIST;
@@ -69,7 +80,6 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.filterSegments = _this.target.filter ? _this.target.filter.map(function (f) {
       return _this.createFilterSegment(f);
     }) : [];
-
     _this.target.metric = _this.target.metric || _this.metrics[0];
     _this.target.percentileValue = _this.target.percentileValue || 95;
     _this.target.dimension = _this.target.dimension || _this.fields[0];
@@ -86,7 +96,6 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
     _this.datasource.getLicenses().then(function (response) {
       if (response.status === 200) {
         _this.licenses = [DEFAULT_LICENSE];
-
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -94,8 +103,8 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
         try {
           for (var _iterator = response.data.data.result.items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var item = _step.value;
-
             item['label'] = item.name ? item.name : item.licenseKey;
+
             _this.licenses.push(item);
           }
         } catch (err) {
@@ -103,8 +112,8 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
           _iteratorError = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
+            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+              _iterator["return"]();
             }
           } finally {
             if (_didIteratorError) {
@@ -121,23 +130,25 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       }
     });
 
-    _this.panelCtrl.events.on('data-received', _this.onDataReceived.bind(_this), $scope);
-    _this.panelCtrl.events.on('data-error', _this.onDataError.bind(_this), $scope);
+    _this.panelCtrl.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_this)), $scope);
+
+    _this.panelCtrl.events.on('data-error', _this.onDataError.bind(_assertThisInitialized(_this)), $scope);
+
     return _this;
   }
 
   _createClass(BitmovinAnalyticsDatasourceQueryCtrl, [{
-    key: 'onDataReceived',
+    key: "onDataReceived",
     value: function onDataReceived(dataList) {
       this.lastQueryError = [];
     }
   }, {
-    key: 'onDataError',
+    key: "onDataError",
     value: function onDataError(err) {
       this.handleQueryCtrlError(err);
     }
   }, {
-    key: 'handleQueryCtrlError',
+    key: "handleQueryCtrlError",
     value: function handleQueryCtrlError(err) {
       if (err.config && err.config.data && err.config.resultTarget !== this.target.refId && err.config.resultTarget !== this.target.alias) {
         return;
@@ -156,66 +167,61 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       }
     }
   }, {
-    key: 'onChangeInternal',
+    key: "onChangeInternal",
     value: function onChangeInternal() {
       this.panelCtrl.refresh(); // Asks the panel to refresh data.
     }
   }, {
-    key: 'getGroupByOptions',
+    key: "getGroupByOptions",
     value: function getGroupByOptions() {
       var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
       return Promise.resolve(options);
     }
   }, {
-    key: 'getFilterOptions',
+    key: "getFilterOptions",
     value: function getFilterOptions() {
       var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
       return Promise.resolve(options);
     }
   }, {
-    key: 'getFilterSegmentOptions',
+    key: "getFilterSegmentOptions",
     value: function getFilterSegmentOptions() {
       var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
-
       options.unshift({
         value: REMOVE_ITEM_TEXT,
         text: REMOVE_ITEM_TEXT
       });
-
       return Promise.resolve(options);
     }
   }, {
-    key: 'getFilterOperatorOptions',
+    key: "getFilterOperatorOptions",
     value: function getFilterOperatorOptions() {
-      var options = (0, _queryAttributes.getAsOptionsList)(this.operators);
-
+      var options = (0, _queryAttributes.getAsOptionsList)(_operators.OPERATOR_LIST);
       return Promise.resolve(options);
     }
   }, {
-    key: 'getFilterValueOptions',
+    key: "getFilterValueOptions",
     value: function getFilterValueOptions(segment, $index) {
       return Promise.resolve([]);
     }
   }, {
-    key: 'getOrderByDimensionOptions',
+    key: "getOrderByDimensionOptions",
     value: function getOrderByDimensionOptions() {
-      var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
-
+      var options = (0, _queryAttributes.getAsOptionsList)(_queryAttributes.ORDERBY_ATTRIBUTE_LIST);
       options.unshift({
         value: REMOVE_ITEM_TEXT,
         text: REMOVE_ITEM_TEXT
       });
-
       return Promise.resolve(options);
     }
   }, {
-    key: 'getOrderByOperatorOptions',
+    key: "getOrderByOperatorOptions",
     value: function getOrderByOperatorOptions() {
-      var options = (0, _queryAttributes.getAsOptionsList)(this.orderByOperators);
+      var options = (0, _queryAttributes.getAsOptionsList)(_operators.ORDERBY_LIST);
       return Promise.resolve(options);
     }
   }, {
-    key: 'createGroupByPartsEntry',
+    key: "createGroupByPartsEntry",
     value: function createGroupByPartsEntry(groupByValue) {
       return {
         params: [groupByValue],
@@ -228,53 +234,70 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       };
     }
   }, {
-    key: 'groupByAction',
+    key: "groupByAction",
     value: function groupByAction() {
       this.target.groupBy.push(this.groupBySegment.value);
-
       this.groupByParts.push(this.createGroupByPartsEntry(this.groupBySegment.value));
-
       var plusButton = this.uiSegmentSrv.newPlusButton();
       this.groupBySegment.value = plusButton.value;
       this.groupBySegment.html = plusButton.html;
       this.panelCtrl.refresh();
     }
   }, {
-    key: 'createFilter',
+    key: "createFilter",
     value: function createFilter(name, operator) {
       var value = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-      var filter = { name: name, operator: operator || DEFAULT_OPERATOR, value: value };
+      var filter = {
+        name: name,
+        operator: operator || DEFAULT_OPERATOR,
+        value: value
+      };
       filter.value = (0, _queryAttributes.convertFilterValueToProperType)(filter);
       return filter;
     }
   }, {
-    key: 'createFilterSegment',
+    key: "createFilterSegment",
     value: function createFilterSegment(filter) {
-      return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
+      return {
+        html: filter.name,
+        operator: {
+          html: filter.operator || DEFAULT_OPERATOR
+        },
+        filterValue: {
+          html: filter.value || 'set filter value'
+        }
+      };
     }
   }, {
-    key: 'createOrderBy',
+    key: "createOrderBy",
     value: function createOrderBy(name, order) {
-      return { name: name, order: order || GROUPBY_DEFAULT_ORDER };
+      return {
+        name: name,
+        order: order || GROUPBY_DEFAULT_ORDER
+      };
     }
   }, {
-    key: 'createOrderBySegment',
+    key: "createOrderBySegment",
     value: function createOrderBySegment(orderBy) {
-      return { html: orderBy.name, order: { html: orderBy.order || GROUPBY_DEFAULT_ORDER } };
+      return {
+        html: orderBy.name,
+        order: {
+          html: orderBy.order || GROUPBY_DEFAULT_ORDER
+        }
+      };
     }
   }, {
-    key: 'filterAction',
+    key: "filterAction",
     value: function filterAction() {
       var _this2 = this;
 
       var filter = this.target.filter.find(function (f) {
         return f.name === _this2.filterSegment.name;
       });
+
       if (!filter) {
         var newFilter = this.createFilter(this.filterSegment.value);
         this.target.filter.push(newFilter);
-
         this.filterSegments.push(this.createFilterSegment(newFilter));
       }
 
@@ -284,17 +307,17 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       this.panelCtrl.refresh();
     }
   }, {
-    key: 'orderByAction',
+    key: "orderByAction",
     value: function orderByAction() {
       var _this3 = this;
 
       var orderBy = this.target.orderBy.find(function (e) {
         return e.name === _this3.orderBySegment.name;
       });
+
       if (!orderBy) {
         var newOrderBy = this.createOrderBy(this.orderBySegment.value);
         this.target.orderBy.push(newOrderBy);
-
         this.orderBySegments.push(this.createOrderBySegment(newOrderBy));
       }
 
@@ -304,7 +327,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       this.panelCtrl.refresh();
     }
   }, {
-    key: 'handleGroupByPartEvent',
+    key: "handleGroupByPartEvent",
     value: function handleGroupByPartEvent(selectParts, part, evt) {
       switch (evt.name) {
         case 'action':
@@ -314,14 +337,18 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
             this.panelCtrl.refresh();
             break;
           }
+
         case 'get-part-actions':
           {
-            return this.$q.when([{ text: 'Remove', value: 'remove-part' }]);
+            return this.$q.when([{
+              text: 'Remove',
+              value: 'remove-part'
+            }]);
           }
       }
     }
   }, {
-    key: 'filterSegmentUpdate',
+    key: "filterSegmentUpdate",
     value: function filterSegmentUpdate(segment, $index) {
       if (segment.value === REMOVE_ITEM_TEXT) {
         this.target.filter.splice($index, 1);
@@ -333,19 +360,19 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       this.panelCtrl.refresh();
     }
   }, {
-    key: 'filterOperatorSegmentUpdate',
+    key: "filterOperatorSegmentUpdate",
     value: function filterOperatorSegmentUpdate(segment, $index) {
       this.target.filter[$index].operator = segment.operator.value;
       this.panelCtrl.refresh();
     }
   }, {
-    key: 'filterValueSegmentUpdate',
+    key: "filterValueSegmentUpdate",
     value: function filterValueSegmentUpdate(segment, $index) {
       this.target.filter[$index].value = segment.filterValue.value;
       this.panelCtrl.refresh();
     }
   }, {
-    key: 'orderByDimensionSegmentUpdate',
+    key: "orderByDimensionSegmentUpdate",
     value: function orderByDimensionSegmentUpdate(segment, $index) {
       if (segment.value === REMOVE_ITEM_TEXT) {
         this.target.orderBy.splice($index, 1);
@@ -357,7 +384,7 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
       this.panelCtrl.refresh();
     }
   }, {
-    key: 'orderByOrderSegmentUpdate',
+    key: "orderByOrderSegmentUpdate",
     value: function orderByOrderSegmentUpdate(segment, $index) {
       this.target.orderBy[$index].order = segment.order.value;
       this.panelCtrl.refresh();
@@ -367,5 +394,6 @@ var BitmovinAnalyticsDatasourceQueryCtrl = exports.BitmovinAnalyticsDatasourceQu
   return BitmovinAnalyticsDatasourceQueryCtrl;
 }(_sdk.QueryCtrl);
 
+exports.BitmovinAnalyticsDatasourceQueryCtrl = BitmovinAnalyticsDatasourceQueryCtrl;
 BitmovinAnalyticsDatasourceQueryCtrl.templateUrl = 'partials/query.editor.html';
 //# sourceMappingURL=query_ctrl.js.map
