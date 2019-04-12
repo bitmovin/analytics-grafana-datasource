@@ -24,8 +24,6 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
     this.metrics = AGGREGATION_LIST;
     this.fields = ATTRIBUTE_LIST;
-    this.operators = OPERATOR_LIST;
-    this.orderByOperators = ORDERBY_LIST;
     this.licenses = [];
     this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
     this.intervals = QUERY_INTERVAL_LIST;
@@ -120,8 +118,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   getFilterOperatorOptions() {
-    let options = getAsOptionsList(this.operators);
-
+    let options = getAsOptionsList(OPERATOR_LIST);
     return Promise.resolve(options);
   }
 
@@ -141,7 +138,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   getOrderByOperatorOptions() {
-    let options = getAsOptionsList(this.orderByOperators);
+    let options = getAsOptionsList(ORDERBY_LIST);
     return Promise.resolve(options);
   }
 
