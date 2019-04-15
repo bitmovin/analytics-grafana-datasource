@@ -1,4 +1,4 @@
-## Bitmovin Analytics Grafana Plugin
+# Bitmovin Analytics Grafana Plugin
 
 Plugin that allows you to connect Bitmovin Analytics solution into your Grafana dashboards.
 
@@ -28,6 +28,8 @@ Configure the metric with following settings:
 | Filter*   | Apply a filter to the query                                            |
 | Format as | `time_series`                                                          |
 | Group By* | Group query by dimension and plot as individual time series            |
+| Order By* | Order query ascending or descending by dimension                       |
+| Limit*    | Limit the result to given number                                       |
 | Interval  | Time granularity of queries, select `AUTO` to adapt to global interval |
 | Alias By* | Name of series (ignored when `Group By` is set)                        |
 
@@ -49,13 +51,13 @@ See the [example_dashboard.json](example_dashboard.json) for a demo. Configure t
 
 Start the development environment:
 
-```
+```bash
 grunt watch
 ```
 
 Build the plugin dist:
 
-```
+```bash
 grunt
 ```
 

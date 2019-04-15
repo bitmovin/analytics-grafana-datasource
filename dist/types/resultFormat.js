@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 System.register([], function (_export, _context) {
   "use strict";
@@ -7,12 +7,10 @@ System.register([], function (_export, _context) {
   return {
     setters: [],
     execute: function () {
-      _export('ResultFormat', ResultFormat = {
+      _export("ResultFormat", ResultFormat = {
         TABLE: 'table',
         TIME_SERIES: 'time_series'
       });
-
-      _export('ResultFormat', ResultFormat);
     }
   };
 });

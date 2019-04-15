@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 System.register([], function (_export, _context) {
   "use strict";
@@ -7,7 +7,7 @@ System.register([], function (_export, _context) {
   return {
     setters: [],
     execute: function () {
-      _export('QUERY_INTERVAL', QUERY_INTERVAL = {
+      _export("QUERY_INTERVAL", QUERY_INTERVAL = {
         MINUTE: 'MINUTE',
         HOUR: 'HOUR',
         DAY: 'DAY',
@@ -15,15 +15,11 @@ System.register([], function (_export, _context) {
         AUTO: 'AUTO'
       });
 
-      _export('QUERY_INTERVAL', QUERY_INTERVAL);
-
-      _export('QUERY_INTERVAL_LIST', QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(function (key) {
+      _export("QUERY_INTERVAL_LIST", QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(function (key) {
         return QUERY_INTERVAL[key];
       }));
 
-      _export('QUERY_INTERVAL_LIST', QUERY_INTERVAL_LIST);
-
-      _export('calculateAutoInterval', calculateAutoInterval = function calculateAutoInterval(intervalMs) {
+      _export("calculateAutoInterval", calculateAutoInterval = function calculateAutoInterval(intervalMs) {
         if (intervalMs < 60000) {
           return QUERY_INTERVAL.MINUTE;
         } else if (intervalMs >= 60000 && intervalMs < 604800) {
@@ -34,8 +30,6 @@ System.register([], function (_export, _context) {
           return QUERY_INTERVAL.MONTH;
         }
       });
-
-      _export('calculateAutoInterval', calculateAutoInterval);
     }
   };
 });

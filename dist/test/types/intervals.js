@@ -1,20 +1,23 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var QUERY_INTERVAL = exports.QUERY_INTERVAL = {
+exports.calculateAutoInterval = exports.QUERY_INTERVAL_LIST = exports.QUERY_INTERVAL = void 0;
+var QUERY_INTERVAL = {
   MINUTE: 'MINUTE',
   HOUR: 'HOUR',
   DAY: 'DAY',
   MONTH: 'MONTH',
   AUTO: 'AUTO'
 };
-var QUERY_INTERVAL_LIST = exports.QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(function (key) {
+exports.QUERY_INTERVAL = QUERY_INTERVAL;
+var QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(function (key) {
   return QUERY_INTERVAL[key];
 });
+exports.QUERY_INTERVAL_LIST = QUERY_INTERVAL_LIST;
 
-var calculateAutoInterval = exports.calculateAutoInterval = function calculateAutoInterval(intervalMs) {
+var calculateAutoInterval = function calculateAutoInterval(intervalMs) {
   if (intervalMs < 60000) {
     return QUERY_INTERVAL.MINUTE;
   } else if (intervalMs >= 60000 && intervalMs < 604800) {
@@ -25,4 +28,6 @@ var calculateAutoInterval = exports.calculateAutoInterval = function calculateAu
     return QUERY_INTERVAL.MONTH;
   }
 };
+
+exports.calculateAutoInterval = calculateAutoInterval;
 //# sourceMappingURL=intervals.js.map

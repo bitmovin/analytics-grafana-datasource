@@ -1,9 +1,15 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var ATTRIBUTE = exports.ATTRIBUTE = {
+exports.convertFilterValueToProperType = exports.isNullFilter = exports.getAsOptionsList = exports.ORDERBY_ATTRIBUTES_LIST = exports.ATTRIBUTE_LIST = exports.ORDERBY_ATTRIBUTES = exports.ATTRIBUTE = void 0;
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var ATTRIBUTE = {
   ID: 'ID',
   LICENSE_KEY: 'LICENSE_KEY',
   AD: 'AD',
@@ -33,7 +39,6 @@ var ATTRIBUTE = exports.ATTRIBUTE = {
   ERROR_CODE: 'ERROR_CODE',
   ERROR_MESSAGE: 'ERROR_MESSAGE',
   EXPERIMENT_NAME: 'EXPERIMENT_NAME',
-  FUNCTION: 'FUNCTION',
   HOUR: 'HOUR',
   IMPRESSION_ID: 'IMPRESSION_ID',
   IP_ADDRESS: 'IP_ADDRESS',
@@ -89,12 +94,34 @@ var ATTRIBUTE = exports.ATTRIBUTE = {
   ISP: 'ISP',
   ASN: 'ASN'
 };
+exports.ATTRIBUTE = ATTRIBUTE;
 
-var ATTRIBUTE_LIST = exports.ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(function (key) {
-  return ATTRIBUTE[key];
+var ORDERBY_ATTRIBUTES = _objectSpread({}, ATTRIBUTE, {
+  FUNCTION: 'FUNCTION'
 });
 
-var isNullFilter = exports.isNullFilter = function isNullFilter(filter) {
+exports.ORDERBY_ATTRIBUTES = ORDERBY_ATTRIBUTES;
+var ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(function (key) {
+  return ATTRIBUTE[key];
+});
+exports.ATTRIBUTE_LIST = ATTRIBUTE_LIST;
+var ORDERBY_ATTRIBUTES_LIST = Object.keys(ORDERBY_ATTRIBUTES).map(function (key) {
+  return ORDERBY_ATTRIBUTES[key];
+});
+exports.ORDERBY_ATTRIBUTES_LIST = ORDERBY_ATTRIBUTES_LIST;
+
+var getAsOptionsList = function getAsOptionsList(list) {
+  return _.map(list, function (e) {
+    return {
+      value: e,
+      text: e
+    };
+  });
+};
+
+exports.getAsOptionsList = getAsOptionsList;
+
+var isNullFilter = function isNullFilter(filter) {
   switch (filter.name) {
     case ATTRIBUTE.CDN_PROVIDER:
     case ATTRIBUTE.CUSTOM_DATA_1:
@@ -109,20 +136,25 @@ var isNullFilter = exports.isNullFilter = function isNullFilter(filter) {
     case ATTRIBUTE.PLAYER_VERSION:
     case ATTRIBUTE.VIDEO_ID:
       return true;
+
     default:
       return false;
   }
 };
 
-var convertFilterValueToProperType = exports.convertFilterValueToProperType = function convertFilterValueToProperType(filter) {
+exports.isNullFilter = isNullFilter;
+
+var convertFilterValueToProperType = function convertFilterValueToProperType(filter) {
   if ((!filter.value || filter.value === '') && isNullFilter(filter)) {
     return null;
   }
+
   switch (filter.name) {
     case ATTRIBUTE.IS_CASTING:
     case ATTRIBUTE.IS_LIVE:
     case ATTRIBUTE.IS_MUTED:
       return filter.value === 'true';
+
     case ATTRIBUTE.AUDIO_BITRATE:
     case ATTRIBUTE.BUFFERED:
     case ATTRIBUTE.CLIENT_TIME:
@@ -148,8 +180,11 @@ var convertFilterValueToProperType = exports.convertFilterValueToProperType = fu
     case ATTRIBUTE.VIDEOTIME_START:
     case ATTRIBUTE.VIEWTIME:
       return parseInt(filter.value, 10);
+
     default:
       return filter.value;
   }
 };
+
+exports.convertFilterValueToProperType = convertFilterValueToProperType;
 //# sourceMappingURL=queryAttributes.js.map
