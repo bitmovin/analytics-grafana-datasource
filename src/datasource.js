@@ -72,10 +72,9 @@ export class BitmovinAnalyticsDatasource {
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
         data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
-      } else if (target.resultFormat === 'table'){
-        data['limit'] = target.limit;
       }
       data['groupBy'] = target.groupBy;
+      data['limit'] = Number(target.limit) || undefined;
 
       return this.doRequest({
         url: this.url + '/analytics/queries/' + target.metric,
