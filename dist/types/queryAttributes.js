@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var ATTRIBUTE, ORDERBY_ATTRIBUTE, ATTRIBUTE_LIST, ORDERBY_ATTRIBUTE_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
+  var ATTRIBUTE, ORDERBY_ATTRIBUTES, ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
 
   function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -98,7 +98,7 @@ System.register([], function (_export, _context) {
         ASN: 'ASN'
       });
 
-      _export("ORDERBY_ATTRIBUTE", ORDERBY_ATTRIBUTE = _objectSpread({}, ATTRIBUTE, {
+      _export("ORDERBY_ATTRIBUTES", ORDERBY_ATTRIBUTES = _objectSpread({}, ATTRIBUTE, {
         FUNCTION: 'FUNCTION'
       }));
 
@@ -106,8 +106,8 @@ System.register([], function (_export, _context) {
         return ATTRIBUTE[key];
       }));
 
-      _export("ORDERBY_ATTRIBUTE_LIST", ORDERBY_ATTRIBUTE_LIST = Object.keys(ORDERBY_ATTRIBUTE).map(function (key) {
-        return ORDERBY_ATTRIBUTE[key];
+      _export("ORDERBY_ATTRIBUTES_LIST", ORDERBY_ATTRIBUTES_LIST = Object.keys(ORDERBY_ATTRIBUTES).map(function (key) {
+        return ORDERBY_ATTRIBUTES[key];
       }));
 
       _export("getAsOptionsList", getAsOptionsList = function getAsOptionsList(list) {

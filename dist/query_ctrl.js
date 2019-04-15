@@ -3,7 +3,7 @@
 System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./types/queryAttributes", "./types/operators", "./types/intervals", "./types/aggregations", "./types/resultFormat"], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTE_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -32,7 +32,7 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
       ATTRIBUTE_LIST = _typesQueryAttributes.ATTRIBUTE_LIST;
       convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
       getAsOptionsList = _typesQueryAttributes.getAsOptionsList;
-      ORDERBY_ATTRIBUTE_LIST = _typesQueryAttributes.ORDERBY_ATTRIBUTE_LIST;
+      ORDERBY_ATTRIBUTES_LIST = _typesQueryAttributes.ORDERBY_ATTRIBUTES_LIST;
     }, function (_typesOperators) {
       OPERATOR_LIST = _typesOperators.OPERATOR_LIST;
       OPERATOR = _typesOperators.OPERATOR;
@@ -213,7 +213,7 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
         }, {
           key: "getOrderByDimensionOptions",
           value: function getOrderByDimensionOptions() {
-            var options = getAsOptionsList(ORDERBY_ATTRIBUTE_LIST);
+            var options = getAsOptionsList(ORDERBY_ATTRIBUTES_LIST);
             options.unshift({
               value: REMOVE_ITEM_TEXT,
               text: REMOVE_ITEM_TEXT

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.convertFilterValueToProperType = exports.isNullFilter = exports.getAsOptionsList = exports.ORDERBY_ATTRIBUTE_LIST = exports.ATTRIBUTE_LIST = exports.ORDERBY_ATTRIBUTE = exports.ATTRIBUTE = void 0;
+exports.convertFilterValueToProperType = exports.isNullFilter = exports.getAsOptionsList = exports.ORDERBY_ATTRIBUTES_LIST = exports.ATTRIBUTE_LIST = exports.ORDERBY_ATTRIBUTES = exports.ATTRIBUTE = void 0;
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -96,19 +96,19 @@ var ATTRIBUTE = {
 };
 exports.ATTRIBUTE = ATTRIBUTE;
 
-var ORDERBY_ATTRIBUTE = _objectSpread({}, ATTRIBUTE, {
+var ORDERBY_ATTRIBUTES = _objectSpread({}, ATTRIBUTE, {
   FUNCTION: 'FUNCTION'
 });
 
-exports.ORDERBY_ATTRIBUTE = ORDERBY_ATTRIBUTE;
+exports.ORDERBY_ATTRIBUTES = ORDERBY_ATTRIBUTES;
 var ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(function (key) {
   return ATTRIBUTE[key];
 });
 exports.ATTRIBUTE_LIST = ATTRIBUTE_LIST;
-var ORDERBY_ATTRIBUTE_LIST = Object.keys(ORDERBY_ATTRIBUTE).map(function (key) {
-  return ORDERBY_ATTRIBUTE[key];
+var ORDERBY_ATTRIBUTES_LIST = Object.keys(ORDERBY_ATTRIBUTES).map(function (key) {
+  return ORDERBY_ATTRIBUTES[key];
 });
-exports.ORDERBY_ATTRIBUTE_LIST = ORDERBY_ATTRIBUTE_LIST;
+exports.ORDERBY_ATTRIBUTES_LIST = ORDERBY_ATTRIBUTES_LIST;
 
 var getAsOptionsList = function getAsOptionsList(list) {
   return _.map(list, function (e) {

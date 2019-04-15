@@ -207,7 +207,7 @@ function (_QueryCtrl) {
   }, {
     key: "getOrderByDimensionOptions",
     value: function getOrderByDimensionOptions() {
-      var options = (0, _queryAttributes.getAsOptionsList)(_queryAttributes.ORDERBY_ATTRIBUTE_LIST);
+      var options = (0, _queryAttributes.getAsOptionsList)(_queryAttributes.ORDERBY_ATTRIBUTES_LIST);
       options.unshift({
         value: REMOVE_ITEM_TEXT,
         text: REMOVE_ITEM_TEXT
