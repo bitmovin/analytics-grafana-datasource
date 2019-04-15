@@ -84,13 +84,13 @@ export const ATTRIBUTE = {
   ASN: 'ASN'
 };
 
-export const ORDERBY_ATTRIBUTE = {
+export const ORDERBY_ATTRIBUTES = {
   ...ATTRIBUTE,
   FUNCTION: 'FUNCTION'
 }
 
 export const ATTRIBUTE_LIST = Object.keys(ATTRIBUTE).map(key => ATTRIBUTE[key]);
-export const ORDERBY_ATTRIBUTE_LIST = Object.keys(ORDERBY_ATTRIBUTE).map(key => ORDERBY_ATTRIBUTE[key]);
+export const ORDERBY_ATTRIBUTES_LIST = Object.keys(ORDERBY_ATTRIBUTES).map(key => ORDERBY_ATTRIBUTES[key]);
 
 export const getAsOptionsList = (list) => {
   return _.map(list, (e) => ({ value: e, text: e }));
