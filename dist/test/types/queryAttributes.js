@@ -92,7 +92,9 @@ var ATTRIBUTE = {
   DRM_TYPE: 'DRM_TYPE',
   DRM_LOAD_TIME: 'DRM_LOAD_TIME',
   ISP: 'ISP',
-  ASN: 'ASN'
+  ASN: 'ASN',
+  ERROR_PERCENTAGE: 'ERROR_PERCENTAGE',
+  ERROR_RATE: 'ERROR_RATE'
 };
 exports.ATTRIBUTE = ATTRIBUTE;
 
@@ -145,7 +147,9 @@ var isNullFilter = function isNullFilter(filter) {
 exports.isNullFilter = isNullFilter;
 
 var convertFilterValueToProperType = function convertFilterValueToProperType(filter) {
-  if ((!filter.value || filter.value === '') && isNullFilter(filter)) {
+  var rawValue = filter.value;
+
+  if ((!rawValue || rawValue === '') && isNullFilter(filter)) {
     return null;
   }
 
@@ -153,7 +157,7 @@ var convertFilterValueToProperType = function convertFilterValueToProperType(fil
     case ATTRIBUTE.IS_CASTING:
     case ATTRIBUTE.IS_LIVE:
     case ATTRIBUTE.IS_MUTED:
-      return filter.value === 'true';
+      return rawValue === 'true';
 
     case ATTRIBUTE.AUDIO_BITRATE:
     case ATTRIBUTE.BUFFERED:
@@ -167,7 +171,6 @@ var convertFilterValueToProperType = function convertFilterValueToProperType(fil
     case ATTRIBUTE.PAUSED:
     case ATTRIBUTE.PLAYED:
     case ATTRIBUTE.PLAYER_STARTUPTIME:
-    case ATTRIBUTE.REBUFFER_PERCENTAGE:
     case ATTRIBUTE.SCREEN_HEIGHT:
     case ATTRIBUTE.SCREEN_WIDTH:
     case ATTRIBUTE.SEEKED:
@@ -179,10 +182,15 @@ var convertFilterValueToProperType = function convertFilterValueToProperType(fil
     case ATTRIBUTE.VIDEOTIME_END:
     case ATTRIBUTE.VIDEOTIME_START:
     case ATTRIBUTE.VIEWTIME:
-      return parseInt(filter.value, 10);
+      return parseInt(rawValue, 10);
+
+    case ATTRIBUTE.ERROR_RATE:
+    case ATTRIBUTE.ERROR_PERCENTAGE:
+    case ATTRIBUTE.REBUFFER_PERCENTAGE:
+      return parseFloat(rawValue);
 
     default:
-      return filter.value;
+      return rawValue;
   }
 };
 
