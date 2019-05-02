@@ -41,6 +41,8 @@ System.register([], function (_export, _context) {
         DURATION: 'DURATION',
         ERROR_CODE: 'ERROR_CODE',
         ERROR_MESSAGE: 'ERROR_MESSAGE',
+        ERROR_PERCENTAGE: 'ERROR_PERCENTAGE',
+        ERROR_RATE: 'ERROR_RATE',
         EXPERIMENT_NAME: 'EXPERIMENT_NAME',
         HOUR: 'HOUR',
         IMPRESSION_ID: 'IMPRESSION_ID',
@@ -95,9 +97,7 @@ System.register([], function (_export, _context) {
         DRM_TYPE: 'DRM_TYPE',
         DRM_LOAD_TIME: 'DRM_LOAD_TIME',
         ISP: 'ISP',
-        ASN: 'ASN',
-        ERROR_PERCENTAGE: 'ERROR_PERCENTAGE',
-        ERROR_RATE: 'ERROR_RATE'
+        ASN: 'ASN'
       });
 
       _export("ORDERBY_ATTRIBUTES", ORDERBY_ATTRIBUTES = _objectSpread({}, ATTRIBUTE, {
