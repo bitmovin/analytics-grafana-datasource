@@ -100,7 +100,7 @@ export const getAsOptionsList = (list) => {
 
 
 export const isNullFilter = (filter) => {
-  switch(filter.name) {
+  switch (filter.name) {
     case ATTRIBUTE.CDN_PROVIDER:
     case ATTRIBUTE.CUSTOM_DATA_1:
     case ATTRIBUTE.CUSTOM_DATA_2:
@@ -118,13 +118,15 @@ export const isNullFilter = (filter) => {
 };
 
 export const convertFilterValueToProperType = (filter) => {
-  if ((!filter.value || filter.value === '') && isNullFilter(filter)) {
+  const rawValue = filter.value;
+  if ((!rawValue || rawValue === '') && isNullFilter(filter)) {
     return null;
   }
-  switch(filter.name) {
+  switch (filter.name) {
     case ATTRIBUTE.IS_CASTING:
     case ATTRIBUTE.IS_LIVE:
-    case ATTRIBUTE.IS_MUTED: return filter.value === 'true';
+    case ATTRIBUTE.IS_MUTED: return rawValue === 'true';
+
     case ATTRIBUTE.AUDIO_BITRATE:
     case ATTRIBUTE.BUFFERED:
     case ATTRIBUTE.CLIENT_TIME:
@@ -137,7 +139,6 @@ export const convertFilterValueToProperType = (filter) => {
     case ATTRIBUTE.PAUSED:
     case ATTRIBUTE.PLAYED:
     case ATTRIBUTE.PLAYER_STARTUPTIME:
-    case ATTRIBUTE.REBUFFER_PERCENTAGE:
     case ATTRIBUTE.SCREEN_HEIGHT:
     case ATTRIBUTE.SCREEN_WIDTH:
     case ATTRIBUTE.SEEKED:
@@ -148,7 +149,12 @@ export const convertFilterValueToProperType = (filter) => {
     case ATTRIBUTE.VIDEOTIME:
     case ATTRIBUTE.VIDEOTIME_END:
     case ATTRIBUTE.VIDEOTIME_START:
-    case ATTRIBUTE.VIEWTIME: return parseInt(filter.value, 10);
-    default: return filter.value
+    case ATTRIBUTE.VIEWTIME: return parseInt(rawValue, 10);
+
+    case ATTRIBUTE.ERROR_RATE:
+    case ATTRIBUTE.ERROR_PERCENTAGE:
+    case ATTRIBUTE.REBUFFER_PERCENTAGE: return parseFloat(rawValue);
+
+    default: return rawValue
   }
 }
