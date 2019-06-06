@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import {convertFilterValueToProperType, ATTRIBUTE} from './types/queryAttributes';
+import { convertFilterValueToProperType, ATTRIBUTE } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import {calculateAutoInterval, QUERY_INTERVAL} from './types/intervals';
+import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
@@ -37,7 +37,7 @@ export class BitmovinAnalyticsDatasource {
     query.targets = query.targets.filter(t => !t.hide);
 
     if (query.targets.length <= 0) {
-      return this.q.when({data: []});
+      return this.q.when({ data: [] });
     }
 
     if (this.templateSrv.getAdhocFilters) {
@@ -59,7 +59,7 @@ export class BitmovinAnalyticsDatasource {
           value: convertFilterValueToProperType(filter)
         }
       });
-      const orderBy = _.map(target.orderBy, e => ({name: e.name, order: e.order}));
+      const orderBy = _.map(target.orderBy, e => ({ name: e.name, order: e.order }));
       const data = {
         licenseKey: target.license,
         dimension: target.dimension,
@@ -78,10 +78,10 @@ export class BitmovinAnalyticsDatasource {
       }
       data['groupBy'] = target.groupBy;
       data['limit'] = Number(target.limit) || undefined;
-      var apiRequestUrl = this.url + '/analytics/queries'
-      if(this.isAdAnalytics) {
-        var apiRequestUrl = this.url + '/analytics/ads/queries'
-      }      
+      var apiRequestUrl = this.url + '/analytics/queries';
+      if (this.isAdAnalytics === true) {
+        var apiRequestUrl = this.url + '/analytics/ads/queries';
+      }
       return this.doRequest({
         url: apiRequestUrl + '/' + target.metric,
         data: data,
