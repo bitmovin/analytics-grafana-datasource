@@ -10,6 +10,7 @@ export class BitmovinAnalyticsDatasource {
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
     this.url = instanceSettings.url;
+    this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -77,9 +78,12 @@ export class BitmovinAnalyticsDatasource {
       }
       data['groupBy'] = target.groupBy;
       data['limit'] = Number(target.limit) || undefined;
-
+      var apiRequestUrl = this.url + '/analytics/queries'
+      if(this.isAdAnalytics) {
+        var apiRequestUrl = this.url + '/analytics/ads/queries'
+      }      
       return this.doRequest({
-        url: this.url + '/analytics/queries/' + target.metric,
+        url: apiRequestUrl + '/' + target.metric,
         data: data,
         method: 'POST',
         resultTarget: target.alias || target.refId,
