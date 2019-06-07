@@ -8,14 +8,15 @@ Add the plugin and acquire your bitmovin analytics API key from the [bitmovin da
 
 Configure the datasource:
 
-| Setting | Value                         |
-| ------- | ----------------------------- |
-| URL     | `https://api.bitmovin.com/v1` |
-| Api Key | your Api key                  |
+| Setting      | Value                                                    |
+| ------------ | -------------------------------------------------------- |
+| URL          | `https://api.bitmovin.com/v1`                            |
+| Api Key      | Your Api key                                             |
+| Ad Analytics | If checked, the datasource is switched to query ads data |
 
 Optionally add your `Tenant Org Id` which you can also get from [bitmovin dashboard](https://dashboard.bitmovin.com).
 
-### Time Series Graph
+## Time Series Graph
 
 Add a new panel and select the bitmovin analytics datasource.
 Configure the metric with following settings:
@@ -25,7 +26,7 @@ Configure the metric with following settings:
 | License   | Your analytics license                                                 |
 | Metric    | Aggregation method to use, e.g. `count`, `sum`                         |
 | Dimension | Dimension to aggregate over                                            |
-| Filter*   | Apply a filter to the query                                            |
+| Filter*   | Apply filters to the query                                             |
 | Format as | `time_series`                                                          |
 | Group By* | Group query by dimension and plot as individual time series            |
 | Order By* | Order query ascending or descending by dimension                       |
@@ -33,9 +34,9 @@ Configure the metric with following settings:
 | Interval  | Time granularity of queries, select `AUTO` to adapt to global interval |
 | Alias By* | Name of series (ignored when `Group By` is set)                        |
 
-Settings marked with * are optionally.
+Settings marked with `*` are optionally.
 
-#### Grouped Time Series
+### Grouped Time Series
 
 To compare e.g. impressions per browser, we provide the `Group By` attribute to group the results by a specific dimension and plot them as individual time series. Only one `Group By` is supported for time series.
 
