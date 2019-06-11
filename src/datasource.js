@@ -5,6 +5,14 @@ import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
+const getApiRequestUrl = (baseUrl, isAdAnalytics) => {
+  var apiRequestUrl = baseUrl + '/analytics/queries';
+  if (isAdAnalytics === true) {
+    apiRequestUrl = baseUrl + '/analytics/ads/queries';
+  }
+  return apiRequestUrl;
+};
+
 export class BitmovinAnalyticsDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
@@ -78,10 +86,8 @@ export class BitmovinAnalyticsDatasource {
       }
       data['groupBy'] = target.groupBy;
       data['limit'] = Number(target.limit) || undefined;
-      var apiRequestUrl = this.url + '/analytics/queries';
-      if (this.isAdAnalytics === true) {
-        var apiRequestUrl = this.url + '/analytics/ads/queries';
-      }
+      var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics);
+
       return this.doRequest({
         url: apiRequestUrl + '/' + target.metric,
         data: data,

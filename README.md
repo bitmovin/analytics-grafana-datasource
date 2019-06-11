@@ -34,7 +34,7 @@ Configure the metric with following settings:
 | Interval  | Time granularity of queries, select `AUTO` to adapt to global interval |
 | Alias By* | Name of series (ignored when `Group By` is set)                        |
 
-Settings marked with `*` are optionally.
+Settings marked with `*` are optional.
 
 ### Grouped Time Series
 
