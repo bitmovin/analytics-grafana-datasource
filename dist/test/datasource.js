@@ -33,6 +33,14 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+var getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics) {
+  if (isAdAnalytics === true) {
+    return baseUrl + '/analytics/ads/queries';
+  }
+
+  return baseUrl + '/analytics/queries';
+};
+
 var BitmovinAnalyticsDatasource =
 /*#__PURE__*/
 function () {
@@ -41,6 +49,7 @@ function () {
 
     this.type = instanceSettings.type;
     this.url = instanceSettings.url;
+    this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -123,8 +132,9 @@ function () {
 
         data['groupBy'] = target.groupBy;
         data['limit'] = Number(target.limit) || undefined;
+        var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics);
         return _this.doRequest({
-          url: _this.url + '/analytics/queries/' + target.metric,
+          url: apiRequestUrl + '/' + target.metric,
           data: data,
           method: 'POST',
           resultTarget: target.alias || target.refId,

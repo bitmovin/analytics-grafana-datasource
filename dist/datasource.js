@@ -3,7 +3,7 @@
 System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat"], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, getApiRequestUrl, BitmovinAnalyticsDatasource;
 
   function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -36,6 +36,14 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
       ResultFormat = _typesResultFormat.ResultFormat;
     }],
     execute: function () {
+      getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics) {
+        if (isAdAnalytics === true) {
+          return baseUrl + '/analytics/ads/queries';
+        }
+
+        return baseUrl + '/analytics/queries';
+      };
+
       _export("BitmovinAnalyticsDatasource", BitmovinAnalyticsDatasource =
       /*#__PURE__*/
       function () {
@@ -44,6 +52,7 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
 
           this.type = instanceSettings.type;
           this.url = instanceSettings.url;
+          this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
           this.name = instanceSettings.name;
           this.q = $q;
           this.backendSrv = backendSrv;
@@ -126,8 +135,9 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
 
               data['groupBy'] = target.groupBy;
               data['limit'] = Number(target.limit) || undefined;
+              var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics);
               return _this.doRequest({
-                url: _this.url + '/analytics/queries/' + target.metric,
+                url: apiRequestUrl + '/' + target.metric,
                 data: data,
                 method: 'POST',
                 resultTarget: target.alias || target.refId,

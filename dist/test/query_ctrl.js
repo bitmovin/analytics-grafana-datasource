@@ -65,6 +65,13 @@ function (_QueryCtrl) {
     _this.uiSegmentSrv = uiSegmentSrv;
     _this.metrics = _aggregations.AGGREGATION_LIST;
     _this.fields = _queryAttributes.ATTRIBUTE_LIST;
+    _this.orderByFields = _queryAttributes.ORDERBY_ATTRIBUTES_LIST;
+
+    if (_this.datasource.isAdAnalytics === true) {
+      _this.fields = _queryAttributes.AD_ATTRIBUTE_LIST;
+      _this.orderByFields = _queryAttributes.ORDERBY_AD_ATTRIBUTES_LIST;
+    }
+
     _this.licenses = [];
     _this.resultFormats = [_resultFormat.ResultFormat.TIME_SERIES, _resultFormat.ResultFormat.TABLE];
     _this.intervals = _intervals.QUERY_INTERVAL_LIST;
@@ -207,7 +214,7 @@ function (_QueryCtrl) {
   }, {
     key: "getOrderByDimensionOptions",
     value: function getOrderByDimensionOptions() {
-      var options = (0, _queryAttributes.getAsOptionsList)(_queryAttributes.ORDERBY_ATTRIBUTES_LIST);
+      var options = (0, _queryAttributes.getAsOptionsList)(this.orderByFields);
       options.unshift({
         value: REMOVE_ITEM_TEXT,
         text: REMOVE_ITEM_TEXT

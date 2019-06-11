@@ -3,7 +3,7 @@
 System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./types/queryAttributes", "./types/operators", "./types/intervals", "./types/aggregations", "./types/resultFormat"], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -33,6 +33,8 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
       convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
       getAsOptionsList = _typesQueryAttributes.getAsOptionsList;
       ORDERBY_ATTRIBUTES_LIST = _typesQueryAttributes.ORDERBY_ATTRIBUTES_LIST;
+      AD_ATTRIBUTE_LIST = _typesQueryAttributes.AD_ATTRIBUTE_LIST;
+      ORDERBY_AD_ATTRIBUTES_LIST = _typesQueryAttributes.ORDERBY_AD_ATTRIBUTES_LIST;
     }, function (_typesOperators) {
       OPERATOR_LIST = _typesOperators.OPERATOR_LIST;
       OPERATOR = _typesOperators.OPERATOR;
@@ -71,6 +73,13 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
           _this.uiSegmentSrv = uiSegmentSrv;
           _this.metrics = AGGREGATION_LIST;
           _this.fields = ATTRIBUTE_LIST;
+          _this.orderByFields = ORDERBY_ATTRIBUTES_LIST;
+
+          if (_this.datasource.isAdAnalytics === true) {
+            _this.fields = AD_ATTRIBUTE_LIST;
+            _this.orderByFields = ORDERBY_AD_ATTRIBUTES_LIST;
+          }
+
           _this.licenses = [];
           _this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
           _this.intervals = QUERY_INTERVAL_LIST;
@@ -213,7 +222,7 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
         }, {
           key: "getOrderByDimensionOptions",
           value: function getOrderByDimensionOptions() {
-            var options = getAsOptionsList(ORDERBY_ATTRIBUTES_LIST);
+            var options = getAsOptionsList(this.orderByFields);
             options.unshift({
               value: REMOVE_ITEM_TEXT,
               text: REMOVE_ITEM_TEXT
