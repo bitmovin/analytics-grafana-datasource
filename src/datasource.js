@@ -6,11 +6,10 @@ import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
 const getApiRequestUrl = (baseUrl, isAdAnalytics) => {
-  var apiRequestUrl = baseUrl + '/analytics/queries';
   if (isAdAnalytics === true) {
-    apiRequestUrl = baseUrl + '/analytics/ads/queries';
+    return baseUrl + '/analytics/ads/queries';
   }
-  return apiRequestUrl;
+  return baseUrl + '/analytics/queries';
 };
 
 export class BitmovinAnalyticsDatasource {
