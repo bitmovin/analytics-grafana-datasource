@@ -1,15 +1,23 @@
 import _ from 'lodash';
-import {convertFilterValueToProperType, ATTRIBUTE} from './types/queryAttributes';
+import { convertFilterValueToProperType, ATTRIBUTE } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import {calculateAutoInterval, QUERY_INTERVAL} from './types/intervals';
+import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
+
+const getApiRequestUrl = (baseUrl, isAdAnalytics) => {
+  if (isAdAnalytics === true) {
+    return baseUrl + '/analytics/ads/queries';
+  }
+  return baseUrl + '/analytics/queries';
+};
 
 export class BitmovinAnalyticsDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
     this.url = instanceSettings.url;
+    this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -36,7 +44,7 @@ export class BitmovinAnalyticsDatasource {
     query.targets = query.targets.filter(t => !t.hide);
 
     if (query.targets.length <= 0) {
-      return this.q.when({data: []});
+      return this.q.when({ data: [] });
     }
 
     if (this.templateSrv.getAdhocFilters) {
@@ -58,7 +66,7 @@ export class BitmovinAnalyticsDatasource {
           value: convertFilterValueToProperType(filter)
         }
       });
-      const orderBy = _.map(target.orderBy, e => ({name: e.name, order: e.order}));
+      const orderBy = _.map(target.orderBy, e => ({ name: e.name, order: e.order }));
       const data = {
         licenseKey: target.license,
         dimension: target.dimension,
@@ -77,9 +85,10 @@ export class BitmovinAnalyticsDatasource {
       }
       data['groupBy'] = target.groupBy;
       data['limit'] = Number(target.limit) || undefined;
+      var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics);
 
       return this.doRequest({
-        url: this.url + '/analytics/queries/' + target.metric,
+        url: apiRequestUrl + '/' + target.metric,
         data: data,
         method: 'POST',
         resultTarget: target.alias || target.refId,

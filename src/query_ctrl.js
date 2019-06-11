@@ -1,21 +1,21 @@
-import {QueryCtrl} from 'app/plugins/sdk';
+import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
 import _ from 'lodash';
-import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST } from './types/queryAttributes';
+import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST } from './types/queryAttributes';
 import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
 
 const REMOVE_ITEM_TEXT = '-- Remove --';
-const DEFAULT_LICENSE = {licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --'};
+const DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
 const DEFAULT_OPERATOR = OPERATOR.EQ;
 const GROUPBY_DEFAULT_ORDER = ORDERBY.ASC;
 
 export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
-  constructor($scope, $injector, templateSrv, $q, uiSegmentSrv)  {
+  constructor($scope, $injector, templateSrv, $q, uiSegmentSrv) {
     super($scope, $injector);
 
     this.scope = $scope;
@@ -24,6 +24,11 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
     this.metrics = AGGREGATION_LIST;
     this.fields = ATTRIBUTE_LIST;
+    this.orderByFields = ORDERBY_ATTRIBUTES_LIST;
+    if (this.datasource.isAdAnalytics === true) {
+      this.fields = AD_ATTRIBUTE_LIST;
+      this.orderByFields = ORDERBY_AD_ATTRIBUTES_LIST;
+    }
     this.licenses = [];
     this.resultFormats = [ResultFormat.TIME_SERIES, ResultFormat.TABLE];
     this.intervals = QUERY_INTERVAL_LIST;
@@ -127,7 +132,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   getOrderByDimensionOptions() {
-    var options = getAsOptionsList(ORDERBY_ATTRIBUTES_LIST);
+    var options = getAsOptionsList(this.orderByFields);
 
     options.unshift({
       value: REMOVE_ITEM_TEXT,
@@ -165,22 +170,22 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh();
   }
 
-  createFilter(name, operator, value=null) {
-    const filter = {name, operator: operator || DEFAULT_OPERATOR, value};
+  createFilter(name, operator, value = null) {
+    const filter = { name, operator: operator || DEFAULT_OPERATOR, value };
     filter.value = convertFilterValueToProperType(filter)
     return filter;
   }
 
   createFilterSegment(filter) {
-    return {html: filter.name, operator: {html: filter.operator || DEFAULT_OPERATOR}, filterValue: {html: filter.value || 'set filter value'}};
+    return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
   }
 
   createOrderBy(name, order) {
-    return {name, order: order || GROUPBY_DEFAULT_ORDER};
+    return { name, order: order || GROUPBY_DEFAULT_ORDER };
   }
 
   createOrderBySegment(orderBy) {
-    return {html: orderBy.name, order: {html: orderBy.order || GROUPBY_DEFAULT_ORDER}};
+    return { html: orderBy.name, order: { html: orderBy.order || GROUPBY_DEFAULT_ORDER } };
   }
 
   filterAction() {
