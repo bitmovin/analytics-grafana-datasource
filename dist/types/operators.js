@@ -15,7 +15,8 @@ System.register([], function (_export, _context) {
         EQ: 'EQ',
         NQ: 'NQ',
         CONTAINS: 'CONTAINS',
-        NOTCONTAINS: 'NOTCONTAINS'
+        NOTCONTAINS: 'NOTCONTAINS',
+        IN: 'IN'
       });
 
       _export("ORDERBY", ORDERBY = {

@@ -284,6 +284,20 @@ var convertFilterValueToProperType = function convertFilterValueToProperType(fil
     return null;
   }
 
+  if (filter.operator != null && filter.operator.toLowerCase() === 'in') {
+    try {
+      var value = JSON.parse(rawValue);
+
+      if (!Array.isArray(value)) {
+        throw Error();
+      }
+
+      return value;
+    } catch (e) {
+      throw Error('Couldn\'t parse IN filter, please provide data in array form (e.g.: ["Firefox", "Chrome"]).');
+    }
+  }
+
   switch (filter.name) {
     case ATTRIBUTE.IS_CASTING:
     case ATTRIBUTE.IS_LIVE:
