@@ -6,7 +6,8 @@ export const OPERATOR = {
   EQ: 'EQ',
   NQ: 'NQ',
   CONTAINS: 'CONTAINS',
-  NOTCONTAINS: 'NOTCONTAINS'
+  NOTCONTAINS: 'NOTCONTAINS',
+  IN: 'IN'
 };
 
 export const ORDERBY = {
