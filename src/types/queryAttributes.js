@@ -244,14 +244,14 @@ export const convertFilterValueToProperType = (filter) => {
   if ((!rawValue || rawValue === '') && isNullFilter(filter)) {
     return null;
   }
-  if(filter.operator != null && filter.operator.toLowerCase() === 'in') {
+  if (filter.operator != null && filter.operator.toLowerCase() === 'in') {
     try {
       const value = JSON.parse(rawValue);
-      if(!Array.isArray(value)) {
+      if (!Array.isArray(value)) {
         throw Error();
       }
       return value;
-    } catch(e) { throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).'); }
+    } catch (e) { throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).'); }
   }
   switch (filter.name) {
     case ATTRIBUTE.IS_CASTING:

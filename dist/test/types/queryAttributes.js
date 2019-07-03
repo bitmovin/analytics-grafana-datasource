@@ -294,7 +294,7 @@ var convertFilterValueToProperType = function convertFilterValueToProperType(fil
 
       return value;
     } catch (e) {
-      throw Error('Couldn\'t parse IN filter, please provide data in array form (e.g.: ["Firefox", "Chrome"]).');
+      throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).');
     }
   }
 
