@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
-- added list o
+- added groupby attributes list
 
 ## 0.0.2
 
