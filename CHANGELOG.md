@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+- added list o
+
 ## 0.0.2
 
 ### Added

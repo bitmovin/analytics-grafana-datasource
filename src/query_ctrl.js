@@ -7,6 +7,7 @@ import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operator
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
+import { GROUP_BY_ATTRIBUTE_LIST } from './types/queryGrouByAttributes';
 
 const REMOVE_ITEM_TEXT = '-- Remove --';
 const DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
@@ -24,6 +25,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
 
     this.metrics = AGGREGATION_LIST;
     this.fields = ATTRIBUTE_LIST;
+    this.groupByFields = GROUP_BY_ATTRIBUTE_LIST;
     this.orderByFields = ORDERBY_ATTRIBUTES_LIST;
     if (this.datasource.isAdAnalytics === true) {
       this.fields = AD_ATTRIBUTE_LIST;
@@ -102,7 +104,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   }
 
   getGroupByOptions() {
-    let options = getAsOptionsList(this.fields);
+    let options = getAsOptionsList(this.groupByFields);
     return Promise.resolve(options);
   }
 

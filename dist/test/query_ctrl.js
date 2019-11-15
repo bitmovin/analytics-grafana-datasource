@@ -21,6 +21,8 @@ var _aggregations = require("./types/aggregations");
 
 var _resultFormat = require("./types/resultFormat");
 
+var _queryGrouByAttributes = require("./types/queryGrouByAttributes");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -65,6 +67,7 @@ function (_QueryCtrl) {
     _this.uiSegmentSrv = uiSegmentSrv;
     _this.metrics = _aggregations.AGGREGATION_LIST;
     _this.fields = _queryAttributes.ATTRIBUTE_LIST;
+    _this.groupByFields = _queryGrouByAttributes.GROUP_BY_ATTRIBUTE_LIST;
     _this.orderByFields = _queryAttributes.ORDERBY_ATTRIBUTES_LIST;
 
     if (_this.datasource.isAdAnalytics === true) {
@@ -181,7 +184,7 @@ function (_QueryCtrl) {
   }, {
     key: "getGroupByOptions",
     value: function getGroupByOptions() {
-      var options = (0, _queryAttributes.getAsOptionsList)(this.fields);
+      var options = (0, _queryAttributes.getAsOptionsList)(this.groupByFields);
       return Promise.resolve(options);
     }
   }, {
