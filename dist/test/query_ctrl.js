@@ -72,7 +72,7 @@ function (_QueryCtrl) {
 
     if (_this.datasource.isAdAnalytics === true) {
       _this.fields = _queryAttributes.AD_ATTRIBUTE_LIST;
-      _this.groupByFields = GROUP_BY_AD_ATTRIBUTE;
+      _this.groupByFields = _queryGrouByAttributes.GROUP_BY_AD_ATTRIBUTE_LIST;
       _this.orderByFields = _queryAttributes.ORDERBY_AD_ATTRIBUTES_LIST;
     }
 
