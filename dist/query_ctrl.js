@@ -1,9 +1,9 @@
 "use strict";
 
-System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./types/queryAttributes", "./types/operators", "./types/intervals", "./types/aggregations", "./types/resultFormat"], function (_export, _context) {
+System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./types/queryAttributes", "./types/operators", "./types/intervals", "./types/aggregations", "./types/resultFormat", "./types/queryGrouByAttributes"], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, GROUP_BY_ATTRIBUTE_LIST, GROUP_BY_AD_ATTRIBUTE_LIST, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -47,6 +47,9 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
       AGGREGATION_LIST = _typesAggregations.AGGREGATION_LIST;
     }, function (_typesResultFormat) {
       ResultFormat = _typesResultFormat.ResultFormat;
+    }, function (_typesQueryGrouByAttributes) {
+      GROUP_BY_ATTRIBUTE_LIST = _typesQueryGrouByAttributes.GROUP_BY_ATTRIBUTE_LIST;
+      GROUP_BY_AD_ATTRIBUTE_LIST = _typesQueryGrouByAttributes.GROUP_BY_AD_ATTRIBUTE_LIST;
     }],
     execute: function () {
       REMOVE_ITEM_TEXT = '-- Remove --';
@@ -73,10 +76,12 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
           _this.uiSegmentSrv = uiSegmentSrv;
           _this.metrics = AGGREGATION_LIST;
           _this.fields = ATTRIBUTE_LIST;
+          _this.groupByFields = GROUP_BY_ATTRIBUTE_LIST;
           _this.orderByFields = ORDERBY_ATTRIBUTES_LIST;
 
           if (_this.datasource.isAdAnalytics === true) {
             _this.fields = AD_ATTRIBUTE_LIST;
+            _this.groupByFields = GROUP_BY_AD_ATTRIBUTE_LIST;
             _this.orderByFields = ORDERBY_AD_ATTRIBUTES_LIST;
           }
 
@@ -189,7 +194,7 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
         }, {
           key: "getGroupByOptions",
           value: function getGroupByOptions() {
-            var options = getAsOptionsList(this.fields);
+            var options = getAsOptionsList(this.groupByFields);
             return Promise.resolve(options);
           }
         }, {
