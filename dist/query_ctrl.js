@@ -80,6 +80,7 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
 
           if (_this.datasource.isAdAnalytics === true) {
             _this.fields = AD_ATTRIBUTE_LIST;
+            _this.groupByFields = GROUP_BY_AD_ATTRIBUTE;
             _this.orderByFields = ORDERBY_AD_ATTRIBUTES_LIST;
           }
 

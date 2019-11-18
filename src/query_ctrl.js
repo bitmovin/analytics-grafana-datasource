@@ -29,6 +29,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.orderByFields = ORDERBY_ATTRIBUTES_LIST;
     if (this.datasource.isAdAnalytics === true) {
       this.fields = AD_ATTRIBUTE_LIST;
+      this.groupByFields = GROUP_BY_AD_ATTRIBUTE;
       this.orderByFields = ORDERBY_AD_ATTRIBUTES_LIST;
     }
     this.licenses = [];
