@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
-- Added groupby attributes list
-- Added interval `SECOND`
+### Added
+
+- groupby attributes list
+- interval `SECOND`
 
 ## 0.0.2
 
