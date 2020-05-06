@@ -86,6 +86,7 @@ export const ATTRIBUTE = {
   DRM_LOAD_TIME: 'DRM_LOAD_TIME',
   ISP: 'ISP',
   ASN: 'ASN',
+  STREAM_EXITS: 'STREAM_EXITS'
 };
 
 export const AD_ATTRIBUTE = {
