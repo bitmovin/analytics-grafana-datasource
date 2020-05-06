@@ -99,7 +99,8 @@ System.register([], function (_export, _context) {
         DRM_TYPE: 'DRM_TYPE',
         DRM_LOAD_TIME: 'DRM_LOAD_TIME',
         ISP: 'ISP',
-        ASN: 'ASN'
+        ASN: 'ASN',
+        STREAM_EXITS: 'STREAM_EXITS'
       });
 
       _export("AD_ATTRIBUTE", AD_ATTRIBUTE = {
