@@ -1,4 +1,5 @@
 export const QUERY_INTERVAL = {
+  SECOND: 'SECOND',
   MINUTE: 'MINUTE',
   HOUR: 'HOUR',
   DAY: 'DAY',
@@ -8,7 +9,9 @@ export const QUERY_INTERVAL = {
 export const QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(key => QUERY_INTERVAL[key]);
 
 export const calculateAutoInterval = (intervalMs) => {
-  if (intervalMs < 60000) {
+  if (intervalMs <= 1000) {
+    return QUERY_INTERVAL.SECOND;
+  } else if (intervalMs < 60000) {
     return QUERY_INTERVAL.MINUTE;
   } else if (intervalMs >= 60000 && intervalMs < 604800) {
     return QUERY_INTERVAL.HOUR;

@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.calculateAutoInterval = exports.QUERY_INTERVAL_LIST = exports.QUERY_INTERVAL = void 0;
 var QUERY_INTERVAL = {
+  SECOND: 'SECOND',
   MINUTE: 'MINUTE',
   HOUR: 'HOUR',
   DAY: 'DAY',
@@ -18,7 +19,9 @@ var QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(function (key) {
 exports.QUERY_INTERVAL_LIST = QUERY_INTERVAL_LIST;
 
 var calculateAutoInterval = function calculateAutoInterval(intervalMs) {
-  if (intervalMs < 60000) {
+  if (intervalMs <= 1000) {
+    return QUERY_INTERVAL.SECOND;
+  } else if (intervalMs < 60000) {
     return QUERY_INTERVAL.MINUTE;
   } else if (intervalMs >= 60000 && intervalMs < 604800) {
     return QUERY_INTERVAL.HOUR;

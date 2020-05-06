@@ -8,6 +8,7 @@ System.register([], function (_export, _context) {
     setters: [],
     execute: function () {
       _export("QUERY_INTERVAL", QUERY_INTERVAL = {
+        SECOND: 'SECOND',
         MINUTE: 'MINUTE',
         HOUR: 'HOUR',
         DAY: 'DAY',
@@ -20,7 +21,9 @@ System.register([], function (_export, _context) {
       }));
 
       _export("calculateAutoInterval", calculateAutoInterval = function calculateAutoInterval(intervalMs) {
-        if (intervalMs < 60000) {
+        if (intervalMs <= 1000) {
+          return QUERY_INTERVAL.SECOND;
+        } else if (intervalMs < 60000) {
           return QUERY_INTERVAL.MINUTE;
         } else if (intervalMs >= 60000 && intervalMs < 604800) {
           return QUERY_INTERVAL.HOUR;
