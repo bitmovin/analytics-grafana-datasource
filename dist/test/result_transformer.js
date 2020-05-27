@@ -46,8 +46,7 @@ var transformDataToTimeSeries = function transformDataToTimeSeries(analyticsResu
 
     for (var _i = 0, _Object$keys = Object.keys(groupings); _i < _Object$keys.length; _i++) {
       var key = _Object$keys[_i];
-      var datapoints = groupings[key]; //padTimeSeriesAndSortByDate(groupings[key], fromDate, toDate, interval);
-
+      var datapoints = groupings[key];
       var series = {
         target: key,
         datapoints: _.orderBy(datapoints, [1], 'asc')

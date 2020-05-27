@@ -33,7 +33,7 @@ const transformDataToTimeSeries = (analyticsResult, options) => {
       groupings[metricLabel].push([value, timestamp]);
     });
     for (let key of Object.keys(groupings)) {
-      const datapoints = groupings[key]; //padTimeSeriesAndSortByDate(groupings[key], fromDate, toDate, interval);
+      const datapoints = groupings[key];
       const series = {
         target: key,
         datapoints: _.orderBy(datapoints, [1], 'asc')
