@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - groupby attributes list
 - interval `SECOND`
+- zero-padding to time series
 
 ## 0.0.2
 

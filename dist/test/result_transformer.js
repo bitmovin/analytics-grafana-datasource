@@ -7,9 +7,13 @@ exports.transform = void 0;
 
 var _resultFormat = require("./types/resultFormat");
 
-var transformDataToTable = function transformDataToTable(analyticsResult, options) {
-  var datapoints = _.map(analyticsResult.rows, function (row) {
-    return [row[1], row[0]]; // value, timestamp
+var _utils = require("./utils");
+
+var transformDataToTable = function transformDataToTable(rows, options) {
+  var datapoints = _.map(rows, function (row) {
+    var timestmap = row[0];
+    var value = row[1];
+    return [value, timestmap];
   });
 
   return {
@@ -21,6 +25,9 @@ var transformDataToTable = function transformDataToTable(analyticsResult, option
 var transformDataToTimeSeries = function transformDataToTimeSeries(analyticsResult, options) {
   var groupBys = options.data.groupBy;
   var results = [];
+  var interval = options.data.interval;
+  var fromDate = new Date(options.data.start).getTime();
+  var toDate = new Date(options.data.end).getTime();
 
   if (groupBys.length > 0) {
     var groupings = {};
@@ -32,19 +39,23 @@ var transformDataToTimeSeries = function transformDataToTimeSeries(analyticsResu
         groupings[metricLabel] = [];
       }
 
-      groupings[metricLabel].push([row[2], row[0]]); // value, timestamp
+      var value = row[2];
+      var timestamp = row[0];
+      groupings[metricLabel].push([value, timestamp]);
     });
 
-    Object.keys(groupings).map(function (key) {
+    for (var _i = 0, _Object$keys = Object.keys(groupings); _i < _Object$keys.length; _i++) {
+      var key = _Object$keys[_i];
       var datapoints = groupings[key];
       var series = {
         target: key,
         datapoints: _.orderBy(datapoints, [1], 'asc')
       };
       results.push(series);
-    });
+    }
   } else {
-    var result = transformDataToTable(analyticsResult, options);
+    var paddedSeries = (0, _utils.padTimeSeriesAndSortByDate)(analyticsResult.rows, fromDate, toDate, interval);
+    var result = transformDataToTable(paddedSeries, options);
     result.datapoints = _.orderBy(result.datapoints, [1], 'asc');
     results.push(result);
   }
@@ -57,7 +68,7 @@ var transform = function transform(response, options) {
   var config = response.config;
 
   if (config.resultFormat === _resultFormat.ResultFormat.TABLE) {
-    return [transformDataToTable(analyticsResult, config)];
+    return [transformDataToTable(analyticsResult.rows, config)];
   } else if (config.resultFormat === _resultFormat.ResultFormat.TIME_SERIES) {
     return transformDataToTimeSeries(analyticsResult, config);
   }
