@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- metrics `MAX_CONCURRENTVIEWERS` and `AVG_CONCURRENTVIEWERS`
 - groupby attributes list
 - interval `SECOND`
 
