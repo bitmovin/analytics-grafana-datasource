@@ -1,13 +1,16 @@
 import _ from 'lodash';
-import { convertFilterValueToProperType, ATTRIBUTE } from './types/queryAttributes';
+import { convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
 import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
-const getApiRequestUrl = (baseUrl, isAdAnalytics) => {
+const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric) => {
   if (isAdAnalytics === true) {
     return baseUrl + '/analytics/ads/queries';
+  }
+  if (isMetric == true) {
+    return baseUrl + '/analytics/metrics';
   }
   return baseUrl + '/analytics/queries';
 };
@@ -54,8 +57,6 @@ export class BitmovinAnalyticsDatasource {
     }
 
     const targetResponsePromises = _.map(query.targets, target => {
-      target.metric = target.metric || AGGREGATION.COUNT;
-      target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
       target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
       target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
@@ -69,15 +70,27 @@ export class BitmovinAnalyticsDatasource {
       const orderBy = _.map(target.orderBy, e => ({ name: e.name, order: e.order }));
       const data = {
         licenseKey: target.license,
-        dimension: target.dimension,
         start: options.range.from.toISOString(),
         end: options.range.to.toISOString(),
         filters,
         orderBy
       };
 
-      if (target.metric === 'percentile') {
-        data['percentile'] = target.percentileValue;
+      let isMetric = METRICS_ATTRIBUTE_LIST.includes(target.dimension);
+      let urlAppendix = '';
+      
+      if (isMetric) {
+        urlAppendix = target.dimension;
+        data['metric'] = target.dimension
+      } else {
+        target.metric = target.metric || AGGREGATION.COUNT;
+        target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
+        urlAppendix = target.metric
+        data['dimension'] = target.dimension;
+    
+          if (target.metric === 'percentile') {
+            data['percentile'] = target.percentileValue;
+          }
       }
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
@@ -85,10 +98,10 @@ export class BitmovinAnalyticsDatasource {
       }
       data['groupBy'] = target.groupBy;
       data['limit'] = Number(target.limit) || undefined;
-      var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics);
+      var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics, isMetric);
 
       return this.doRequest({
-        url: apiRequestUrl + '/' + target.metric,
+        url: apiRequestUrl + '/' + urlAppendix,
         data: data,
         method: 'POST',
         resultTarget: target.alias || target.refId,
