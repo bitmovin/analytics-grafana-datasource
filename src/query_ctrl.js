@@ -2,7 +2,7 @@ import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
 import _ from 'lodash';
-import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST } from './types/queryAttributes';
+import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
 import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
@@ -270,6 +270,10 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   orderByOrderSegmentUpdate(segment, $index) {
     this.target.orderBy[$index].order = segment.order.value;
     this.panelCtrl.refresh();
+  }
+
+  isDimensionAMetric(dimension) {
+    return METRICS_ATTRIBUTE_LIST.includes(dimension)
   }
 }
 
