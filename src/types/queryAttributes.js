@@ -86,6 +86,8 @@ export const ATTRIBUTE = {
   DRM_LOAD_TIME: 'DRM_LOAD_TIME',
   ISP: 'ISP',
   ASN: 'ASN',
+  MAX_CONCURRENTVIEWERS: 'MAX_CONCURRENTVIEWERS',
+  AVG_CONCURRENTVIEWERS: 'AVG_CONCURRENTVIEWERS',
 };
 
 export const AD_ATTRIBUTE = {
@@ -217,6 +219,7 @@ export const ATTRIBUTE_LIST = getAttributeValues(ATTRIBUTE);
 export const AD_ATTRIBUTE_LIST = getAttributeValues(AD_ATTRIBUTE);
 export const ORDERBY_ATTRIBUTES_LIST = getAttributeValues({ ...ATTRIBUTE, FUNCTION: 'FUNCTION' });
 export const ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues({ ...AD_ATTRIBUTE, FUNCTION: 'FUNCTION' });
+export const METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS];
 
 export const getAsOptionsList = (list) => {
   return _.map(list, (e) => ({ value: e, text: e }));
