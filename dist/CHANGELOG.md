@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+## 0.0.3
+
 ### Added
 
 - metrics `MAX_CONCURRENTVIEWERS` and `AVG_CONCURRENTVIEWERS`
