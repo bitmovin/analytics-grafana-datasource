@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.convertFilterValueToProperType = exports.isNullFilter = exports.getAsOptionsList = exports.ORDERBY_AD_ATTRIBUTES_LIST = exports.ORDERBY_ATTRIBUTES_LIST = exports.AD_ATTRIBUTE_LIST = exports.ATTRIBUTE_LIST = exports.getAttributeValues = exports.ORDERBY_ATTRIBUTES = exports.AD_ATTRIBUTE = exports.ATTRIBUTE = void 0;
+exports.convertFilterValueToProperType = exports.isNullFilter = exports.getAsOptionsList = exports.METRICS_ATTRIBUTE_LIST = exports.ORDERBY_AD_ATTRIBUTES_LIST = exports.ORDERBY_ATTRIBUTES_LIST = exports.AD_ATTRIBUTE_LIST = exports.ATTRIBUTE_LIST = exports.getAttributeValues = exports.ORDERBY_ATTRIBUTES = exports.AD_ATTRIBUTE = exports.ATTRIBUTE = void 0;
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -96,7 +96,9 @@ var ATTRIBUTE = {
   DRM_TYPE: 'DRM_TYPE',
   DRM_LOAD_TIME: 'DRM_LOAD_TIME',
   ISP: 'ISP',
-  ASN: 'ASN'
+  ASN: 'ASN',
+  MAX_CONCURRENTVIEWERS: 'MAX_CONCURRENTVIEWERS',
+  AVG_CONCURRENTVIEWERS: 'AVG_CONCURRENTVIEWERS'
 };
 exports.ATTRIBUTE = ATTRIBUTE;
 var AD_ATTRIBUTE = {
@@ -244,6 +246,8 @@ var ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, AD_ATTRIBU
   FUNCTION: 'FUNCTION'
 }));
 exports.ORDERBY_AD_ATTRIBUTES_LIST = ORDERBY_AD_ATTRIBUTES_LIST;
+var METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS];
+exports.METRICS_ATTRIBUTE_LIST = METRICS_ATTRIBUTE_LIST;
 
 var getAsOptionsList = function getAsOptionsList(list) {
   return _.map(list, function (e) {

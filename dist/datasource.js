@@ -3,7 +3,7 @@
 System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat"], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, getApiRequestUrl, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, getApiRequestUrl, BitmovinAnalyticsDatasource;
 
   function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -25,6 +25,7 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
     }, function (_typesQueryAttributes) {
       convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
       ATTRIBUTE = _typesQueryAttributes.ATTRIBUTE;
+      METRICS_ATTRIBUTE_LIST = _typesQueryAttributes.METRICS_ATTRIBUTE_LIST;
     }, function (_typesAggregations) {
       AGGREGATION = _typesAggregations.AGGREGATION;
     }, function (_typesIntervals) {
@@ -36,9 +37,13 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
       ResultFormat = _typesResultFormat.ResultFormat;
     }],
     execute: function () {
-      getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics) {
+      getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics, isMetric) {
         if (isAdAnalytics === true) {
           return baseUrl + '/analytics/ads/queries';
+        }
+
+        if (isMetric == true) {
+          return baseUrl + '/analytics/metrics';
         }
 
         return baseUrl + '/analytics/queries';
@@ -96,8 +101,6 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
             }
 
             var targetResponsePromises = _.map(query.targets, function (target) {
-              target.metric = target.metric || AGGREGATION.COUNT;
-              target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
               target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
               target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
@@ -118,15 +121,26 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
 
               var data = {
                 licenseKey: target.license,
-                dimension: target.dimension,
                 start: options.range.from.toISOString(),
                 end: options.range.to.toISOString(),
                 filters: filters,
                 orderBy: orderBy
               };
+              var isMetric = METRICS_ATTRIBUTE_LIST.includes(target.dimension);
+              var urlAppendix = '';
 
-              if (target.metric === 'percentile') {
-                data['percentile'] = target.percentileValue;
+              if (isMetric) {
+                urlAppendix = target.dimension;
+                data['metric'] = target.dimension;
+              } else {
+                target.metric = target.metric || AGGREGATION.COUNT;
+                target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
+                urlAppendix = target.metric;
+                data['dimension'] = target.dimension;
+
+                if (target.metric === 'percentile') {
+                  data['percentile'] = target.percentileValue;
+                }
               }
 
               if (target.resultFormat === ResultFormat.TIME_SERIES) {
@@ -135,9 +149,9 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
 
               data['groupBy'] = target.groupBy;
               data['limit'] = Number(target.limit) || undefined;
-              var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics);
+              var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics, isMetric);
               return _this.doRequest({
-                url: apiRequestUrl + '/' + target.metric,
+                url: apiRequestUrl + '/' + urlAppendix,
                 data: data,
                 method: 'POST',
                 resultTarget: target.alias || target.refId,

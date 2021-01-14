@@ -3,7 +3,7 @@
 System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./types/queryAttributes", "./types/operators", "./types/intervals", "./types/aggregations", "./types/resultFormat", "./types/queryGrouByAttributes"], function (_export, _context) {
   "use strict";
 
-  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, GROUP_BY_ATTRIBUTE_LIST, GROUP_BY_AD_ATTRIBUTE_LIST, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
+  var QueryCtrl, _, ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST, OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY, QUERY_INTERVAL, QUERY_INTERVAL_LIST, AGGREGATION_LIST, ResultFormat, GROUP_BY_ATTRIBUTE_LIST, GROUP_BY_AD_ATTRIBUTE_LIST, REMOVE_ITEM_TEXT, DEFAULT_LICENSE, DEFAULT_OPERATOR, GROUPBY_DEFAULT_ORDER, BitmovinAnalyticsDatasourceQueryCtrl;
 
   function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -35,6 +35,7 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
       ORDERBY_ATTRIBUTES_LIST = _typesQueryAttributes.ORDERBY_ATTRIBUTES_LIST;
       AD_ATTRIBUTE_LIST = _typesQueryAttributes.AD_ATTRIBUTE_LIST;
       ORDERBY_AD_ATTRIBUTES_LIST = _typesQueryAttributes.ORDERBY_AD_ATTRIBUTES_LIST;
+      METRICS_ATTRIBUTE_LIST = _typesQueryAttributes.METRICS_ATTRIBUTE_LIST;
     }, function (_typesOperators) {
       OPERATOR_LIST = _typesOperators.OPERATOR_LIST;
       OPERATOR = _typesOperators.OPERATOR;
@@ -408,6 +409,11 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
           value: function orderByOrderSegmentUpdate(segment, $index) {
             this.target.orderBy[$index].order = segment.order.value;
             this.panelCtrl.refresh();
+          }
+        }, {
+          key: "isDimensionAMetric",
+          value: function isDimensionAMetric(dimension) {
+            return METRICS_ATTRIBUTE_LIST.includes(dimension);
           }
         }]);
 
