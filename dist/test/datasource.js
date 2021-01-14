@@ -33,9 +33,13 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics) {
+var getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics, isMetric) {
   if (isAdAnalytics === true) {
     return baseUrl + '/analytics/ads/queries';
+  }
+
+  if (isMetric == true) {
+    return baseUrl + '/analytics/metrics';
   }
 
   return baseUrl + '/analytics/queries';
@@ -93,8 +97,6 @@ function () {
       }
 
       var targetResponsePromises = _lodash["default"].map(query.targets, function (target) {
-        target.metric = target.metric || _aggregations.AGGREGATION.COUNT;
-        target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.LICENSE_KEY;
         target.resultFormat = target.resultFormat || _resultFormat.ResultFormat.TIME_SERIES;
         target.interval = target.interval || _intervals.QUERY_INTERVAL.HOUR;
 
@@ -115,15 +117,28 @@ function () {
 
         var data = {
           licenseKey: target.license,
-          dimension: target.dimension,
           start: options.range.from.toISOString(),
           end: options.range.to.toISOString(),
           filters: filters,
           orderBy: orderBy
         };
 
-        if (target.metric === 'percentile') {
-          data['percentile'] = target.percentileValue;
+        var isMetric = _queryAttributes.METRICS_ATTRIBUTE_LIST.includes(target.dimension);
+
+        var urlAppendix = '';
+
+        if (isMetric) {
+          urlAppendix = target.dimension;
+          data['metric'] = target.dimension;
+        } else {
+          target.metric = target.metric || _aggregations.AGGREGATION.COUNT;
+          target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.LICENSE_KEY;
+          urlAppendix = target.metric;
+          data['dimension'] = target.dimension;
+
+          if (target.metric === 'percentile') {
+            data['percentile'] = target.percentileValue;
+          }
         }
 
         if (target.resultFormat === _resultFormat.ResultFormat.TIME_SERIES) {
@@ -132,9 +147,9 @@ function () {
 
         data['groupBy'] = target.groupBy;
         data['limit'] = Number(target.limit) || undefined;
-        var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics);
+        var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics, isMetric);
         return _this.doRequest({
-          url: apiRequestUrl + '/' + target.metric,
+          url: apiRequestUrl + '/' + urlAppendix,
           data: data,
           method: 'POST',
           resultTarget: target.alias || target.refId,

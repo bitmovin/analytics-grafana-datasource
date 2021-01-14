@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <div class="gf-form-inline">
+    <div class="gf-form-inline" ng-if="!ctrl.isDimensionAMetric(ctrl.target.dimension)">
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Metric</label>
         <div class="gf-form-select-wrapper">

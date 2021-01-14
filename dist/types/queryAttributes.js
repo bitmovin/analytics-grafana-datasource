@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var ATTRIBUTE, AD_ATTRIBUTE, ORDERBY_ATTRIBUTES, getAttributeValues, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, ORDERBY_AD_ATTRIBUTES_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
+  var ATTRIBUTE, AD_ATTRIBUTE, ORDERBY_ATTRIBUTES, getAttributeValues, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
 
   function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -99,7 +99,9 @@ System.register([], function (_export, _context) {
         DRM_TYPE: 'DRM_TYPE',
         DRM_LOAD_TIME: 'DRM_LOAD_TIME',
         ISP: 'ISP',
-        ASN: 'ASN'
+        ASN: 'ASN',
+        MAX_CONCURRENTVIEWERS: 'MAX_CONCURRENTVIEWERS',
+        AVG_CONCURRENTVIEWERS: 'AVG_CONCURRENTVIEWERS'
       });
 
       _export("AD_ATTRIBUTE", AD_ATTRIBUTE = {
@@ -242,6 +244,8 @@ System.register([], function (_export, _context) {
       _export("ORDERBY_AD_ATTRIBUTES_LIST", ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, AD_ATTRIBUTE, {
         FUNCTION: 'FUNCTION'
       })));
+
+      _export("METRICS_ATTRIBUTE_LIST", METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS]);
 
       _export("getAsOptionsList", getAsOptionsList = function getAsOptionsList(list) {
         return _.map(list, function (e) {
