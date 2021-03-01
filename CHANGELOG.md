@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+- added Grafana Ad hoc filters
+
 ## 0.0.3
 
 ### Added
