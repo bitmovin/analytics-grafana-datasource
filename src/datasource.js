@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
+import { calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
@@ -94,7 +94,11 @@ export class BitmovinAnalyticsDatasource {
       }
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
-        data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+        if (target.intervalAutoLimit === true) {
+          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoIntervalFromRange(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
+        }else{
+          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+        }
       }
       data['groupBy'] = target.groupBy;
       data['limit'] = Number(target.limit) || undefined;
