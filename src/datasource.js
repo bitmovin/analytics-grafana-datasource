@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
+import { convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
 import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
@@ -97,6 +97,11 @@ export class BitmovinAnalyticsDatasource {
         data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
       }
       data['groupBy'] = target.groupBy;
+      data['orderBy'].forEach (e => {
+        if (e.name == ORDERBY_ATTRIBUTES.INTERVAL) {
+          e.name = data['interval'];
+        }
+      });
       data['limit'] = Number(target.limit) || undefined;
       var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics, isMetric);
 

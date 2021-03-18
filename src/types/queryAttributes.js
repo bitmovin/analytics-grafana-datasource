@@ -211,14 +211,15 @@ export const AD_ATTRIBUTE = {
 
 export const ORDERBY_ATTRIBUTES = {
   ...ATTRIBUTE,
-  FUNCTION: 'FUNCTION'
+  FUNCTION: 'FUNCTION',
+  INTERVAL: 'INTERVAL'
 }
 
 export const getAttributeValues = (list) => Object.keys(list).map(key => list[key]);
 export const ATTRIBUTE_LIST = getAttributeValues(ATTRIBUTE);
 export const AD_ATTRIBUTE_LIST = getAttributeValues(AD_ATTRIBUTE);
-export const ORDERBY_ATTRIBUTES_LIST = getAttributeValues({ ...ATTRIBUTE, FUNCTION: 'FUNCTION' });
-export const ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues({ ...AD_ATTRIBUTE, FUNCTION: 'FUNCTION' });
+export const ORDERBY_ATTRIBUTES_LIST = getAttributeValues({ ...ATTRIBUTE, FUNCTION: 'FUNCTION', INTERVAL: 'INTERVAL' });
+export const ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues({ ...AD_ATTRIBUTE, FUNCTION: 'FUNCTION', INTERVAL: 'INTERVAL' });
 export const METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS];
 
 export const getAsOptionsList = (list) => {
