@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES } from './types/queryAttributes';
+import { convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
 import { calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
@@ -60,7 +60,26 @@ export class BitmovinAnalyticsDatasource {
       target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
       target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
-      const filters = _.map(target.filter, filter => {
+      const filters = _.map([...target.filter, ...query.adhocFilters], e => {
+        let filter = {
+          name: (e.name) ? e.name : e.key,
+          operator: e.operator,
+          value: this.templateSrv.replace(e.value, options.scopedVars)
+        }
+        switch (filter.operator) {
+          case '=':
+            filter.operator = 'EQ';
+            break;
+          case '!=':
+            filter.operator = 'NE';
+            break;
+          case '<':
+            filter.operator = 'LT';
+            break;
+          case '>':
+            filter.operator = 'GT';
+            break;
+        }
         return {
           name: filter.name,
           operator: filter.operator,
@@ -164,6 +183,12 @@ export class BitmovinAnalyticsDatasource {
 
   metricFindQuery(query) {
 
+  }
+
+  getTagKeys(options) {
+    if (this.isAdAnalytics)
+      return Promise.resolve(getAsOptionsList(AD_ATTRIBUTE_LIST));
+    return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
   }
 
   doRequest(options) {
