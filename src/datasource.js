@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
+import { calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
@@ -94,7 +94,31 @@ export class BitmovinAnalyticsDatasource {
       }
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
-        data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+        if (target.intervalAutoLimit === true) {
+          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoIntervalFromRange(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
+        }else{
+          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+        }
+        if (target.intervalSnapTo === true) {
+          switch (data['interval']) {
+            case QUERY_INTERVAL.MONTH:
+            data['start'] = options.range.from.startOf('month').toISOString();
+            data['end'] = options.range.to.startOf('month').toISOString();
+            break;
+            case QUERY_INTERVAL.DAY:
+            data['start'] = options.range.from.startOf('day').toISOString();
+            data['end'] = options.range.to.startOf('day').toISOString();
+            break;
+            case QUERY_INTERVAL.HOUR:
+            data['start'] = options.range.from.startOf('hour').toISOString();
+            data['end'] = options.range.to.startOf('hour').toISOString();
+            break;
+            case QUERY_INTERVAL.MINUTE:
+            data['start'] = options.range.from.startOf('minute').toISOString();
+            data['end'] = options.range.to.startOf('minute').toISOString();
+            break;
+          }
+        }
       }
       data['groupBy'] = target.groupBy;
       data['orderBy'].forEach (e => {
