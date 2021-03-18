@@ -3,7 +3,7 @@
 System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat"], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, METRICS_ATTRIBUTE_LIST, AGGREGATION, calculateAutoInterval, QUERY_INTERVAL, transform, ResultFormat, getApiRequestUrl, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList, AGGREGATION, calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL, transform, ResultFormat, getApiRequestUrl, BitmovinAnalyticsDatasource;
 
   function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -25,11 +25,16 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
     }, function (_typesQueryAttributes) {
       convertFilterValueToProperType = _typesQueryAttributes.convertFilterValueToProperType;
       ATTRIBUTE = _typesQueryAttributes.ATTRIBUTE;
+      ATTRIBUTE_LIST = _typesQueryAttributes.ATTRIBUTE_LIST;
+      AD_ATTRIBUTE_LIST = _typesQueryAttributes.AD_ATTRIBUTE_LIST;
       METRICS_ATTRIBUTE_LIST = _typesQueryAttributes.METRICS_ATTRIBUTE_LIST;
+      ORDERBY_ATTRIBUTES = _typesQueryAttributes.ORDERBY_ATTRIBUTES;
+      getAsOptionsList = _typesQueryAttributes.getAsOptionsList;
     }, function (_typesAggregations) {
       AGGREGATION = _typesAggregations.AGGREGATION;
     }, function (_typesIntervals) {
       calculateAutoInterval = _typesIntervals.calculateAutoInterval;
+      calculateAutoIntervalFromRange = _typesIntervals.calculateAutoIntervalFromRange;
       QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
     }, function (_result_transformer) {
       transform = _result_transformer.transform;
@@ -104,7 +109,31 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
               target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
               target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
-              var filters = _.map(target.filter, function (filter) {
+              var filters = _.map([].concat(_toConsumableArray(target.filter), _toConsumableArray(query.adhocFilters)), function (e) {
+                var filter = {
+                  name: e.name ? e.name : e.key,
+                  operator: e.operator,
+                  value: _this.templateSrv.replace(e.value, options.scopedVars)
+                };
+
+                switch (filter.operator) {
+                  case '=':
+                    filter.operator = 'EQ';
+                    break;
+
+                  case '!=':
+                    filter.operator = 'NE';
+                    break;
+
+                  case '<':
+                    filter.operator = 'LT';
+                    break;
+
+                  case '>':
+                    filter.operator = 'GT';
+                    break;
+                }
+
                 return {
                   name: filter.name,
                   operator: filter.operator,
@@ -144,10 +173,43 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
               }
 
               if (target.resultFormat === ResultFormat.TIME_SERIES) {
-                data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+                if (target.intervalAutoLimit === true) {
+                  data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoIntervalFromRange(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
+                } else {
+                  data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+                }
+
+                if (target.intervalSnapTo === true) {
+                  switch (data['interval']) {
+                    case QUERY_INTERVAL.MONTH:
+                      data['start'] = options.range.from.startOf('month').toISOString();
+                      data['end'] = options.range.to.startOf('month').toISOString();
+                      break;
+
+                    case QUERY_INTERVAL.DAY:
+                      data['start'] = options.range.from.startOf('day').toISOString();
+                      data['end'] = options.range.to.startOf('day').toISOString();
+                      break;
+
+                    case QUERY_INTERVAL.HOUR:
+                      data['start'] = options.range.from.startOf('hour').toISOString();
+                      data['end'] = options.range.to.startOf('hour').toISOString();
+                      break;
+
+                    case QUERY_INTERVAL.MINUTE:
+                      data['start'] = options.range.from.startOf('minute').toISOString();
+                      data['end'] = options.range.to.startOf('minute').toISOString();
+                      break;
+                  }
+                }
               }
 
               data['groupBy'] = target.groupBy;
+              data['orderBy'].forEach(function (e) {
+                if (e.name == ORDERBY_ATTRIBUTES.INTERVAL) {
+                  e.name = data['interval'];
+                }
+              });
               data['limit'] = Number(target.limit) || undefined;
               var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics, isMetric);
               return _this.doRequest({
@@ -191,6 +253,12 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
         }, {
           key: "metricFindQuery",
           value: function metricFindQuery(query) {}
+        }, {
+          key: "getTagKeys",
+          value: function getTagKeys(options) {
+            if (this.isAdAnalytics) return Promise.resolve(getAsOptionsList(AD_ATTRIBUTE_LIST));
+            return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
+          }
         }, {
           key: "doRequest",
           value: function doRequest(options) {

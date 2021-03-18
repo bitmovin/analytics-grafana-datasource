@@ -37,8 +37,10 @@ System.register([], function (_export, _context) {
         CUSTOM_USER_ID: 'CUSTOM_USER_ID',
         DAY: 'DAY',
         DAYPART: 'DAYPART',
+        DEVICE_CLASS: 'DEVICE_CLASS',
         DEVICE_TYPE: 'DEVICE_TYPE',
         DOMAIN: 'DOMAIN',
+        DOWNLOAD_SPEED: 'DOWNLOAD_SPEED',
         DROPPED_FRAMES: 'DROPPED_FRAMES',
         DURATION: 'DURATION',
         ERROR_CODE: 'ERROR_CODE',
@@ -77,6 +79,7 @@ System.register([], function (_export, _context) {
         SCREEN_HEIGHT: 'SCREEN_HEIGHT',
         SCREEN_WIDTH: 'SCREEN_WIDTH',
         SEEKED: 'SEEKED',
+        SEQUENCE_NUMBER: 'SEQUENCE_NUMBER',
         SIZE: 'SIZE',
         STARTUPTIME: 'STARTUPTIME',
         STATE: 'STATE',
@@ -224,7 +227,8 @@ System.register([], function (_export, _context) {
       });
 
       _export("ORDERBY_ATTRIBUTES", ORDERBY_ATTRIBUTES = _objectSpread({}, ATTRIBUTE, {
-        FUNCTION: 'FUNCTION'
+        FUNCTION: 'FUNCTION',
+        INTERVAL: 'INTERVAL'
       }));
 
       _export("getAttributeValues", getAttributeValues = function getAttributeValues(list) {
@@ -238,11 +242,13 @@ System.register([], function (_export, _context) {
       _export("AD_ATTRIBUTE_LIST", AD_ATTRIBUTE_LIST = getAttributeValues(AD_ATTRIBUTE));
 
       _export("ORDERBY_ATTRIBUTES_LIST", ORDERBY_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, ATTRIBUTE, {
-        FUNCTION: 'FUNCTION'
+        FUNCTION: 'FUNCTION',
+        INTERVAL: 'INTERVAL'
       })));
 
       _export("ORDERBY_AD_ATTRIBUTES_LIST", ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, AD_ATTRIBUTE, {
-        FUNCTION: 'FUNCTION'
+        FUNCTION: 'FUNCTION',
+        INTERVAL: 'INTERVAL'
       })));
 
       _export("METRICS_ATTRIBUTE_LIST", METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS]);
@@ -310,6 +316,7 @@ System.register([], function (_export, _context) {
           case ATTRIBUTE.AUDIO_BITRATE:
           case ATTRIBUTE.BUFFERED:
           case ATTRIBUTE.CLIENT_TIME:
+          case ATTRIBUTE.DOWNLOAD_SPEED:
           case ATTRIBUTE.DRM_LOAD_TIME:
           case ATTRIBUTE.DROPPED_FRAMES:
           case ATTRIBUTE.DURATION:
@@ -322,10 +329,15 @@ System.register([], function (_export, _context) {
           case ATTRIBUTE.SCREEN_HEIGHT:
           case ATTRIBUTE.SCREEN_WIDTH:
           case ATTRIBUTE.SEEKED:
+          case ATTRIBUTE.SEQUENCE_NUMBER:
           case ATTRIBUTE.STARTUPTIME:
           case ATTRIBUTE.VIDEO_BITRATE:
           case ATTRIBUTE.VIDEO_DURATION:
+          case ATTRIBUTE.VIDEO_PLAYBACK_HEIGHT:
+          case ATTRIBUTE.VIDEO_PLAYBACK_WIDTH:
           case ATTRIBUTE.VIDEO_STARTUPTIME:
+          case ATTRIBUTE.VIDEO_WINDOW_HEIGHT:
+          case ATTRIBUTE.VIDEO_WINDOW_WIDTH:
           case ATTRIBUTE.VIDEOTIME:
           case ATTRIBUTE.VIDEOTIME_END:
           case ATTRIBUTE.VIDEOTIME_START:

@@ -10,7 +10,7 @@ var OPERATOR = {
   LT: 'LT',
   LTE: 'LTE',
   EQ: 'EQ',
-  NQ: 'NQ',
+  NE: 'NE',
   CONTAINS: 'CONTAINS',
   NOTCONTAINS: 'NOTCONTAINS',
   IN: 'IN'
