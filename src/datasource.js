@@ -4,6 +4,7 @@ import { AGGREGATION } from './types/aggregations';
 import { calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
+import { OPERATOR } from './types/operators';
 
 const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric) => {
   if (isAdAnalytics === true) {
@@ -13,6 +14,25 @@ const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric) => {
     return baseUrl + '/analytics/metrics';
   }
   return baseUrl + '/analytics/queries';
+};
+
+const mapMathOperatorToAnalyticsFilterOperator = (operator) => {
+  switch (operator) {
+    case '=':
+      return OPERATOR.EQ;
+    case '!=':
+      return OPERATOR.NE;
+    case '<':
+      return OPERATOR.LT;
+    case '<=':
+      return OPERATOR.LTE;
+    case '>':
+      return OPERATOR.GT;
+    case '>=':
+      return OPERATOR.GTE;
+    default:
+      return operator;
+  }
 };
 
 export class BitmovinAnalyticsDatasource {
@@ -63,22 +83,8 @@ export class BitmovinAnalyticsDatasource {
       const filters = _.map([...target.filter, ...query.adhocFilters], e => {
         let filter = {
           name: (e.name) ? e.name : e.key,
-          operator: e.operator,
+          operator: mapMathOperatorToAnalyticsFilterOperator(e.operator),
           value: this.templateSrv.replace(e.value, options.scopedVars)
-        }
-        switch (filter.operator) {
-          case '=':
-            filter.operator = 'EQ';
-            break;
-          case '!=':
-            filter.operator = 'NE';
-            break;
-          case '<':
-            filter.operator = 'LT';
-            break;
-          case '>':
-            filter.operator = 'GT';
-            break;
         }
         return {
           name: filter.name,
