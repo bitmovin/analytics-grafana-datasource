@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import { calculateAutoInterval, calculateAutoIntervalFromRange, getMomentTimeUnitForQueryInterval, QUERY_INTERVAL } from './types/intervals';
+import { calculateAutoInterval, getMomentTimeUnitForQueryInterval, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 import { OPERATOR } from './types/operators';
@@ -119,11 +119,12 @@ export class BitmovinAnalyticsDatasource {
       }
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
-        if (target.intervalAutoLimit === true) {
-          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoIntervalFromRange(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
-        } else {
-          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+        data['interval'] = target.interval;
+        if (target.interval === QUERY_INTERVAL.AUTO) {
+          const intervalMs = options.range.to.valueOf() - options.range.from.valueOf();
+          data['interval'] = calculateAutoInterval(intervalMs);
         }
+
         if (target.intervalSnapTo === true) {
           const intervalTimeUnit = getMomentTimeUnitForQueryInterval(data['interval']);
           if (intervalTimeUnit != null) {
