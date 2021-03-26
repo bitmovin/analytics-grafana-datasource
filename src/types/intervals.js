@@ -8,6 +8,23 @@ export const QUERY_INTERVAL = {
 };
 export const QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(key => QUERY_INTERVAL[key]);
 
+export const getMomentTimeUnitForQueryInterval = (interval) => {
+  switch(interval) {
+    case QUERY_INTERVAL.SECOND:
+      return 'second';
+    case QUERY_INTERVAL.MINUTE:
+      return 'minute';
+    case QUERY_INTERVAL.HOUR:
+      return 'hour';
+    case QUERY_INTERVAL.DAY:
+      return 'day';
+    case QUERY_INTERVAL.MONTH:
+      return 'month';
+    default:
+      return null;
+  }
+};
+
 export const calculateAutoInterval = (intervalMs) => {
   if (intervalMs <= 1000) {
     return QUERY_INTERVAL.SECOND;

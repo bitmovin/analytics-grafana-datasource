@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import { calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL } from './types/intervals';
+import { calculateAutoInterval, calculateAutoIntervalFromRange, getMomentTimeUnitForQueryInterval, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 import { OPERATOR } from './types/operators';
@@ -125,23 +125,10 @@ export class BitmovinAnalyticsDatasource {
           data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
         }
         if (target.intervalSnapTo === true) {
-          switch (data['interval']) {
-            case QUERY_INTERVAL.MONTH:
-            data['start'] = options.range.from.startOf('month').toISOString();
-            data['end'] = options.range.to.startOf('month').toISOString();
-            break;
-            case QUERY_INTERVAL.DAY:
-            data['start'] = options.range.from.startOf('day').toISOString();
-            data['end'] = options.range.to.startOf('day').toISOString();
-            break;
-            case QUERY_INTERVAL.HOUR:
-            data['start'] = options.range.from.startOf('hour').toISOString();
-            data['end'] = options.range.to.startOf('hour').toISOString();
-            break;
-            case QUERY_INTERVAL.MINUTE:
-            data['start'] = options.range.from.startOf('minute').toISOString();
-            data['end'] = options.range.to.startOf('minute').toISOString();
-            break;
+          const intervalTimeUnit = getMomentTimeUnitForQueryInterval(data['interval']);
+          if (intervalTimeUnit != null) {
+            data['start'] = options.range.from.startOf(intervalTimeUnit).toISOString();
+            data['end'] = options.range.to.startOf(intervalTimeUnit).toISOString();
           }
         }
       }
