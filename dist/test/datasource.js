@@ -100,7 +100,31 @@ function () {
         target.resultFormat = target.resultFormat || _resultFormat.ResultFormat.TIME_SERIES;
         target.interval = target.interval || _intervals.QUERY_INTERVAL.HOUR;
 
-        var filters = _lodash["default"].map(target.filter, function (filter) {
+        var filters = _lodash["default"].map([].concat(_toConsumableArray(target.filter), _toConsumableArray(query.adhocFilters)), function (e) {
+          var filter = {
+            name: e.name ? e.name : e.key,
+            operator: e.operator,
+            value: _this.templateSrv.replace(e.value, options.scopedVars)
+          };
+
+          switch (filter.operator) {
+            case '=':
+              filter.operator = 'EQ';
+              break;
+
+            case '!=':
+              filter.operator = 'NE';
+              break;
+
+            case '<':
+              filter.operator = 'LT';
+              break;
+
+            case '>':
+              filter.operator = 'GT';
+              break;
+          }
+
           return {
             name: filter.name,
             operator: filter.operator,
@@ -142,10 +166,43 @@ function () {
         }
 
         if (target.resultFormat === _resultFormat.ResultFormat.TIME_SERIES) {
-          data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoInterval)(options.intervalMs) : target.interval;
+          if (target.intervalAutoLimit === true) {
+            data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoIntervalFromRange)(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
+          } else {
+            data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoInterval)(options.intervalMs) : target.interval;
+          }
+
+          if (target.intervalSnapTo === true) {
+            switch (data['interval']) {
+              case _intervals.QUERY_INTERVAL.MONTH:
+                data['start'] = options.range.from.startOf('month').toISOString();
+                data['end'] = options.range.to.startOf('month').toISOString();
+                break;
+
+              case _intervals.QUERY_INTERVAL.DAY:
+                data['start'] = options.range.from.startOf('day').toISOString();
+                data['end'] = options.range.to.startOf('day').toISOString();
+                break;
+
+              case _intervals.QUERY_INTERVAL.HOUR:
+                data['start'] = options.range.from.startOf('hour').toISOString();
+                data['end'] = options.range.to.startOf('hour').toISOString();
+                break;
+
+              case _intervals.QUERY_INTERVAL.MINUTE:
+                data['start'] = options.range.from.startOf('minute').toISOString();
+                data['end'] = options.range.to.startOf('minute').toISOString();
+                break;
+            }
+          }
         }
 
         data['groupBy'] = target.groupBy;
+        data['orderBy'].forEach(function (e) {
+          if (e.name == _queryAttributes.ORDERBY_ATTRIBUTES.INTERVAL) {
+            e.name = data['interval'];
+          }
+        });
         data['limit'] = Number(target.limit) || undefined;
         var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics, isMetric);
         return _this.doRequest({
@@ -189,6 +246,12 @@ function () {
   }, {
     key: "metricFindQuery",
     value: function metricFindQuery(query) {}
+  }, {
+    key: "getTagKeys",
+    value: function getTagKeys(options) {
+      if (this.isAdAnalytics) return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.AD_ATTRIBUTE_LIST));
+      return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.ATTRIBUTE_LIST));
+    }
   }, {
     key: "doRequest",
     value: function doRequest(options) {
