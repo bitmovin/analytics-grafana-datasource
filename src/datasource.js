@@ -103,7 +103,7 @@ export class BitmovinAnalyticsDatasource {
 
       let isMetric = METRICS_ATTRIBUTE_LIST.includes(target.dimension);
       let urlAppendix = '';
-      
+
       if (isMetric) {
         urlAppendix = target.dimension;
         data['metric'] = target.dimension
@@ -112,16 +112,16 @@ export class BitmovinAnalyticsDatasource {
         target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
         urlAppendix = target.metric
         data['dimension'] = target.dimension;
-    
-          if (target.metric === 'percentile') {
-            data['percentile'] = target.percentileValue;
-          }
+
+        if (target.metric === 'percentile') {
+          data['percentile'] = target.percentileValue;
+        }
       }
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
         if (target.intervalAutoLimit === true) {
           data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoIntervalFromRange(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
-        }else{
+        } else {
           data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
         }
         if (target.intervalSnapTo === true) {
@@ -133,7 +133,7 @@ export class BitmovinAnalyticsDatasource {
         }
       }
       data['groupBy'] = target.groupBy;
-      data['orderBy'].forEach (e => {
+      data['orderBy'].forEach(e => {
         if (e.name == ORDERBY_ATTRIBUTES.INTERVAL) {
           e.name = data['interval'];
         }

@@ -9,7 +9,7 @@ export const QUERY_INTERVAL = {
 export const QUERY_INTERVAL_LIST = Object.keys(QUERY_INTERVAL).map(key => QUERY_INTERVAL[key]);
 
 export const getMomentTimeUnitForQueryInterval = (interval) => {
-  switch(interval) {
+  switch (interval) {
     case QUERY_INTERVAL.SECOND:
       return 'second';
     case QUERY_INTERVAL.MINUTE:
@@ -40,7 +40,7 @@ export const calculateAutoInterval = (intervalMs) => {
 }
 
 export const calculateAutoIntervalFromRange = (from, to) => {
-  let dataPointIntervalMs = (to - from)/200;
+  let dataPointIntervalMs = (to - from) / 200;
   if (dataPointIntervalMs <= 1000) {
     return QUERY_INTERVAL.SECOND;
   } else if (dataPointIntervalMs > 1000 && dataPointIntervalMs <= 60000) {
