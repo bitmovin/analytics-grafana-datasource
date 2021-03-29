@@ -180,8 +180,9 @@ export class BitmovinAnalyticsDatasource {
   }
 
   getTagKeys(options) {
-    if (this.isAdAnalytics)
+    if (this.isAdAnalytics) {
       return Promise.resolve(getAsOptionsList(AD_ATTRIBUTE_LIST));
+    }
     return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
   }
 
