@@ -22,6 +22,21 @@ export const calculateAutoInterval = (intervalMs) => {
   }
 }
 
+export const calculateAutoIntervalFromRange = (from, to) => {
+  let dataPointIntervalMs = (to - from)/200;
+  if (dataPointIntervalMs <= 1000) {
+    return QUERY_INTERVAL.SECOND;
+  } else if (dataPointIntervalMs > 1000 && dataPointIntervalMs <= 60000) {
+    return QUERY_INTERVAL.MINUTE;
+  } else if (dataPointIntervalMs > 60000 && dataPointIntervalMs <= 3600000) {
+    return QUERY_INTERVAL.HOUR;
+  } else if (dataPointIntervalMs > 3600000 && dataPointIntervalMs <= 86400000) {
+    return QUERY_INTERVAL.DAY;
+  } else {
+    return QUERY_INTERVAL.MONTH;
+  }
+}
+
 /**
  * Get corresponding interval in milliseconds.
  * @param {String} interval The interval

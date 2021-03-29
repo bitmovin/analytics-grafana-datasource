@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <div class="gf-form-inline">
+    <div class="gf-form-inline" ng-if="!ctrl.isDimensionAMetric(ctrl.target.dimension)">
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Metric</label>
         <div class="gf-form-select-wrapper">
@@ -147,10 +147,18 @@
         </div>
       </div>
 
+      <gf-form-switch class="gf-form" label="Maximum of 200 datapoints (API limit)" ng-hide="ctrl.target.interval !== 'AUTO'" checked="ctrl.target.intervalAutoLimit" on-change="ctrl.refresh()"></gf-form-switch>
+
       <div class="gf-form gf-form--grow">
         <div class="gf-form-label gf-form-label--grow"></div>
       </div>
+    </div>
 
+    <div class="gf-form-inline" ng-hide="ctrl.target.resultFormat !== 'time_series'">
+      <div class="gf-form">
+        <label class="gf-form-label query-keyword width-7">Query options</label>
+      </div>
+      <gf-form-switch class="gf-form" label="Adjust time range to complete datapoints" checked="ctrl.target.intervalSnapTo" on-change="ctrl.refresh()"></gf-form-switch>
       <div class="gf-form gf-form--grow">
         <div class="gf-form-label gf-form-label--grow"></div>
       </div>

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.convertFilterValueToProperType = exports.isNullFilter = exports.getAsOptionsList = exports.ORDERBY_AD_ATTRIBUTES_LIST = exports.ORDERBY_ATTRIBUTES_LIST = exports.AD_ATTRIBUTE_LIST = exports.ATTRIBUTE_LIST = exports.getAttributeValues = exports.ORDERBY_ATTRIBUTES = exports.AD_ATTRIBUTE = exports.ATTRIBUTE = void 0;
+exports.convertFilterValueToProperType = exports.isNullFilter = exports.getAsOptionsList = exports.METRICS_ATTRIBUTE_LIST = exports.ORDERBY_AD_ATTRIBUTES_LIST = exports.ORDERBY_ATTRIBUTES_LIST = exports.AD_ATTRIBUTE_LIST = exports.ATTRIBUTE_LIST = exports.getAttributeValues = exports.ORDERBY_ATTRIBUTES = exports.AD_ATTRIBUTE = exports.ATTRIBUTE = void 0;
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -34,8 +34,10 @@ var ATTRIBUTE = {
   CUSTOM_USER_ID: 'CUSTOM_USER_ID',
   DAY: 'DAY',
   DAYPART: 'DAYPART',
+  DEVICE_CLASS: 'DEVICE_CLASS',
   DEVICE_TYPE: 'DEVICE_TYPE',
   DOMAIN: 'DOMAIN',
+  DOWNLOAD_SPEED: 'DOWNLOAD_SPEED',
   DROPPED_FRAMES: 'DROPPED_FRAMES',
   DURATION: 'DURATION',
   ERROR_CODE: 'ERROR_CODE',
@@ -74,6 +76,7 @@ var ATTRIBUTE = {
   SCREEN_HEIGHT: 'SCREEN_HEIGHT',
   SCREEN_WIDTH: 'SCREEN_WIDTH',
   SEEKED: 'SEEKED',
+  SEQUENCE_NUMBER: 'SEQUENCE_NUMBER',
   SIZE: 'SIZE',
   STARTUPTIME: 'STARTUPTIME',
   STATE: 'STATE',
@@ -97,7 +100,9 @@ var ATTRIBUTE = {
   DRM_LOAD_TIME: 'DRM_LOAD_TIME',
   ISP: 'ISP',
   ASN: 'ASN',
-  STREAM_EXITS: 'STREAM_EXITS'
+  STREAM_EXITS: 'STREAM_EXITS',
+  MAX_CONCURRENTVIEWERS: 'MAX_CONCURRENTVIEWERS',
+  AVG_CONCURRENTVIEWERS: 'AVG_CONCURRENTVIEWERS'
 };
 exports.ATTRIBUTE = ATTRIBUTE;
 var AD_ATTRIBUTE = {
@@ -221,7 +226,8 @@ var AD_ATTRIBUTE = {
 exports.AD_ATTRIBUTE = AD_ATTRIBUTE;
 
 var ORDERBY_ATTRIBUTES = _objectSpread({}, ATTRIBUTE, {
-  FUNCTION: 'FUNCTION'
+  FUNCTION: 'FUNCTION',
+  INTERVAL: 'INTERVAL'
 });
 
 exports.ORDERBY_ATTRIBUTES = ORDERBY_ATTRIBUTES;
@@ -238,13 +244,17 @@ exports.ATTRIBUTE_LIST = ATTRIBUTE_LIST;
 var AD_ATTRIBUTE_LIST = getAttributeValues(AD_ATTRIBUTE);
 exports.AD_ATTRIBUTE_LIST = AD_ATTRIBUTE_LIST;
 var ORDERBY_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, ATTRIBUTE, {
-  FUNCTION: 'FUNCTION'
+  FUNCTION: 'FUNCTION',
+  INTERVAL: 'INTERVAL'
 }));
 exports.ORDERBY_ATTRIBUTES_LIST = ORDERBY_ATTRIBUTES_LIST;
 var ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, AD_ATTRIBUTE, {
-  FUNCTION: 'FUNCTION'
+  FUNCTION: 'FUNCTION',
+  INTERVAL: 'INTERVAL'
 }));
 exports.ORDERBY_AD_ATTRIBUTES_LIST = ORDERBY_AD_ATTRIBUTES_LIST;
+var METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS];
+exports.METRICS_ATTRIBUTE_LIST = METRICS_ATTRIBUTE_LIST;
 
 var getAsOptionsList = function getAsOptionsList(list) {
   return _.map(list, function (e) {
@@ -313,6 +323,7 @@ var convertFilterValueToProperType = function convertFilterValueToProperType(fil
     case ATTRIBUTE.AUDIO_BITRATE:
     case ATTRIBUTE.BUFFERED:
     case ATTRIBUTE.CLIENT_TIME:
+    case ATTRIBUTE.DOWNLOAD_SPEED:
     case ATTRIBUTE.DRM_LOAD_TIME:
     case ATTRIBUTE.DROPPED_FRAMES:
     case ATTRIBUTE.DURATION:
@@ -325,10 +336,15 @@ var convertFilterValueToProperType = function convertFilterValueToProperType(fil
     case ATTRIBUTE.SCREEN_HEIGHT:
     case ATTRIBUTE.SCREEN_WIDTH:
     case ATTRIBUTE.SEEKED:
+    case ATTRIBUTE.SEQUENCE_NUMBER:
     case ATTRIBUTE.STARTUPTIME:
     case ATTRIBUTE.VIDEO_BITRATE:
     case ATTRIBUTE.VIDEO_DURATION:
+    case ATTRIBUTE.VIDEO_PLAYBACK_HEIGHT:
+    case ATTRIBUTE.VIDEO_PLAYBACK_WIDTH:
     case ATTRIBUTE.VIDEO_STARTUPTIME:
+    case ATTRIBUTE.VIDEO_WINDOW_HEIGHT:
+    case ATTRIBUTE.VIDEO_WINDOW_WIDTH:
     case ATTRIBUTE.VIDEOTIME:
     case ATTRIBUTE.VIDEOTIME_END:
     case ATTRIBUTE.VIDEOTIME_START:

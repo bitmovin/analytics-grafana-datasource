@@ -1,13 +1,16 @@
 import _ from 'lodash';
-import { convertFilterValueToProperType, ATTRIBUTE } from './types/queryAttributes';
+import { convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList } from './types/queryAttributes';
 import { AGGREGATION } from './types/aggregations';
-import { calculateAutoInterval, QUERY_INTERVAL } from './types/intervals';
+import { calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 
-const getApiRequestUrl = (baseUrl, isAdAnalytics) => {
+const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric) => {
   if (isAdAnalytics === true) {
     return baseUrl + '/analytics/ads/queries';
+  }
+  if (isMetric == true) {
+    return baseUrl + '/analytics/metrics';
   }
   return baseUrl + '/analytics/queries';
 };
@@ -54,12 +57,29 @@ export class BitmovinAnalyticsDatasource {
     }
 
     const targetResponsePromises = _.map(query.targets, target => {
-      target.metric = target.metric || AGGREGATION.COUNT;
-      target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
       target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
       target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
-      const filters = _.map(target.filter, filter => {
+      const filters = _.map([...target.filter, ...query.adhocFilters], e => {
+        let filter = {
+          name: (e.name) ? e.name : e.key,
+          operator: e.operator,
+          value: this.templateSrv.replace(e.value, options.scopedVars)
+        }
+        switch (filter.operator) {
+          case '=':
+            filter.operator = 'EQ';
+            break;
+          case '!=':
+            filter.operator = 'NE';
+            break;
+          case '<':
+            filter.operator = 'LT';
+            break;
+          case '>':
+            filter.operator = 'GT';
+            break;
+        }
         return {
           name: filter.name,
           operator: filter.operator,
@@ -69,26 +89,67 @@ export class BitmovinAnalyticsDatasource {
       const orderBy = _.map(target.orderBy, e => ({ name: e.name, order: e.order }));
       const data = {
         licenseKey: target.license,
-        dimension: target.dimension,
         start: options.range.from.toISOString(),
         end: options.range.to.toISOString(),
         filters,
         orderBy
       };
 
-      if (target.metric === 'percentile') {
-        data['percentile'] = target.percentileValue;
+      let isMetric = METRICS_ATTRIBUTE_LIST.includes(target.dimension);
+      let urlAppendix = '';
+      
+      if (isMetric) {
+        urlAppendix = target.dimension;
+        data['metric'] = target.dimension
+      } else {
+        target.metric = target.metric || AGGREGATION.COUNT;
+        target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
+        urlAppendix = target.metric
+        data['dimension'] = target.dimension;
+    
+          if (target.metric === 'percentile') {
+            data['percentile'] = target.percentileValue;
+          }
       }
 
       if (target.resultFormat === ResultFormat.TIME_SERIES) {
-        data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+        if (target.intervalAutoLimit === true) {
+          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoIntervalFromRange(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
+        }else{
+          data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+        }
+        if (target.intervalSnapTo === true) {
+          switch (data['interval']) {
+            case QUERY_INTERVAL.MONTH:
+            data['start'] = options.range.from.startOf('month').toISOString();
+            data['end'] = options.range.to.startOf('month').toISOString();
+            break;
+            case QUERY_INTERVAL.DAY:
+            data['start'] = options.range.from.startOf('day').toISOString();
+            data['end'] = options.range.to.startOf('day').toISOString();
+            break;
+            case QUERY_INTERVAL.HOUR:
+            data['start'] = options.range.from.startOf('hour').toISOString();
+            data['end'] = options.range.to.startOf('hour').toISOString();
+            break;
+            case QUERY_INTERVAL.MINUTE:
+            data['start'] = options.range.from.startOf('minute').toISOString();
+            data['end'] = options.range.to.startOf('minute').toISOString();
+            break;
+          }
+        }
       }
       data['groupBy'] = target.groupBy;
+      data['orderBy'].forEach (e => {
+        if (e.name == ORDERBY_ATTRIBUTES.INTERVAL) {
+          e.name = data['interval'];
+        }
+      });
       data['limit'] = Number(target.limit) || undefined;
-      var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics);
+      var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics, isMetric);
 
       return this.doRequest({
-        url: apiRequestUrl + '/' + target.metric,
+        url: apiRequestUrl + '/' + urlAppendix,
         data: data,
         method: 'POST',
         resultTarget: target.alias || target.refId,
@@ -122,6 +183,12 @@ export class BitmovinAnalyticsDatasource {
 
   metricFindQuery(query) {
 
+  }
+
+  getTagKeys(options) {
+    if (this.isAdAnalytics)
+      return Promise.resolve(getAsOptionsList(AD_ATTRIBUTE_LIST));
+    return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
   }
 
   doRequest(options) {

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.intervalToMilliseconds = exports.calculateAutoInterval = exports.QUERY_INTERVAL_LIST = exports.QUERY_INTERVAL = void 0;
+exports.intervalToMilliseconds = exports.calculateAutoIntervalFromRange = exports.calculateAutoInterval = exports.QUERY_INTERVAL_LIST = exports.QUERY_INTERVAL = void 0;
 var QUERY_INTERVAL = {
   SECOND: 'SECOND',
   MINUTE: 'MINUTE',
@@ -31,6 +31,24 @@ var calculateAutoInterval = function calculateAutoInterval(intervalMs) {
     return QUERY_INTERVAL.MONTH;
   }
 };
+
+exports.calculateAutoInterval = calculateAutoInterval;
+
+var calculateAutoIntervalFromRange = function calculateAutoIntervalFromRange(from, to) {
+  var dataPointIntervalMs = (to - from) / 200;
+
+  if (dataPointIntervalMs <= 1000) {
+    return QUERY_INTERVAL.SECOND;
+  } else if (dataPointIntervalMs > 1000 && dataPointIntervalMs <= 60000) {
+    return QUERY_INTERVAL.MINUTE;
+  } else if (dataPointIntervalMs > 60000 && dataPointIntervalMs <= 3600000) {
+    return QUERY_INTERVAL.HOUR;
+  } else if (dataPointIntervalMs > 3600000 && dataPointIntervalMs <= 86400000) {
+    return QUERY_INTERVAL.DAY;
+  } else {
+    return QUERY_INTERVAL.MONTH;
+  }
+};
 /**
  * Get corresponding interval in milliseconds.
  * @param {String} interval The interval
@@ -38,7 +56,7 @@ var calculateAutoInterval = function calculateAutoInterval(intervalMs) {
  */
 
 
-exports.calculateAutoInterval = calculateAutoInterval;
+exports.calculateAutoIntervalFromRange = calculateAutoIntervalFromRange;
 
 var intervalToMilliseconds = function intervalToMilliseconds(interval) {
   switch (interval) {

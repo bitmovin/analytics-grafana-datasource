@@ -13,7 +13,7 @@ System.register([], function (_export, _context) {
         LT: 'LT',
         LTE: 'LTE',
         EQ: 'EQ',
-        NQ: 'NQ',
+        NE: 'NE',
         CONTAINS: 'CONTAINS',
         NOTCONTAINS: 'NOTCONTAINS',
         IN: 'IN'

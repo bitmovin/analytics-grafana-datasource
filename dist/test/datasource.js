@@ -33,9 +33,13 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics) {
+var getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics, isMetric) {
   if (isAdAnalytics === true) {
     return baseUrl + '/analytics/ads/queries';
+  }
+
+  if (isMetric == true) {
+    return baseUrl + '/analytics/metrics';
   }
 
   return baseUrl + '/analytics/queries';
@@ -93,12 +97,34 @@ function () {
       }
 
       var targetResponsePromises = _lodash["default"].map(query.targets, function (target) {
-        target.metric = target.metric || _aggregations.AGGREGATION.COUNT;
-        target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.LICENSE_KEY;
         target.resultFormat = target.resultFormat || _resultFormat.ResultFormat.TIME_SERIES;
         target.interval = target.interval || _intervals.QUERY_INTERVAL.HOUR;
 
-        var filters = _lodash["default"].map(target.filter, function (filter) {
+        var filters = _lodash["default"].map([].concat(_toConsumableArray(target.filter), _toConsumableArray(query.adhocFilters)), function (e) {
+          var filter = {
+            name: e.name ? e.name : e.key,
+            operator: e.operator,
+            value: _this.templateSrv.replace(e.value, options.scopedVars)
+          };
+
+          switch (filter.operator) {
+            case '=':
+              filter.operator = 'EQ';
+              break;
+
+            case '!=':
+              filter.operator = 'NE';
+              break;
+
+            case '<':
+              filter.operator = 'LT';
+              break;
+
+            case '>':
+              filter.operator = 'GT';
+              break;
+          }
+
           return {
             name: filter.name,
             operator: filter.operator,
@@ -115,26 +141,72 @@ function () {
 
         var data = {
           licenseKey: target.license,
-          dimension: target.dimension,
           start: options.range.from.toISOString(),
           end: options.range.to.toISOString(),
           filters: filters,
           orderBy: orderBy
         };
 
-        if (target.metric === 'percentile') {
-          data['percentile'] = target.percentileValue;
+        var isMetric = _queryAttributes.METRICS_ATTRIBUTE_LIST.includes(target.dimension);
+
+        var urlAppendix = '';
+
+        if (isMetric) {
+          urlAppendix = target.dimension;
+          data['metric'] = target.dimension;
+        } else {
+          target.metric = target.metric || _aggregations.AGGREGATION.COUNT;
+          target.dimension = target.dimension || _queryAttributes.ATTRIBUTE.LICENSE_KEY;
+          urlAppendix = target.metric;
+          data['dimension'] = target.dimension;
+
+          if (target.metric === 'percentile') {
+            data['percentile'] = target.percentileValue;
+          }
         }
 
         if (target.resultFormat === _resultFormat.ResultFormat.TIME_SERIES) {
-          data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoInterval)(options.intervalMs) : target.interval;
+          if (target.intervalAutoLimit === true) {
+            data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoIntervalFromRange)(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
+          } else {
+            data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoInterval)(options.intervalMs) : target.interval;
+          }
+
+          if (target.intervalSnapTo === true) {
+            switch (data['interval']) {
+              case _intervals.QUERY_INTERVAL.MONTH:
+                data['start'] = options.range.from.startOf('month').toISOString();
+                data['end'] = options.range.to.startOf('month').toISOString();
+                break;
+
+              case _intervals.QUERY_INTERVAL.DAY:
+                data['start'] = options.range.from.startOf('day').toISOString();
+                data['end'] = options.range.to.startOf('day').toISOString();
+                break;
+
+              case _intervals.QUERY_INTERVAL.HOUR:
+                data['start'] = options.range.from.startOf('hour').toISOString();
+                data['end'] = options.range.to.startOf('hour').toISOString();
+                break;
+
+              case _intervals.QUERY_INTERVAL.MINUTE:
+                data['start'] = options.range.from.startOf('minute').toISOString();
+                data['end'] = options.range.to.startOf('minute').toISOString();
+                break;
+            }
+          }
         }
 
         data['groupBy'] = target.groupBy;
+        data['orderBy'].forEach(function (e) {
+          if (e.name == _queryAttributes.ORDERBY_ATTRIBUTES.INTERVAL) {
+            e.name = data['interval'];
+          }
+        });
         data['limit'] = Number(target.limit) || undefined;
-        var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics);
+        var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics, isMetric);
         return _this.doRequest({
-          url: apiRequestUrl + '/' + target.metric,
+          url: apiRequestUrl + '/' + urlAppendix,
           data: data,
           method: 'POST',
           resultTarget: target.alias || target.refId,
@@ -174,6 +246,12 @@ function () {
   }, {
     key: "metricFindQuery",
     value: function metricFindQuery(query) {}
+  }, {
+    key: "getTagKeys",
+    value: function getTagKeys(options) {
+      if (this.isAdAnalytics) return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.AD_ATTRIBUTE_LIST));
+      return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.ATTRIBUTE_LIST));
+    }
   }, {
     key: "doRequest",
     value: function doRequest(options) {

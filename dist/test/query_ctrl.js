@@ -400,6 +400,11 @@ function (_QueryCtrl) {
       this.target.orderBy[$index].order = segment.order.value;
       this.panelCtrl.refresh();
     }
+  }, {
+    key: "isDimensionAMetric",
+    value: function isDimensionAMetric(dimension) {
+      return _queryAttributes.METRICS_ATTRIBUTE_LIST.includes(dimension);
+    }
   }]);
 
   return BitmovinAnalyticsDatasourceQueryCtrl;

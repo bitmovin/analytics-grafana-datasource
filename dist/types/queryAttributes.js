@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var ATTRIBUTE, AD_ATTRIBUTE, ORDERBY_ATTRIBUTES, getAttributeValues, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, ORDERBY_AD_ATTRIBUTES_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
+  var ATTRIBUTE, AD_ATTRIBUTE, ORDERBY_ATTRIBUTES, getAttributeValues, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST, getAsOptionsList, isNullFilter, convertFilterValueToProperType;
 
   function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -37,8 +37,10 @@ System.register([], function (_export, _context) {
         CUSTOM_USER_ID: 'CUSTOM_USER_ID',
         DAY: 'DAY',
         DAYPART: 'DAYPART',
+        DEVICE_CLASS: 'DEVICE_CLASS',
         DEVICE_TYPE: 'DEVICE_TYPE',
         DOMAIN: 'DOMAIN',
+        DOWNLOAD_SPEED: 'DOWNLOAD_SPEED',
         DROPPED_FRAMES: 'DROPPED_FRAMES',
         DURATION: 'DURATION',
         ERROR_CODE: 'ERROR_CODE',
@@ -77,6 +79,7 @@ System.register([], function (_export, _context) {
         SCREEN_HEIGHT: 'SCREEN_HEIGHT',
         SCREEN_WIDTH: 'SCREEN_WIDTH',
         SEEKED: 'SEEKED',
+        SEQUENCE_NUMBER: 'SEQUENCE_NUMBER',
         SIZE: 'SIZE',
         STARTUPTIME: 'STARTUPTIME',
         STATE: 'STATE',
@@ -100,7 +103,9 @@ System.register([], function (_export, _context) {
         DRM_LOAD_TIME: 'DRM_LOAD_TIME',
         ISP: 'ISP',
         ASN: 'ASN',
-        STREAM_EXITS: 'STREAM_EXITS'
+        STREAM_EXITS: 'STREAM_EXITS',
+        MAX_CONCURRENTVIEWERS: 'MAX_CONCURRENTVIEWERS',
+        AVG_CONCURRENTVIEWERS: 'AVG_CONCURRENTVIEWERS'
       });
 
       _export("AD_ATTRIBUTE", AD_ATTRIBUTE = {
@@ -223,7 +228,8 @@ System.register([], function (_export, _context) {
       });
 
       _export("ORDERBY_ATTRIBUTES", ORDERBY_ATTRIBUTES = _objectSpread({}, ATTRIBUTE, {
-        FUNCTION: 'FUNCTION'
+        FUNCTION: 'FUNCTION',
+        INTERVAL: 'INTERVAL'
       }));
 
       _export("getAttributeValues", getAttributeValues = function getAttributeValues(list) {
@@ -237,12 +243,16 @@ System.register([], function (_export, _context) {
       _export("AD_ATTRIBUTE_LIST", AD_ATTRIBUTE_LIST = getAttributeValues(AD_ATTRIBUTE));
 
       _export("ORDERBY_ATTRIBUTES_LIST", ORDERBY_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, ATTRIBUTE, {
-        FUNCTION: 'FUNCTION'
+        FUNCTION: 'FUNCTION',
+        INTERVAL: 'INTERVAL'
       })));
 
       _export("ORDERBY_AD_ATTRIBUTES_LIST", ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues(_objectSpread({}, AD_ATTRIBUTE, {
-        FUNCTION: 'FUNCTION'
+        FUNCTION: 'FUNCTION',
+        INTERVAL: 'INTERVAL'
       })));
+
+      _export("METRICS_ATTRIBUTE_LIST", METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS]);
 
       _export("getAsOptionsList", getAsOptionsList = function getAsOptionsList(list) {
         return _.map(list, function (e) {
@@ -307,6 +317,7 @@ System.register([], function (_export, _context) {
           case ATTRIBUTE.AUDIO_BITRATE:
           case ATTRIBUTE.BUFFERED:
           case ATTRIBUTE.CLIENT_TIME:
+          case ATTRIBUTE.DOWNLOAD_SPEED:
           case ATTRIBUTE.DRM_LOAD_TIME:
           case ATTRIBUTE.DROPPED_FRAMES:
           case ATTRIBUTE.DURATION:
@@ -319,10 +330,15 @@ System.register([], function (_export, _context) {
           case ATTRIBUTE.SCREEN_HEIGHT:
           case ATTRIBUTE.SCREEN_WIDTH:
           case ATTRIBUTE.SEEKED:
+          case ATTRIBUTE.SEQUENCE_NUMBER:
           case ATTRIBUTE.STARTUPTIME:
           case ATTRIBUTE.VIDEO_BITRATE:
           case ATTRIBUTE.VIDEO_DURATION:
+          case ATTRIBUTE.VIDEO_PLAYBACK_HEIGHT:
+          case ATTRIBUTE.VIDEO_PLAYBACK_WIDTH:
           case ATTRIBUTE.VIDEO_STARTUPTIME:
+          case ATTRIBUTE.VIDEO_WINDOW_HEIGHT:
+          case ATTRIBUTE.VIDEO_WINDOW_WIDTH:
           case ATTRIBUTE.VIDEOTIME:
           case ATTRIBUTE.VIDEOTIME_END:
           case ATTRIBUTE.VIDEOTIME_START:
