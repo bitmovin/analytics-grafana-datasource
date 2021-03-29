@@ -28,11 +28,11 @@ export const getMomentTimeUnitForQueryInterval = (interval) => {
 export const calculateAutoInterval = (intervalMs) => {
   if (intervalMs <= 5 * 1000) { // SECOND granularity for timeframes below 5min
     return QUERY_INTERVAL.SECOND;
-  } else if (intervalMs < 3 * 60 * 60 * 1000) { // MINUTE granularity for timeframes below 3h
+  } else if (intervalMs <= 3 * 60 * 60 * 1000) { // MINUTE granularity for timeframes below 3h
     return QUERY_INTERVAL.MINUTE;
-  } else if (intervalMs < 6 * 24 * 60 * 60 * 1000) { // HOUR granularity for timeframes below 6d
+  } else if (intervalMs <= 6 * 24 * 60 * 60 * 1000) { // HOUR granularity for timeframes below 6d
     return QUERY_INTERVAL.HOUR;
-  } else if (intervalMs < 30 * 24 * 60 * 60 * 1000) { // DAY granularity for timeframes below 30d
+  } else if (intervalMs <= 30 * 24 * 60 * 60 * 1000) { // DAY granularity for timeframes below 30d
     return QUERY_INTERVAL.DAY;
   }
   return QUERY_INTERVAL.MONTH;
