@@ -1,11 +1,15 @@
 <query-editor-row query-ctrl="ctrl" has-text-edit-mode="true">
-
   <div>
     <div class="gf-form-inline">
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">License</label>
         <div class="gf-form-select-wrapper">
-          <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.license" ng-options="l.licenseKey as l.label for l in ctrl.licenses" ng-change="ctrl.refresh()"></select>
+          <select
+            class="gf-form-input gf-size-auto"
+            ng-model="ctrl.target.license"
+            ng-options="l.licenseKey as l.label for l in ctrl.licenses"
+            ng-change="ctrl.refresh()"
+          ></select>
         </div>
       </div>
 
@@ -14,16 +18,34 @@
       </div>
     </div>
 
-    <div class="gf-form-inline" ng-if="!ctrl.isDimensionAMetric(ctrl.target.dimension)">
+    <div
+      class="gf-form-inline"
+      ng-if="!ctrl.isDimensionAMetric(ctrl.target.dimension)"
+    >
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Metric</label>
         <div class="gf-form-select-wrapper">
-          <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.metric" ng-options="m for m in ctrl.metrics" ng-change="ctrl.refresh()"></select>
+          <select
+            class="gf-form-input gf-size-auto"
+            ng-model="ctrl.target.metric"
+            ng-options="m for m in ctrl.metrics"
+            ng-change="ctrl.refresh()"
+          ></select>
         </div>
       </div>
 
-      <div class="gf-form max-width-30" ng-if="ctrl.target.metric === 'percentile'">
-        <input type="number" class="gf-form-input" ng-model="ctrl.target.percentileValue" spellcheck='false' placeholder="Naming pattern" ng-blur="ctrl.refresh()">
+      <div
+        class="gf-form max-width-30"
+        ng-if="ctrl.target.metric === 'percentile'"
+      >
+        <input
+          type="number"
+          class="gf-form-input"
+          ng-model="ctrl.target.percentileValue"
+          spellcheck="false"
+          placeholder="Naming pattern"
+          ng-blur="ctrl.refresh()"
+        />
       </div>
 
       <div class="gf-form gf-form--grow">
@@ -35,7 +57,12 @@
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Dimension</label>
         <div class="gf-form-select-wrapper">
-          <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.dimension" ng-options="f for f in ctrl.fields" ng-change="ctrl.refresh()"></select>
+          <select
+            class="gf-form-input gf-size-auto"
+            ng-model="ctrl.target.dimension"
+            ng-options="f for f in ctrl.fields"
+            ng-change="ctrl.refresh()"
+          ></select>
         </div>
       </div>
 
@@ -56,14 +83,30 @@
               <span>And</span>
             </label>
           </div>
-          <metric-segment segment="segment" get-options="ctrl.getFilterSegmentOptions()" on-change="ctrl.filterSegmentUpdate(segment, $index)"></metric-segment>
-          <metric-segment segment="segment.operator" get-options="ctrl.getFilterOperatorOptions()" on-change="ctrl.filterOperatorSegmentUpdate(segment, $index)"></metric-segment>
-          <metric-segment segment="segment.filterValue" get-options="ctrl.getFilterValueOptions(segment, $index)" on-change="ctrl.filterValueSegmentUpdate(segment, $index)"></metric-segment>
+          <metric-segment
+            segment="segment"
+            get-options="ctrl.getFilterSegmentOptions()"
+            on-change="ctrl.filterSegmentUpdate(segment, $index)"
+          ></metric-segment>
+          <metric-segment
+            segment="segment.operator"
+            get-options="ctrl.getFilterOperatorOptions()"
+            on-change="ctrl.filterOperatorSegmentUpdate(segment, $index)"
+          ></metric-segment>
+          <metric-segment
+            segment="segment.filterValue"
+            get-options="ctrl.getFilterValueOptions(segment, $index)"
+            on-change="ctrl.filterValueSegmentUpdate(segment, $index)"
+          ></metric-segment>
         </div>
       </div>
 
       <div class="gf-form">
-        <metric-segment segment="ctrl.filterSegment" get-options="ctrl.getFilterOptions()" on-change="ctrl.filterAction(part, $index)"></metric-segment>
+        <metric-segment
+          segment="ctrl.filterSegment"
+          get-options="ctrl.getFilterOptions()"
+          on-change="ctrl.filterAction(part, $index)"
+        ></metric-segment>
       </div>
 
       <div class="gf-form gf-form--grow">
@@ -75,7 +118,12 @@
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Format As</label>
         <div class="gf-form-select-wrapper">
-          <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.resultFormat" ng-options="rf for rf in ctrl.resultFormats" ng-change="ctrl.refresh()"></select>
+          <select
+            class="gf-form-input gf-size-auto"
+            ng-model="ctrl.target.resultFormat"
+            ng-options="rf for rf in ctrl.resultFormats"
+            ng-change="ctrl.refresh()"
+          ></select>
         </div>
       </div>
       <div class="gf-form gf-form--grow">
@@ -89,14 +137,21 @@
           <span>Group By</span>
         </label>
 
-        <query-part-editor  ng-repeat="part in ctrl.groupByParts"
-                            part="part" class="gf-form-label query-part"
-                            handle-event="ctrl.handleGroupByPartEvent(part, $index, $event)">
+        <query-part-editor
+          ng-repeat="part in ctrl.groupByParts"
+          part="part"
+          class="gf-form-label query-part"
+          handle-event="ctrl.handleGroupByPartEvent(part, $index, $event)"
+        >
         </query-part-editor>
       </div>
 
       <div class="gf-form">
-        <metric-segment segment="ctrl.groupBySegment" get-options="ctrl.getGroupByOptions()" on-change="ctrl.groupByAction(part, $index)"></metric-segment>
+        <metric-segment
+          segment="ctrl.groupBySegment"
+          get-options="ctrl.getGroupByOptions()"
+          on-change="ctrl.groupByAction(part, $index)"
+        ></metric-segment>
       </div>
 
       <div class="gf-form gf-form--grow">
@@ -115,13 +170,25 @@
               <span>And</span>
             </label>
           </div>
-          <metric-segment segment="segment" get-options="ctrl.getOrderByDimensionOptions()" on-change="ctrl.orderByDimensionSegmentUpdate(segment, $index)"></metric-segment>
-          <metric-segment segment="segment.order" get-options="ctrl.getOrderByOperatorOptions()" on-change="ctrl.orderByOrderSegmentUpdate(segment, $index)"></metric-segment>
+          <metric-segment
+            segment="segment"
+            get-options="ctrl.getOrderByDimensionOptions()"
+            on-change="ctrl.orderByDimensionSegmentUpdate(segment, $index)"
+          ></metric-segment>
+          <metric-segment
+            segment="segment.order"
+            get-options="ctrl.getOrderByOperatorOptions()"
+            on-change="ctrl.orderByOrderSegmentUpdate(segment, $index)"
+          ></metric-segment>
         </div>
       </div>
 
       <div class="gf-form">
-        <metric-segment segment="ctrl.orderBySegment" get-options="ctrl.getOrderByDimensionOptions()" on-change="ctrl.orderByAction(part, $index)"></metric-segment>
+        <metric-segment
+          segment="ctrl.orderBySegment"
+          get-options="ctrl.getOrderByDimensionOptions()"
+          on-change="ctrl.orderByAction(part, $index)"
+        ></metric-segment>
       </div>
 
       <div class="gf-form gf-form--grow">
@@ -132,33 +199,54 @@
     <div class="gf-form-inline">
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Limit</label>
-        <input type="text" class="gf-form-input width-9" ng-model="ctrl.target.limit" spellcheck='false' placeholder="No Limit" ng-blur="ctrl.refresh()">
+        <input
+          type="text"
+          class="gf-form-input width-9"
+          ng-model="ctrl.target.limit"
+          spellcheck="false"
+          placeholder="No Limit"
+          ng-blur="ctrl.refresh()"
+        />
       </div>
       <div class="gf-form gf-form--grow">
         <div class="gf-form-label gf-form-label--grow"></div>
       </div>
     </div>
 
-    <div class="gf-form-inline" ng-hide="ctrl.target.resultFormat !== 'time_series'">
+    <div
+      class="gf-form-inline"
+      ng-hide="ctrl.target.resultFormat !== 'time_series'"
+    >
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Interval</label>
         <div class="gf-form-select-wrapper">
-          <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.interval" ng-options="l for l in ctrl.intervals" ng-change="ctrl.refresh()"></select>
+          <select
+            class="gf-form-input gf-size-auto"
+            ng-model="ctrl.target.interval"
+            ng-options="l for l in ctrl.intervals"
+            ng-change="ctrl.refresh()"
+          ></select>
         </div>
       </div>
-
-      <gf-form-switch class="gf-form" label="Maximum of 200 datapoints (API limit)" ng-hide="ctrl.target.interval !== 'AUTO'" checked="ctrl.target.intervalAutoLimit" on-change="ctrl.refresh()"></gf-form-switch>
 
       <div class="gf-form gf-form--grow">
         <div class="gf-form-label gf-form-label--grow"></div>
       </div>
     </div>
 
-    <div class="gf-form-inline" ng-hide="ctrl.target.resultFormat !== 'time_series'">
+    <div
+      class="gf-form-inline"
+      ng-hide="ctrl.target.resultFormat !== 'time_series'"
+    >
       <div class="gf-form">
         <label class="gf-form-label query-keyword width-7">Query options</label>
       </div>
-      <gf-form-switch class="gf-form" label="Adjust time range to complete datapoints" checked="ctrl.target.intervalSnapTo" on-change="ctrl.refresh()"></gf-form-switch>
+      <gf-form-switch
+        class="gf-form"
+        label="Adjust time range to complete datapoints"
+        checked="ctrl.target.intervalSnapTo"
+        on-change="ctrl.refresh()"
+      ></gf-form-switch>
       <div class="gf-form gf-form--grow">
         <div class="gf-form-label gf-form-label--grow"></div>
       </div>
@@ -167,7 +255,14 @@
     <div class="gf-form-inline" ng-hide="ctrl.target.resultFormat === 'table'">
       <div class="gf-form max-width-30">
         <label class="gf-form-label query-keyword width-7">Alias By</label>
-        <input type="text" class="gf-form-input" ng-model="ctrl.target.alias" spellcheck='false' placeholder="Naming pattern" ng-blur="ctrl.refresh()">
+        <input
+          type="text"
+          class="gf-form-input"
+          ng-model="ctrl.target.alias"
+          spellcheck="false"
+          placeholder="Naming pattern"
+          ng-blur="ctrl.refresh()"
+        />
       </div>
       <div class="gf-form gf-form--grow">
         <div class="gf-form-label gf-form-label--grow"></div>
@@ -175,6 +270,8 @@
     </div>
   </div>
   <div class="gf-form" ng-show="ctrl.lastQueryError[ctrl.target.refId]">
-    <pre class="gf-form-pre alert alert-error">{{ctrl.lastQueryError[ctrl.target.refId].data ? ctrl.lastQueryError[ctrl.target.refId].data.data.message : ctrl.lastQueryError[ctrl.target.refId]}}</pre>
+    <pre class="gf-form-pre alert alert-error">
+{{ctrl.lastQueryError[ctrl.target.refId].data ? ctrl.lastQueryError[ctrl.target.refId].data.data.message : ctrl.lastQueryError[ctrl.target.refId]}}</pre
+    >
   </div>
 </query-editor-row>
