@@ -1,9 +1,9 @@
 "use strict";
 
-System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat"], function (_export, _context) {
+System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat", "./types/operators"], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList, AGGREGATION, calculateAutoInterval, calculateAutoIntervalFromRange, QUERY_INTERVAL, transform, ResultFormat, getApiRequestUrl, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList, AGGREGATION, calculateAutoInterval, getMomentTimeUnitForQueryInterval, QUERY_INTERVAL, transform, ResultFormat, OPERATOR, getApiRequestUrl, mapMathOperatorToAnalyticsFilterOperator, BitmovinAnalyticsDatasource;
 
   function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -34,12 +34,14 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
       AGGREGATION = _typesAggregations.AGGREGATION;
     }, function (_typesIntervals) {
       calculateAutoInterval = _typesIntervals.calculateAutoInterval;
-      calculateAutoIntervalFromRange = _typesIntervals.calculateAutoIntervalFromRange;
+      getMomentTimeUnitForQueryInterval = _typesIntervals.getMomentTimeUnitForQueryInterval;
       QUERY_INTERVAL = _typesIntervals.QUERY_INTERVAL;
     }, function (_result_transformer) {
       transform = _result_transformer.transform;
     }, function (_typesResultFormat) {
       ResultFormat = _typesResultFormat.ResultFormat;
+    }, function (_typesOperators) {
+      OPERATOR = _typesOperators.OPERATOR;
     }],
     execute: function () {
       getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics, isMetric) {
@@ -52,6 +54,31 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
         }
 
         return baseUrl + '/analytics/queries';
+      };
+
+      mapMathOperatorToAnalyticsFilterOperator = function mapMathOperatorToAnalyticsFilterOperator(operator) {
+        switch (operator) {
+          case '=':
+            return OPERATOR.EQ;
+
+          case '!=':
+            return OPERATOR.NE;
+
+          case '<':
+            return OPERATOR.LT;
+
+          case '<=':
+            return OPERATOR.LTE;
+
+          case '>':
+            return OPERATOR.GT;
+
+          case '>=':
+            return OPERATOR.GTE;
+
+          default:
+            return operator;
+        }
       };
 
       _export("BitmovinAnalyticsDatasource", BitmovinAnalyticsDatasource =
@@ -112,28 +139,9 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
               var filters = _.map([].concat(_toConsumableArray(target.filter), _toConsumableArray(query.adhocFilters)), function (e) {
                 var filter = {
                   name: e.name ? e.name : e.key,
-                  operator: e.operator,
+                  operator: mapMathOperatorToAnalyticsFilterOperator(e.operator),
                   value: _this.templateSrv.replace(e.value, options.scopedVars)
                 };
-
-                switch (filter.operator) {
-                  case '=':
-                    filter.operator = 'EQ';
-                    break;
-
-                  case '!=':
-                    filter.operator = 'NE';
-                    break;
-
-                  case '<':
-                    filter.operator = 'LT';
-                    break;
-
-                  case '>':
-                    filter.operator = 'GT';
-                    break;
-                }
-
                 return {
                   name: filter.name,
                   operator: filter.operator,
@@ -173,33 +181,19 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
               }
 
               if (target.resultFormat === ResultFormat.TIME_SERIES) {
-                if (target.intervalAutoLimit === true) {
-                  data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoIntervalFromRange(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
-                } else {
-                  data['interval'] = target.interval === QUERY_INTERVAL.AUTO ? calculateAutoInterval(options.intervalMs) : target.interval;
+                data['interval'] = target.interval;
+
+                if (target.interval === QUERY_INTERVAL.AUTO) {
+                  var intervalMs = options.range.to.valueOf() - options.range.from.valueOf();
+                  data['interval'] = calculateAutoInterval(intervalMs);
                 }
 
                 if (target.intervalSnapTo === true) {
-                  switch (data['interval']) {
-                    case QUERY_INTERVAL.MONTH:
-                      data['start'] = options.range.from.startOf('month').toISOString();
-                      data['end'] = options.range.to.startOf('month').toISOString();
-                      break;
+                  var intervalTimeUnit = getMomentTimeUnitForQueryInterval(data['interval']);
 
-                    case QUERY_INTERVAL.DAY:
-                      data['start'] = options.range.from.startOf('day').toISOString();
-                      data['end'] = options.range.to.startOf('day').toISOString();
-                      break;
-
-                    case QUERY_INTERVAL.HOUR:
-                      data['start'] = options.range.from.startOf('hour').toISOString();
-                      data['end'] = options.range.to.startOf('hour').toISOString();
-                      break;
-
-                    case QUERY_INTERVAL.MINUTE:
-                      data['start'] = options.range.from.startOf('minute').toISOString();
-                      data['end'] = options.range.to.startOf('minute').toISOString();
-                      break;
+                  if (intervalTimeUnit != null) {
+                    data['start'] = options.range.from.startOf(intervalTimeUnit).toISOString();
+                    data['end'] = options.range.to.startOf(intervalTimeUnit).toISOString();
                   }
                 }
               }
@@ -256,7 +250,10 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
         }, {
           key: "getTagKeys",
           value: function getTagKeys(options) {
-            if (this.isAdAnalytics) return Promise.resolve(getAsOptionsList(AD_ATTRIBUTE_LIST));
+            if (this.isAdAnalytics) {
+              return Promise.resolve(getAsOptionsList(AD_ATTRIBUTE_LIST));
+            }
+
             return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
           }
         }, {

@@ -83,7 +83,8 @@ System.register(["./queryAttributes"], function (_export, _context) {
         DRM_TYPE: 'DRM_TYPE',
         DRM_LOAD_TIME: 'DRM_LOAD_TIME',
         ISP: 'ISP',
-        ASN: 'ASN'
+        ASN: 'ASN',
+        VIDEOSTART_FAILED_REASON: 'VIDEOSTART_FAILED_REASON'
       });
 
       _export("GROUP_BY_AD_ATTRIBUTE", GROUP_BY_AD_ATTRIBUTE = _objectSpread({}, GROUP_BY_ATTRIBUTE));
