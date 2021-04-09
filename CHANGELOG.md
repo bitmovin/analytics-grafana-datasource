@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - order by interval option in query editor
 - missing attributes for `dimension` and `orderBy`
 - query option to adjust time range to complete datapoints based on current interval
+- `VIDEOSTART_FAILED`, `VIDEOSTART_FAILED_REASON` and `PLAY_ATTEMPTS` as filters/groupBys (AN-2229, AN-2230, AN-2231)
 
 ## 0.0.3
 
