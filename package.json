@@ -44,7 +44,7 @@
   "dependencies": {
     "@babel/plugin-transform-for-of": "^7.4.3",
     "@babel/plugin-transform-modules-systemjs": "^7.4.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.21",
     "mocha": "^3.2.0"
   },
   "homepage": "https://github.com/grafana/simple-json-datasource#readme"
