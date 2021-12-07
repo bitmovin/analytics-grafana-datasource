@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- customData 8-25
+- customData 8-25 to queryAttrubutes
+- customData 6-25 to queryAdAttrubutes
+- customData 6-25 to isNullFilter
 
 ## 0.0.4
 
