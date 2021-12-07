@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+### Added
+
+- customData 8-25
+
 ## 0.0.4
 
 ### Added
