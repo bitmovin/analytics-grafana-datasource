@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- customData 8-25 to queryAttributes
+- customData 6-25 to queryAdAttributes
+- customData 6-25 to isNullFilter
+
+## 0.0.4
+
+### Added
+
 - Grafana ad hoc filters
 - order by interval option in query editor
 - missing attributes for `dimension` and `orderBy`

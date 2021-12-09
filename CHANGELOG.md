@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+## 0.0.4
+
 ### Added
 
 - customData 8-25 to queryAttributes
