@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
-## 0.2.0
+## 0.1.0
 
 ### Added
 
@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - versioning to semver
 
-## 0.1.0
+## 0.0.5
 
 ### Added
 
