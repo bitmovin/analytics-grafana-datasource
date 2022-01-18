@@ -52,6 +52,11 @@ System.register([], function (_export, _context) {
         CUSTOM_DATA_23: 'CUSTOM_DATA_23',
         CUSTOM_DATA_24: 'CUSTOM_DATA_24',
         CUSTOM_DATA_25: 'CUSTOM_DATA_25',
+        CUSTOM_DATA_26: "CUSTOM_DATA_26",
+        CUSTOM_DATA_27: "CUSTOM_DATA_27",
+        CUSTOM_DATA_28: "CUSTOM_DATA_28",
+        CUSTOM_DATA_29: "CUSTOM_DATA_29",
+        CUSTOM_DATA_30: "CUSTOM_DATA_30",
         CUSTOM_USER_ID: 'CUSTOM_USER_ID',
         DAY: 'DAY',
         DAYPART: 'DAYPART',
@@ -201,6 +206,11 @@ System.register([], function (_export, _context) {
         CUSTOM_DATA_23: 'CUSTOM_DATA_23',
         CUSTOM_DATA_24: 'CUSTOM_DATA_24',
         CUSTOM_DATA_25: 'CUSTOM_DATA_25',
+        CUSTOM_DATA_26: "CUSTOM_DATA_26",
+        CUSTOM_DATA_27: "CUSTOM_DATA_27",
+        CUSTOM_DATA_28: "CUSTOM_DATA_28",
+        CUSTOM_DATA_29: "CUSTOM_DATA_29",
+        CUSTOM_DATA_30: "CUSTOM_DATA_30",
         CUSTOM_USER_ID: 'CUSTOM_USER_ID',
         DEAL_ID: 'DEAL_ID',
         DEVICE_CLASS: 'DEVICE_CLASS',
@@ -331,6 +341,11 @@ System.register([], function (_export, _context) {
           case ATTRIBUTE.CUSTOM_DATA_23:
           case ATTRIBUTE.CUSTOM_DATA_24:
           case ATTRIBUTE.CUSTOM_DATA_25:
+          case ATTRIBUTE.CUSTOM_DATA_26:
+          case ATTRIBUTE.CUSTOM_DATA_27:
+          case ATTRIBUTE.CUSTOM_DATA_28:
+          case ATTRIBUTE.CUSTOM_DATA_29:
+          case ATTRIBUTE.CUSTOM_DATA_30:
           case ATTRIBUTE.CUSTOM_USER_ID:
           case ATTRIBUTE.EXPERIMENT_NAME:
           case ATTRIBUTE.ISP:
