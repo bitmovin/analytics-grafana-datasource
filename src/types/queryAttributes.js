@@ -38,6 +38,11 @@ export const ATTRIBUTE = {
   CUSTOM_DATA_23: 'CUSTOM_DATA_23',
   CUSTOM_DATA_24: 'CUSTOM_DATA_24',
   CUSTOM_DATA_25: 'CUSTOM_DATA_25',
+  CUSTOM_DATA_26: "CUSTOM_DATA_26",
+  CUSTOM_DATA_27: "CUSTOM_DATA_27",
+  CUSTOM_DATA_28: "CUSTOM_DATA_28",
+  CUSTOM_DATA_29: "CUSTOM_DATA_29",
+  CUSTOM_DATA_30: "CUSTOM_DATA_30",
   CUSTOM_USER_ID: 'CUSTOM_USER_ID',
   DAY: 'DAY',
   DAYPART: 'DAYPART',
@@ -187,6 +192,11 @@ export const AD_ATTRIBUTE = {
   CUSTOM_DATA_23: 'CUSTOM_DATA_23',
   CUSTOM_DATA_24: 'CUSTOM_DATA_24',
   CUSTOM_DATA_25: 'CUSTOM_DATA_25',
+  CUSTOM_DATA_26: "CUSTOM_DATA_26",
+  CUSTOM_DATA_27: "CUSTOM_DATA_27",
+  CUSTOM_DATA_28: "CUSTOM_DATA_28",
+  CUSTOM_DATA_29: "CUSTOM_DATA_29",
+  CUSTOM_DATA_30: "CUSTOM_DATA_30",
   CUSTOM_USER_ID: 'CUSTOM_USER_ID',
   DEAL_ID: 'DEAL_ID',
   DEVICE_CLASS: 'DEVICE_CLASS',
@@ -262,12 +272,12 @@ export const ORDERBY_ATTRIBUTES = {
 export const getAttributeValues = (list) => Object.keys(list).map(key => list[key]);
 export const ATTRIBUTE_LIST = getAttributeValues(ATTRIBUTE);
 export const AD_ATTRIBUTE_LIST = getAttributeValues(AD_ATTRIBUTE);
-export const ORDERBY_ATTRIBUTES_LIST = getAttributeValues({ ...ATTRIBUTE, FUNCTION: 'FUNCTION', INTERVAL: 'INTERVAL' });
-export const ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues({ ...AD_ATTRIBUTE, FUNCTION: 'FUNCTION', INTERVAL: 'INTERVAL' });
+export const ORDERBY_ATTRIBUTES_LIST = getAttributeValues({...ATTRIBUTE, FUNCTION: 'FUNCTION', INTERVAL: 'INTERVAL'});
+export const ORDERBY_AD_ATTRIBUTES_LIST = getAttributeValues({...AD_ATTRIBUTE, FUNCTION: 'FUNCTION', INTERVAL: 'INTERVAL'});
 export const METRICS_ATTRIBUTE_LIST = [ATTRIBUTE.MAX_CONCURRENTVIEWERS, ATTRIBUTE.AVG_CONCURRENTVIEWERS];
 
 export const getAsOptionsList = (list) => {
-  return _.map(list, (e) => ({ value: e, text: e }));
+  return _.map(list, (e) => ({value: e, text: e}));
 }
 
 
@@ -299,6 +309,11 @@ export const isNullFilter = (filter) => {
     case ATTRIBUTE.CUSTOM_DATA_23:
     case ATTRIBUTE.CUSTOM_DATA_24:
     case ATTRIBUTE.CUSTOM_DATA_25:
+    case ATTRIBUTE.CUSTOM_DATA_26:
+    case ATTRIBUTE.CUSTOM_DATA_27:
+    case ATTRIBUTE.CUSTOM_DATA_28:
+    case ATTRIBUTE.CUSTOM_DATA_29:
+    case ATTRIBUTE.CUSTOM_DATA_30:
     case ATTRIBUTE.CUSTOM_USER_ID:
     case ATTRIBUTE.EXPERIMENT_NAME:
     case ATTRIBUTE.ISP:
@@ -321,7 +336,7 @@ export const convertFilterValueToProperType = (filter) => {
         throw Error();
       }
       return value;
-    } catch (e) { throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).'); }
+    } catch (e) {throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).');}
   }
   switch (filter.name) {
     case ATTRIBUTE.IS_CASTING:
