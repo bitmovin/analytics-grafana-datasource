@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
-## 0.0.4
+## 0.2.0
+
+### Added
+
+- customData 26-30 to queryAttributes
+- customData 26-30 to queryAdAttributes
+- customData 26-30 to isNullFilter
+
+### Changed
+
+- versioning to semver
+
+## 0.1.0
 
 ### Added
 
