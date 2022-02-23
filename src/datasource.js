@@ -5,6 +5,8 @@ import { calculateAutoInterval, getMomentTimeUnitForQueryInterval, QUERY_INTERVA
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 import { OPERATOR } from './types/operators';
+import LicenseService from './licenseService';
+import RequestHandler from './requestHandler';
 
 const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric) => {
   if (isAdAnalytics === true) {
@@ -47,7 +49,7 @@ export class BitmovinAnalyticsDatasource {
     this.templateSrv = templateSrv;
     this.withCredentials = instanceSettings.withCredentials;
 
-    this.headers = {
+    const headers = {
       'Content-Type': 'application/json',
       'X-Api-Key': instanceSettings.jsonData.apiKey,
     };
@@ -60,6 +62,9 @@ export class BitmovinAnalyticsDatasource {
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
     }
+
+    this.requestHandler = new RequestHandler(backendSrv, headers, instanceSettings.withCredentials)
+    this.licenseService = new LicenseService(this.requestHandler, instanceSettings.url);
   }
 
   query(options) {
@@ -142,13 +147,14 @@ export class BitmovinAnalyticsDatasource {
       data['limit'] = Number(target.limit) || undefined;
       var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics, isMetric);
 
-      return this.doRequest({
+      const requestOptions = {
         url: apiRequestUrl + '/' + urlAppendix,
         data: data,
         method: 'POST',
         resultTarget: target.alias || target.refId,
         resultFormat: target.resultFormat
-      });
+      };
+      return this.requestHandler.doRequest(requestOptions);
     });
 
     return Promise.all(targetResponsePromises).then(targetResponses => {
@@ -164,10 +170,15 @@ export class BitmovinAnalyticsDatasource {
   }
 
   testDatasource() {
-    return this.getLicenses().then(response => {
+    const requestOptions = {
+      url: this.baseURL + '/analytics/licenses',
+      method: 'GET',
+    };
+    return this.requestHandler.doRequest(requestOptions).then(response => {
       if (response.status === 200) {
         return { status: "success", message: "Data source is working", title: "Success" };
       }
+      return { status: "error", message: "Data source is not working", title: "Error" };
     });
   }
 
@@ -186,21 +197,7 @@ export class BitmovinAnalyticsDatasource {
     return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
   }
 
-  doRequest(options) {
-    options.withCredentials = this.withCredentials;
-    options.headers = this.headers;
-
-    return this.backendSrv.datasourceRequest(options);
-  }
-
   buildQueryParameters(options) {
     return options;
-  }
-
-  getLicenses() {
-    return this.doRequest({
-      url: this.url + '/analytics/licenses',
-      method: 'GET',
-    });
   }
 }
