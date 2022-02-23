@@ -1,9 +1,9 @@
 "use strict";
 
-System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat", "./types/operators"], function (_export, _context) {
+System.register(["lodash", "./types/queryAttributes", "./types/aggregations", "./types/intervals", "./result_transformer", "./types/resultFormat", "./types/operators", "./licenseService", "./requestHandler"], function (_export, _context) {
   "use strict";
 
-  var _, convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList, AGGREGATION, calculateAutoInterval, getMomentTimeUnitForQueryInterval, QUERY_INTERVAL, transform, ResultFormat, OPERATOR, getApiRequestUrl, mapMathOperatorToAnalyticsFilterOperator, BitmovinAnalyticsDatasource;
+  var _, convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList, AGGREGATION, calculateAutoInterval, getMomentTimeUnitForQueryInterval, QUERY_INTERVAL, transform, ResultFormat, OPERATOR, LicenseService, RequestHandler, getApiRequestUrl, mapMathOperatorToAnalyticsFilterOperator, BitmovinAnalyticsDatasource;
 
   function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -42,6 +42,10 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
       ResultFormat = _typesResultFormat.ResultFormat;
     }, function (_typesOperators) {
       OPERATOR = _typesOperators.OPERATOR;
+    }, function (_licenseService) {
+      LicenseService = _licenseService.default;
+    }, function (_requestHandler) {
+      RequestHandler = _requestHandler.default;
     }],
     execute: function () {
       getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics, isMetric) {
@@ -95,7 +99,7 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
           this.backendSrv = backendSrv;
           this.templateSrv = templateSrv;
           this.withCredentials = instanceSettings.withCredentials;
-          this.headers = {
+          var headers = {
             'Content-Type': 'application/json',
             'X-Api-Key': instanceSettings.jsonData.apiKey
           };
@@ -108,6 +112,9 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
           if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
             this.headers['Authorization'] = instanceSettings.basicAuth;
           }
+
+          this.requestHandler = new RequestHandler(backendSrv, headers, instanceSettings.withCredentials);
+          this.licenseService = new LicenseService(this.requestHandler, instanceSettings.url);
         }
 
         _createClass(BitmovinAnalyticsDatasource, [{
@@ -206,13 +213,14 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
               });
               data['limit'] = Number(target.limit) || undefined;
               var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics, isMetric);
-              return _this.doRequest({
+              var requestOptions = {
                 url: apiRequestUrl + '/' + urlAppendix,
                 data: data,
                 method: 'POST',
                 resultTarget: target.alias || target.refId,
                 resultFormat: target.resultFormat
-              });
+              };
+              return _this.requestHandler.doRequest(requestOptions);
             });
 
             return Promise.all(targetResponsePromises).then(function (targetResponses) {
@@ -231,7 +239,11 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
         }, {
           key: "testDatasource",
           value: function testDatasource() {
-            return this.getLicenses().then(function (response) {
+            var requestOptions = {
+              url: this.baseURL + '/analytics/licenses',
+              method: 'GET'
+            };
+            return this.requestHandler.doRequest(requestOptions).then(function (response) {
               if (response.status === 200) {
                 return {
                   status: "success",
@@ -239,6 +251,12 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
                   title: "Success"
                 };
               }
+
+              return {
+                status: "error",
+                message: "Data source is not working",
+                title: "Error"
+              };
             });
           }
         }, {
@@ -257,24 +275,9 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
             return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
           }
         }, {
-          key: "doRequest",
-          value: function doRequest(options) {
-            options.withCredentials = this.withCredentials;
-            options.headers = this.headers;
-            return this.backendSrv.datasourceRequest(options);
-          }
-        }, {
           key: "buildQueryParameters",
           value: function buildQueryParameters(options) {
             return options;
-          }
-        }, {
-          key: "getLicenses",
-          value: function getLicenses() {
-            return this.doRequest({
-              url: this.url + '/analytics/licenses',
-              method: 'GET'
-            });
           }
         }]);
 

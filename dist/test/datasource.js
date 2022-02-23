@@ -19,6 +19,10 @@ var _resultFormat = require("./types/resultFormat");
 
 var _operators = require("./types/operators");
 
+var _licenseService = _interopRequireDefault(require("./licenseService"));
+
+var _requestHandler = _interopRequireDefault(require("./requestHandler"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -86,7 +90,7 @@ function () {
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
     this.withCredentials = instanceSettings.withCredentials;
-    this.headers = {
+    var headers = {
       'Content-Type': 'application/json',
       'X-Api-Key': instanceSettings.jsonData.apiKey
     };
@@ -99,6 +103,9 @@ function () {
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
     }
+
+    this.requestHandler = new _requestHandler["default"](backendSrv, headers, instanceSettings.withCredentials);
+    this.licenseService = new _licenseService["default"](this.requestHandler, instanceSettings.url);
   }
 
   _createClass(BitmovinAnalyticsDatasource, [{
@@ -199,13 +206,14 @@ function () {
         });
         data['limit'] = Number(target.limit) || undefined;
         var apiRequestUrl = getApiRequestUrl(_this.url, _this.isAdAnalytics, isMetric);
-        return _this.doRequest({
+        var requestOptions = {
           url: apiRequestUrl + '/' + urlAppendix,
           data: data,
           method: 'POST',
           resultTarget: target.alias || target.refId,
           resultFormat: target.resultFormat
-        });
+        };
+        return _this.requestHandler.doRequest(requestOptions);
       });
 
       return Promise.all(targetResponsePromises).then(function (targetResponses) {
@@ -224,7 +232,11 @@ function () {
   }, {
     key: "testDatasource",
     value: function testDatasource() {
-      return this.getLicenses().then(function (response) {
+      var requestOptions = {
+        url: this.baseURL + '/analytics/licenses',
+        method: 'GET'
+      };
+      return this.requestHandler.doRequest(requestOptions).then(function (response) {
         if (response.status === 200) {
           return {
             status: "success",
@@ -232,6 +244,12 @@ function () {
             title: "Success"
           };
         }
+
+        return {
+          status: "error",
+          message: "Data source is not working",
+          title: "Error"
+        };
       });
     }
   }, {
@@ -250,24 +268,9 @@ function () {
       return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.ATTRIBUTE_LIST));
     }
   }, {
-    key: "doRequest",
-    value: function doRequest(options) {
-      options.withCredentials = this.withCredentials;
-      options.headers = this.headers;
-      return this.backendSrv.datasourceRequest(options);
-    }
-  }, {
     key: "buildQueryParameters",
     value: function buildQueryParameters(options) {
       return options;
-    }
-  }, {
-    key: "getLicenses",
-    value: function getLicenses() {
-      return this.doRequest({
-        url: this.url + '/analytics/licenses',
-        method: 'GET'
-      });
     }
   }]);
 
