@@ -126,6 +126,7 @@ System.register([], function (_export, _context) {
         DRM_LOAD_TIME: 'DRM_LOAD_TIME',
         ISP: 'ISP',
         ASN: 'ASN',
+        STREAM_EXITS: 'STREAM_EXITS',
         MAX_CONCURRENTVIEWERS: 'MAX_CONCURRENTVIEWERS',
         AVG_CONCURRENTVIEWERS: 'AVG_CONCURRENTVIEWERS',
         VIDEOSTART_FAILED: 'VIDEOSTART_FAILED',

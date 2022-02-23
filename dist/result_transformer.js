@@ -1,17 +1,21 @@
 "use strict";
 
-System.register(["./types/resultFormat"], function (_export, _context) {
+System.register(["./types/resultFormat", "./utils"], function (_export, _context) {
   "use strict";
 
-  var ResultFormat, transformDataToTable, transformDataToTimeSeries, transform;
+  var ResultFormat, padTimeSeriesAndSortByDate, transformDataToTable, transformDataToTimeSeries, transform;
   return {
     setters: [function (_typesResultFormat) {
       ResultFormat = _typesResultFormat.ResultFormat;
+    }, function (_utils) {
+      padTimeSeriesAndSortByDate = _utils.padTimeSeriesAndSortByDate;
     }],
     execute: function () {
-      transformDataToTable = function transformDataToTable(analyticsResult, options) {
-        var datapoints = _.map(analyticsResult.rows, function (row) {
-          return [row[1], row[0]]; // value, timestamp
+      transformDataToTable = function transformDataToTable(rows, options) {
+        var datapoints = _.map(rows, function (row) {
+          var timestamp = row[0];
+          var value = row[1];
+          return [value, timestamp];
         });
 
         return {
@@ -23,6 +27,9 @@ System.register(["./types/resultFormat"], function (_export, _context) {
       transformDataToTimeSeries = function transformDataToTimeSeries(analyticsResult, options) {
         var groupBys = options.data.groupBy;
         var results = [];
+        var interval = options.data.interval;
+        var fromDate = new Date(options.data.start).getTime();
+        var toDate = new Date(options.data.end).getTime();
 
         if (groupBys.length > 0) {
           var groupings = {};
@@ -34,19 +41,23 @@ System.register(["./types/resultFormat"], function (_export, _context) {
               groupings[metricLabel] = [];
             }
 
-            groupings[metricLabel].push([row[2], row[0]]); // value, timestamp
+            var value = row[2];
+            var timestamp = row[0];
+            groupings[metricLabel].push([value, timestamp]);
           });
 
-          Object.keys(groupings).map(function (key) {
+          for (var _i = 0, _Object$keys = Object.keys(groupings); _i < _Object$keys.length; _i++) {
+            var key = _Object$keys[_i];
             var datapoints = groupings[key];
             var series = {
               target: key,
               datapoints: _.orderBy(datapoints, [1], 'asc')
             };
             results.push(series);
-          });
+          }
         } else {
-          var result = transformDataToTable(analyticsResult, options);
+          var paddedSeries = padTimeSeriesAndSortByDate(analyticsResult.rows, fromDate, toDate, interval);
+          var result = transformDataToTable(paddedSeries, options);
           result.datapoints = _.orderBy(result.datapoints, [1], 'asc');
           results.push(result);
         }
@@ -59,7 +70,7 @@ System.register(["./types/resultFormat"], function (_export, _context) {
         var config = response.config;
 
         if (config.resultFormat === ResultFormat.TABLE) {
-          return [transformDataToTable(analyticsResult, config)];
+          return [transformDataToTable(analyticsResult.rows, config)];
         } else if (config.resultFormat === ResultFormat.TIME_SERIES) {
           return transformDataToTimeSeries(analyticsResult, config);
         }

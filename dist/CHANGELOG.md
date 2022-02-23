@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - metrics `MAX_CONCURRENTVIEWERS` and `AVG_CONCURRENTVIEWERS`
 - groupby attributes list
 - interval `SECOND`
+- zero-padding to time series
 
 ## 0.0.2
 
