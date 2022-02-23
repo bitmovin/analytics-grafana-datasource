@@ -13,9 +13,9 @@ System.register(["./types/resultFormat", "./utils"], function (_export, _context
     execute: function () {
       transformDataToTable = function transformDataToTable(rows, options) {
         var datapoints = _.map(rows, function (row) {
-          var timestmap = row[0];
+          var timestamp = row[0];
           var value = row[1];
-          return [value, timestmap];
+          return [value, timestamp];
         });
 
         return {
