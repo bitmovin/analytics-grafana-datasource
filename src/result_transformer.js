@@ -3,9 +3,9 @@ import {padTimeSeriesAndSortByDate} from './utils';
 
 const transformDataToTable = (rows, options) => {
   let datapoints = _.map(rows, row => {
-    const timestmap = row[0];
+    const timestamp = row[0];
     const value = row[1];
-    return [value, timestmap];
+    return [value, timestamp];
   });
 
   return {
