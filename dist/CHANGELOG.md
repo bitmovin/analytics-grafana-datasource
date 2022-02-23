@@ -7,11 +7,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
-- added Grafana Ad hoc filters
-- added order by interval option in query editor
-- added missing attributes
-- added query option to adjust time range to complete datapoints based on current interval
-- added optional new auto interval calculation to take the 200 datapoint API limit into account
+## 0.1.0
+
+### Added
+
+- customData 26-30 to queryAttributes
+- customData 26-30 to queryAdAttributes
+- customData 26-30 to isNullFilter
+
+### Changed
+
+- versioning to semver
+
+## 0.0.5
+
+### Added
+
+- customData 8-25 to queryAttributes
+- customData 6-25 to queryAdAttributes
+- customData 6-25 to isNullFilter
+
+## 0.0.4
+
+### Added
+
+- Grafana ad hoc filters
+- order by interval option in query editor
+- missing attributes for `dimension` and `orderBy`
+- query option to adjust time range to complete datapoints based on current interval
+- `VIDEOSTART_FAILED`, `VIDEOSTART_FAILED_REASON` and `PLAY_ATTEMPTS` as filters/groupBys (AN-2229, AN-2230, AN-2231)
 
 ## 0.0.3
 

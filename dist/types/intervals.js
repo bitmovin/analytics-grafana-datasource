@@ -3,7 +3,7 @@
 System.register([], function (_export, _context) {
   "use strict";
 
-  var QUERY_INTERVAL, QUERY_INTERVAL_LIST, calculateAutoInterval, calculateAutoIntervalFromRange, intervalToMilliseconds;
+  var QUERY_INTERVAL, QUERY_INTERVAL_LIST, getMomentTimeUnitForQueryInterval, calculateAutoInterval, intervalToMilliseconds;
   return {
     setters: [],
     execute: function () {
@@ -20,34 +20,44 @@ System.register([], function (_export, _context) {
         return QUERY_INTERVAL[key];
       }));
 
-      _export("calculateAutoInterval", calculateAutoInterval = function calculateAutoInterval(intervalMs) {
-        if (intervalMs <= 1000) {
-          return QUERY_INTERVAL.SECOND;
-        } else if (intervalMs < 60000) {
-          return QUERY_INTERVAL.MINUTE;
-        } else if (intervalMs >= 60000 && intervalMs < 604800) {
-          return QUERY_INTERVAL.HOUR;
-        } else if (intervalMs >= 604800 && intervalMs < 2592000) {
-          return QUERY_INTERVAL.DAY;
-        } else {
-          return QUERY_INTERVAL.MONTH;
+      _export("getMomentTimeUnitForQueryInterval", getMomentTimeUnitForQueryInterval = function getMomentTimeUnitForQueryInterval(interval) {
+        switch (interval) {
+          case QUERY_INTERVAL.SECOND:
+            return 'second';
+
+          case QUERY_INTERVAL.MINUTE:
+            return 'minute';
+
+          case QUERY_INTERVAL.HOUR:
+            return 'hour';
+
+          case QUERY_INTERVAL.DAY:
+            return 'day';
+
+          case QUERY_INTERVAL.MONTH:
+            return 'month';
+
+          default:
+            return null;
         }
       });
 
-      _export("calculateAutoIntervalFromRange", calculateAutoIntervalFromRange = function calculateAutoIntervalFromRange(from, to) {
-        var dataPointIntervalMs = (to - from) / 200;
-
-        if (dataPointIntervalMs <= 1000) {
+      _export("calculateAutoInterval", calculateAutoInterval = function calculateAutoInterval(intervalMs) {
+        if (intervalMs <= 5 * 1000) {
+          // SECOND granularity for timeframes below 5min
           return QUERY_INTERVAL.SECOND;
-        } else if (dataPointIntervalMs > 1000 && dataPointIntervalMs <= 60000) {
+        } else if (intervalMs <= 3 * 60 * 60 * 1000) {
+          // MINUTE granularity for timeframes below 3h
           return QUERY_INTERVAL.MINUTE;
-        } else if (dataPointIntervalMs > 60000 && dataPointIntervalMs <= 3600000) {
+        } else if (intervalMs <= 6 * 24 * 60 * 60 * 1000) {
+          // HOUR granularity for timeframes below 6d
           return QUERY_INTERVAL.HOUR;
-        } else if (dataPointIntervalMs > 3600000 && dataPointIntervalMs <= 86400000) {
+        } else if (intervalMs <= 30 * 24 * 60 * 60 * 1000) {
+          // DAY granularity for timeframes below 30d
           return QUERY_INTERVAL.DAY;
-        } else {
-          return QUERY_INTERVAL.MONTH;
         }
+
+        return QUERY_INTERVAL.MONTH;
       });
       /**
        * Get corresponding interval in milliseconds.

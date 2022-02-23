@@ -17,6 +17,8 @@ var _result_transformer = require("./result_transformer");
 
 var _resultFormat = require("./types/resultFormat");
 
+var _operators = require("./types/operators");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -43,6 +45,31 @@ var getApiRequestUrl = function getApiRequestUrl(baseUrl, isAdAnalytics, isMetri
   }
 
   return baseUrl + '/analytics/queries';
+};
+
+var mapMathOperatorToAnalyticsFilterOperator = function mapMathOperatorToAnalyticsFilterOperator(operator) {
+  switch (operator) {
+    case '=':
+      return _operators.OPERATOR.EQ;
+
+    case '!=':
+      return _operators.OPERATOR.NE;
+
+    case '<':
+      return _operators.OPERATOR.LT;
+
+    case '<=':
+      return _operators.OPERATOR.LTE;
+
+    case '>':
+      return _operators.OPERATOR.GT;
+
+    case '>=':
+      return _operators.OPERATOR.GTE;
+
+    default:
+      return operator;
+  }
 };
 
 var BitmovinAnalyticsDatasource =
@@ -103,28 +130,9 @@ function () {
         var filters = _lodash["default"].map([].concat(_toConsumableArray(target.filter), _toConsumableArray(query.adhocFilters)), function (e) {
           var filter = {
             name: e.name ? e.name : e.key,
-            operator: e.operator,
+            operator: mapMathOperatorToAnalyticsFilterOperator(e.operator),
             value: _this.templateSrv.replace(e.value, options.scopedVars)
           };
-
-          switch (filter.operator) {
-            case '=':
-              filter.operator = 'EQ';
-              break;
-
-            case '!=':
-              filter.operator = 'NE';
-              break;
-
-            case '<':
-              filter.operator = 'LT';
-              break;
-
-            case '>':
-              filter.operator = 'GT';
-              break;
-          }
-
           return {
             name: filter.name,
             operator: filter.operator,
@@ -166,33 +174,19 @@ function () {
         }
 
         if (target.resultFormat === _resultFormat.ResultFormat.TIME_SERIES) {
-          if (target.intervalAutoLimit === true) {
-            data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoIntervalFromRange)(options.range.from.valueOf(), options.range.to.valueOf()) : target.interval;
-          } else {
-            data['interval'] = target.interval === _intervals.QUERY_INTERVAL.AUTO ? (0, _intervals.calculateAutoInterval)(options.intervalMs) : target.interval;
+          data['interval'] = target.interval;
+
+          if (target.interval === _intervals.QUERY_INTERVAL.AUTO) {
+            var intervalMs = options.range.to.valueOf() - options.range.from.valueOf();
+            data['interval'] = (0, _intervals.calculateAutoInterval)(intervalMs);
           }
 
           if (target.intervalSnapTo === true) {
-            switch (data['interval']) {
-              case _intervals.QUERY_INTERVAL.MONTH:
-                data['start'] = options.range.from.startOf('month').toISOString();
-                data['end'] = options.range.to.startOf('month').toISOString();
-                break;
+            var intervalTimeUnit = (0, _intervals.getMomentTimeUnitForQueryInterval)(data['interval']);
 
-              case _intervals.QUERY_INTERVAL.DAY:
-                data['start'] = options.range.from.startOf('day').toISOString();
-                data['end'] = options.range.to.startOf('day').toISOString();
-                break;
-
-              case _intervals.QUERY_INTERVAL.HOUR:
-                data['start'] = options.range.from.startOf('hour').toISOString();
-                data['end'] = options.range.to.startOf('hour').toISOString();
-                break;
-
-              case _intervals.QUERY_INTERVAL.MINUTE:
-                data['start'] = options.range.from.startOf('minute').toISOString();
-                data['end'] = options.range.to.startOf('minute').toISOString();
-                break;
+            if (intervalTimeUnit != null) {
+              data['start'] = options.range.from.startOf(intervalTimeUnit).toISOString();
+              data['end'] = options.range.to.startOf(intervalTimeUnit).toISOString();
             }
           }
         }
@@ -249,7 +243,10 @@ function () {
   }, {
     key: "getTagKeys",
     value: function getTagKeys(options) {
-      if (this.isAdAnalytics) return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.AD_ATTRIBUTE_LIST));
+      if (this.isAdAnalytics) {
+        return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.AD_ATTRIBUTE_LIST));
+      }
+
       return Promise.resolve((0, _queryAttributes.getAsOptionsList)(_queryAttributes.ATTRIBUTE_LIST));
     }
   }, {
