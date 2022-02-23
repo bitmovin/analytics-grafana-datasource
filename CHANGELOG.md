@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+### Added
+
+- virtual licenses to the license selection dropdown
+
 ## 0.1.0
 
 ### Added

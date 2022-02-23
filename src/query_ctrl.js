@@ -55,18 +55,11 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.target.limit = this.target.limit;
     this.lastQueryError = [];
 
-    this.datasource.getLicenses().then(response => {
-      if (response.status === 200) {
-        this.licenses = [DEFAULT_LICENSE];
+    this.datasource.licenseService.fetchLicenses().then(licenses => {
+      this.licenses = [DEFAULT_LICENSE].concat(licenses);
 
-        for (var item of response.data.data.result.items) {
-          item['label'] = item.name ? item.name : item.licenseKey;
-          this.licenses.push(item);
-        }
-
-        if (!this.target.license || !this.licenses.find(l => l.licenseKey === this.target.license)) {
-          this.target.license = DEFAULT_LICENSE.licenseKey;
-        }
+      if (!this.target.license || !this.licenses.find(l => l.licenseKey === this.target.license)) {
+        this.target.license = DEFAULT_LICENSE.licenseKey;
       }
     });
 
