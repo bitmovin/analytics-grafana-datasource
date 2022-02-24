@@ -56,11 +56,11 @@ export class BitmovinAnalyticsDatasource {
 
     const tenantOrgId = instanceSettings.jsonData.tenantOrgId;
     if (typeof tenantOrgId === 'string' && tenantOrgId.length > 0) {
-      this.headers['X-Tenant-Org-Id'] = tenantOrgId;
+      headers['X-Tenant-Org-Id'] = tenantOrgId;
     }
 
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
-      this.headers['Authorization'] = instanceSettings.basicAuth;
+      headers['Authorization'] = instanceSettings.basicAuth;
     }
 
     this.requestHandler = new RequestHandler(backendSrv, headers, instanceSettings.withCredentials)
