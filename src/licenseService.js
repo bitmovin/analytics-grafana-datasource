@@ -44,6 +44,14 @@ class LicenseService {
           'label': item.name ? item.name : item.id
         }),
       },
+      {
+        endpoint: '/analytics/demo-licenses',
+        mapperFunc: (item) => ({
+          ...item,
+          'licenseKey': item.id,
+          'label': item.name ? item.name : item.id
+        }),
+      },
     ];
     for (const item of licenseEndpoints) {
       try {
