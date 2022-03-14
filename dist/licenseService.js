@@ -152,6 +152,14 @@ System.register([], function (_export, _context) {
                             'label': item.name ? item.name : item.id
                           });
                         }
+                      }, {
+                        endpoint: '/analytics/demo-licenses',
+                        mapperFunc: function mapperFunc(item) {
+                          return _objectSpread({}, item, {
+                            'licenseKey': item.id,
+                            'label': item.name ? item.name : item.id
+                          });
+                        }
                       }];
                       _i = 0, _licenseEndpoints = licenseEndpoints;
 
