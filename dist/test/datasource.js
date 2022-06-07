@@ -233,7 +233,7 @@ function () {
     key: "testDatasource",
     value: function testDatasource() {
       var requestOptions = {
-        url: this.baseURL + '/analytics/licenses',
+        url: this.url + '/analytics/licenses',
         method: 'GET'
       };
       return this.requestHandler.doRequest(requestOptions).then(function (response) {
