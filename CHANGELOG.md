@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+### Fixed
+
+- incorrect URL when testing the data source
+
 ## 0.2.0
 
 ### Added
