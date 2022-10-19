@@ -47,7 +47,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.target.dimension = this.target.dimension || this.fields[0];
     this.target.license = this.target.license || this.licenses[0];
     this.target.resultFormat = this.target.resultFormat || this.resultFormats[0];
-    this.target.interval = this.target.interval || QUERY_INTERVAL.HOUR;
+    this.target.interval = this.target.interval || QUERY_INTERVAL.AUTO;
     this.target.alias = this.target.alias || '';
     this.target.groupBy = this.target.groupBy || [];
     this.target.orderBy = this.target.orderBy || [];
