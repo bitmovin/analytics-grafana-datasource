@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+## 0.2.2
+
 ### Changed
 - makes `auto` interval default interval
 

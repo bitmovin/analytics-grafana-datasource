@@ -96,7 +96,7 @@ function (_QueryCtrl) {
     _this.target.dimension = _this.target.dimension || _this.fields[0];
     _this.target.license = _this.target.license || _this.licenses[0];
     _this.target.resultFormat = _this.target.resultFormat || _this.resultFormats[0];
-    _this.target.interval = _this.target.interval || _intervals.QUERY_INTERVAL.HOUR;
+    _this.target.interval = _this.target.interval || _intervals.QUERY_INTERVAL.AUTO;
     _this.target.alias = _this.target.alias || '';
     _this.target.groupBy = _this.target.groupBy || [];
     _this.target.orderBy = _this.target.orderBy || [];
