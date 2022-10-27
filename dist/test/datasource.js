@@ -284,7 +284,7 @@ function () {
       if (result.datapointsCnt == 200) {
         return {
           cancelled: false,
-          message: "Your request reached the max row limit of the API. You might see incomplete data. This problem might be cause by the use of high cardinality columns in group by, too small interval or to big of a time range.",
+          message: "Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval or too big of a time range.",
           status: "WARNING"
         };
       }
