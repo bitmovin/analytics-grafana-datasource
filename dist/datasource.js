@@ -224,15 +224,20 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
             });
 
             return Promise.all(targetResponsePromises).then(function (targetResponses) {
-              var result = [];
+              var result = {
+                series: [],
+                datapointsCnt: 0
+              };
 
               _.map(targetResponses, function (response) {
-                var series = transform(response, options);
-                result = [].concat(_toConsumableArray(result), _toConsumableArray(series));
+                var partialResult = transform(response, options);
+                result.series = [].concat(_toConsumableArray(result.series), _toConsumableArray(partialResult.series));
+                result.datapointsCnt += partialResult.datapointsCnt;
               });
 
               return {
-                data: result
+                data: result.series,
+                error: _this.generateWarningsForResult(result)
               };
             });
           }
@@ -278,6 +283,20 @@ System.register(["lodash", "./types/queryAttributes", "./types/aggregations", ".
           key: "buildQueryParameters",
           value: function buildQueryParameters(options) {
             return options;
+          } // returns DataQueryError https://github.com/grafana/grafana/blob/08bf2a54523526a7f59f7c6a8dafaace79ab87db/packages/grafana-data/src/types/datasource.ts#L400
+
+        }, {
+          key: "generateWarningsForResult",
+          value: function generateWarningsForResult(result) {
+            if (result.datapointsCnt == 200) {
+              return {
+                cancelled: false,
+                message: "Your request reached the max row limit of the API. You might see incomplete data. This problem might be cause by the use of high cardinality columns in group by, too small interval or to big of a time range.",
+                status: "WARNING"
+              };
+            }
+
+            return null;
           }
         }]);
 

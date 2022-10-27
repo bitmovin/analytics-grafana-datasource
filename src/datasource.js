@@ -158,13 +158,18 @@ export class BitmovinAnalyticsDatasource {
     });
 
     return Promise.all(targetResponsePromises).then(targetResponses => {
-      let result = [];
+      let result = {
+        series: [],
+        datapointsCnt: 0
+      };
       _.map(targetResponses, response => {
-        const series = transform(response, options);
-        result = [...result, ...series];
+        const partialResult = transform(response, options);
+        result.series = [...result.series, ...partialResult.series];
+        result.datapointsCnt += partialResult.datapointsCnt
       });
       return {
-        data: result
+        data: result.series,
+        error: this.generateWarningsForResult(result)
       };
     });
   }
@@ -199,5 +204,18 @@ export class BitmovinAnalyticsDatasource {
 
   buildQueryParameters(options) {
     return options;
+  }
+
+  // returns DataQueryError https://github.com/grafana/grafana/blob/08bf2a54523526a7f59f7c6a8dafaace79ab87db/packages/grafana-data/src/types/datasource.ts#L400
+  generateWarningsForResult(result) {
+    if (result.datapointsCnt == 200) {
+      return {
+        cancelled: false,
+        message: "Your request reached the max row limit of the API. You might see incomplete data. This problem might be cause by the use of high cardinality columns in group by, too small interval or to big of a time range.",
+        status: "WARNING"
+      }
+    }
+
+    return null
   }
 }

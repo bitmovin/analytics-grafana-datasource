@@ -19,7 +19,7 @@
       {"name": "Apache License", "url": "https://github.com/bitmovin/analytics-grafana-datasource/blob/master/LICENSE"}
     ],
     "version": "0.2.2",
-    "updated": "2022-10-19"
+    "updated": "2022-10-27"
   },
 
   "dependencies": {
