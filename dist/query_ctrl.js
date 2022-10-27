@@ -122,6 +122,9 @@ System.register(["app/plugins/sdk", "./css/query-editor.css!", "lodash", "./type
             })) {
               _this.target.license = DEFAULT_LICENSE.licenseKey;
             }
+
+            _this.panelCtrl.refresh(); // Asks the panel to refresh data.
+
           });
 
           _this.panelCtrl.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_this)), $scope);

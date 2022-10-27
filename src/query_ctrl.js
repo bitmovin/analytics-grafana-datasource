@@ -61,6 +61,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
       if (!this.target.license || !this.licenses.find(l => l.licenseKey === this.target.license)) {
         this.target.license = DEFAULT_LICENSE.licenseKey;
       }
+      this.panelCtrl.refresh(); // Asks the panel to refresh data.
     });
 
     this.panelCtrl.events.on('data-received', this.onDataReceived.bind(this), $scope);
