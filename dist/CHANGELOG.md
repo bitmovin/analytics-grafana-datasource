@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Development
 
+## 0.3.0
+
+### Changed
+- bumps grafana version to 6.6
+
 ## 0.2.2
 
 ### Changed
