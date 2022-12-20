@@ -18,7 +18,7 @@
     "url": "https://github.com/grafana/simple-json-datasource/issues"
   },
   "engines": {
-    "node": "6.10.0"
+    "node": "12.22.12"
   },
   "engineStrict": true,
   "devDependencies": {
@@ -45,7 +45,8 @@
     "@babel/plugin-transform-for-of": "^7.4.3",
     "@babel/plugin-transform-modules-systemjs": "^7.4.0",
     "lodash": "^4.17.21",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "typescript": "^4.9.4"
   },
   "homepage": "https://github.com/grafana/simple-json-datasource#readme"
 }
