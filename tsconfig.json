@@ -1,0 +1,16 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "removeComments": true,
+    "noImplicitAny" : false,
+    "module": "commonjs",
+    "target": "es5",
+    "sourceMap": true,
+    // TODO the path is hardcoded specific for the files in /types folder, how to keep file strucutre when transforming all the other files to ts?
+    "outDir": "dist/types",
+    "watch": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
