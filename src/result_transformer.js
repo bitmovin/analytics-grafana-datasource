@@ -1,5 +1,5 @@
 import {ResultFormat} from './types/resultFormat';
-import {padTimeSeriesAndSortByDate} from './utils';
+import {padTimeSeriesAndSortByDate} from './utils/dataUtils';
 
 const transformDataToTable = (rows, options) => {
   let datapoints = _.map(rows, row => {
