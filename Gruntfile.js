@@ -11,10 +11,7 @@ module.exports = function(grunt) {
     clean: ["dist"],
     ts: {
       default: {
-        tsconfig: true,
-      },
-      options: {
-        fast: 'never'
+        tsconfig: './tsconfig.json',
       }
     },
     copy: {
