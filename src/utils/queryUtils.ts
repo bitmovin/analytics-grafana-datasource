@@ -1,7 +1,13 @@
 import {AD_ATTRIBUTE, ATTRIBUTE} from "../types/queryAttributes";
 import {OPERATOR} from "../types/operators";
 
-export const isNullFilter = (filter: {name: AD_ATTRIBUTE | ATTRIBUTE, operator: OPERATOR, value: string}): boolean => {
+export type QueryFilter = {
+    name: AD_ATTRIBUTE | ATTRIBUTE,
+    operator: OPERATOR,
+    value: string
+}
+
+export const isNullFilter = (filter: QueryFilter): boolean => {
     switch (filter.name) {
         case ATTRIBUTE.CDN_PROVIDER:
         case ATTRIBUTE.CUSTOM_DATA_1:
@@ -44,20 +50,26 @@ export const isNullFilter = (filter: {name: AD_ATTRIBUTE | ATTRIBUTE, operator: 
     }
 };
 
-export const convertFilterValueToProperType = (filter: {name: AD_ATTRIBUTE | ATTRIBUTE, operator: OPERATOR, value: string}) => {
+const tryParseValueForInFilter = (filter: QueryFilter): Array<string> => {
+    try {
+        const value: Array<string> = JSON.parse(filter.value);
+        if (!Array.isArray(value)) {
+            throw Error();
+        }
+        return value;
+    } catch (e) {throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).');}
+}
+
+export const convertFilterValueToProperType = (filter: QueryFilter): (boolean | number | string | Array<string>) => {
     const rawValue = filter.value;
     if ((!rawValue || rawValue === '') && isNullFilter(filter)) {
         return null;
     }
+
     if (filter.operator != null && filter.operator.toLowerCase() === 'in') {
-        try {
-            const value: Array<string> = JSON.parse(rawValue);
-            if (!Array.isArray(value)) {
-                throw Error();
-            }
-            return value;
-        } catch (e) {throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).');}
+        return tryParseValueForInFilter(filter);
     }
+
     switch (filter.name) {
         case ATTRIBUTE.IS_CASTING:
         case ATTRIBUTE.IS_LIVE:
