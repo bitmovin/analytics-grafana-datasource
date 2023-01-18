@@ -1,6 +1,7 @@
 import {AD_ATTRIBUTE, ATTRIBUTE} from "../types/queryAttributes";
+import {OPERATOR} from "../types/operators";
 
-export const isNullFilter = (filter): boolean => {
+export const isNullFilter = (filter: {name: AD_ATTRIBUTE | ATTRIBUTE, operator: OPERATOR, value: string}): boolean => {
     switch (filter.name) {
         case ATTRIBUTE.CDN_PROVIDER:
         case ATTRIBUTE.CUSTOM_DATA_1:
@@ -43,14 +44,14 @@ export const isNullFilter = (filter): boolean => {
     }
 };
 
-export const convertFilterValueToProperType = (filter) => {
+export const convertFilterValueToProperType = (filter: {name: AD_ATTRIBUTE | ATTRIBUTE, operator: OPERATOR, value: string}) => {
     const rawValue = filter.value;
     if ((!rawValue || rawValue === '') && isNullFilter(filter)) {
         return null;
     }
     if (filter.operator != null && filter.operator.toLowerCase() === 'in') {
         try {
-            const value = JSON.parse(rawValue);
+            const value: Array<string> = JSON.parse(rawValue);
             if (!Array.isArray(value)) {
                 throw Error();
             }
