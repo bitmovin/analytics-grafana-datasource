@@ -4,11 +4,16 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks("grunt-ts");
 
   grunt.initConfig({
 
     clean: ["dist"],
-
+    ts: {
+      default: {
+        tsconfig: './tsconfig.json',
+      }
+    },
     copy: {
       src_to_dist: {
         cwd: 'src',
@@ -92,5 +97,5 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'replace', 'babel', 'mochaTest']);
+  grunt.registerTask('default', ['clean', 'ts', 'copy:src_to_dist', 'copy:pluginDef', 'replace', 'babel', 'mochaTest']);
 };

@@ -1,4 +1,8 @@
 class RequestHandler {
+  backendService: any;
+  headers: unknown;
+  withCredentials: unknown;
+
   constructor(backendService, headers, withCredentials) {
     this.backendService = backendService;
     this.headers = headers;
@@ -11,6 +15,6 @@ class RequestHandler {
 
     return this.backendService.datasourceRequest(options);
   }
-};
+}
 
 export default RequestHandler;

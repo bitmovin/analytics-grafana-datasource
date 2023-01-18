@@ -1,7 +1,16 @@
 import _ from 'lodash';
-import { convertFilterValueToProperType, ATTRIBUTE, ATTRIBUTE_LIST, AD_ATTRIBUTE_LIST, METRICS_ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES, getAsOptionsList } from './types/queryAttributes';
+import {
+  ATTRIBUTE,
+  ATTRIBUTE_LIST,
+  AD_ATTRIBUTE_LIST,
+  METRICS_ATTRIBUTE_LIST,
+  QUERY_SPECIFIC_ORDERBY_ATTRIBUTES
+} from './types/queryAttributes';
+import {getAsOptionsList} from './utils/uiUtils'
+import { convertFilterValueToProperType } from './utils/queryUtils'
 import { AGGREGATION } from './types/aggregations';
-import { calculateAutoInterval, getMomentTimeUnitForQueryInterval, QUERY_INTERVAL } from './types/intervals';
+import { calculateAutoInterval, getMomentTimeUnitForQueryInterval } from './utils/intervalUtils';
+import { QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
 import { ResultFormat } from './types/resultFormat';
 import { OPERATOR } from './types/operators';
@@ -140,7 +149,7 @@ export class BitmovinAnalyticsDatasource {
       }
       data['groupBy'] = target.groupBy;
       data['orderBy'].forEach(e => {
-        if (e.name == ORDERBY_ATTRIBUTES.INTERVAL) {
+        if (e.name == QUERY_SPECIFIC_ORDERBY_ATTRIBUTES.INTERVAL) {
           e.name = data['interval'];
         }
       });

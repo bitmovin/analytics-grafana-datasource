@@ -2,12 +2,14 @@ import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
 import _ from 'lodash';
-import { ATTRIBUTE_LIST, convertFilterValueToProperType, getAsOptionsList, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
+import { ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
+import { getAsOptionsList } from './utils/uiUtils';
 import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
 import { AGGREGATION_LIST } from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
 import { GROUP_BY_ATTRIBUTE_LIST, GROUP_BY_AD_ATTRIBUTE_LIST } from './types/queryGrouByAttributes';
+import { convertFilterValueToProperType } from './utils/queryUtils'
 
 const REMOVE_ITEM_TEXT = '-- Remove --';
 const DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
