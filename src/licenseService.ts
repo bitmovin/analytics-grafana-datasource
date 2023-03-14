@@ -1,4 +1,9 @@
+import RequestHandler from "./requestHandler";
+
 class LicenseService {
+
+  requestHandler: RequestHandler;
+  baseURL: string;
 
   constructor(requestHandler, baseURL) {
     this.requestHandler = requestHandler;

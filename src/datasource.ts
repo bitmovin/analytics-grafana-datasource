@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {
   ATTRIBUTE,
   ATTRIBUTE_LIST,
@@ -17,7 +16,7 @@ import { OPERATOR } from './types/operators';
 import LicenseService from './licenseService';
 import RequestHandler from './requestHandler';
 
-const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric) => {
+const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric): string => {
   if (isAdAnalytics === true) {
     return baseUrl + '/analytics/ads/queries';
   }
@@ -47,6 +46,18 @@ const mapMathOperatorToAnalyticsFilterOperator = (operator) => {
 };
 
 export class BitmovinAnalyticsDatasource {
+
+  //TODOMY besser unknonw als any
+  type: string;
+  url: string;
+  isAdAnalytics: boolean;
+  name: string;
+  q: any;
+  backendSrv: any;
+  templateSrv: any;
+  withCredentials: boolean;
+  requestHandler: RequestHandler;
+  licenseService: LicenseService;
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
@@ -90,11 +101,12 @@ export class BitmovinAnalyticsDatasource {
       query.adhocFilters = [];
     }
 
-    const targetResponsePromises = _.map(query.targets, target => {
+
+    const targetResponsePromises = query.targets.map(target => {
       target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
       target.interval = target.interval || QUERY_INTERVAL.HOUR;
 
-      const filters = _.map([...target.filter, ...query.adhocFilters], e => {
+      const filters = [...target.filter, ...query.adhocFilters].map( e => {
         let filter = {
           name: (e.name) ? e.name : e.key,
           operator: mapMathOperatorToAnalyticsFilterOperator(e.operator),
@@ -106,7 +118,7 @@ export class BitmovinAnalyticsDatasource {
           value: convertFilterValueToProperType(filter)
         }
       });
-      const orderBy = _.map(target.orderBy, e => ({ name: e.name, order: e.order }));
+      const orderBy = target.orderBy.map(e => ({ name: e.name, order: e.order }));
       const data = {
         licenseKey: target.license,
         start: options.range.from.toISOString(),
@@ -171,7 +183,7 @@ export class BitmovinAnalyticsDatasource {
         series: [],
         datapointsCnt: 0
       };
-      _.map(targetResponses, response => {
+      targetResponses.map(response => {
         const partialResult = transform(response, options);
         result.series = [...result.series, ...partialResult.series];
         result.datapointsCnt += partialResult.datapointsCnt

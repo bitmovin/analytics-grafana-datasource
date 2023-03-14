@@ -1,7 +1,8 @@
+//TODOMY why doesn't typescript find this?
+// @ts-ignore
 import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
-import _ from 'lodash';
 import { ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
 import { getAsOptionsList } from './utils/uiUtils';
 import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
@@ -17,6 +18,29 @@ const DEFAULT_OPERATOR = OPERATOR.EQ;
 const GROUPBY_DEFAULT_ORDER = ORDERBY.ASC;
 
 export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
+
+  scope: any;
+  $q: any;
+  uiSegmentSrv: any;
+  metrics: any;
+  fields: any;
+  groupByFields: any;
+  orderByFields: any[];
+  datasource: any;
+  licenses: any;
+  resultFormats: any;
+  intervals: any;
+  filterSegment: any;
+  groupBySegment: any;
+  orderBySegment: any;
+  groupByParts: any;
+  orderBySegments: any;
+  filterSegments: any;
+  target: any;
+  lastQueryError: any;
+  panelCtrl: any;
+  static templateUrl: string;
+
 
   constructor($scope, $injector, templateSrv, $q, uiSegmentSrv) {
     super($scope, $injector);
@@ -169,7 +193,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh();
   }
 
-  createFilter(name, operator, value = null) {
+  createFilter(name, operator = null, value = null) {
     const filter = { name, operator: operator || DEFAULT_OPERATOR, value };
     filter.value = convertFilterValueToProperType(filter)
     return filter;
@@ -179,7 +203,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
   }
 
-  createOrderBy(name, order) {
+  createOrderBy(name, order = null) {
     return { name, order: order || GROUPBY_DEFAULT_ORDER };
   }
 

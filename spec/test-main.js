@@ -3,7 +3,7 @@ import {jsdom} from 'jsdom';
 import chai from 'chai';
 
 // Mock Grafana modules that are not available outside of the core project
-// Required for loading module.js
+// Required for loading module.ts
 prunk.mock('./css/query-editor.css!', 'no css, dude.');
 prunk.mock('app/plugins/sdk', {
     QueryCtrl: null
