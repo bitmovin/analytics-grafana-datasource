@@ -15,7 +15,7 @@ const fillDataRow = (series: Array<[timestamp: any, value: number]>, timestamp: 
  * @param {String} interval The interval used for the query, e.g. SECOND, MINUTE, HOUR, ...
  * @param {number} padWith The value that is used for padding, defaults to null
  */
-export const padTimeSeriesAndSortByDate = (series: Array<[timestamp: any, value: number]>, fromDate: number, toDate: number, interval: string, padWith: number = null): Array<[timestamp: any, value: number]> => {
+export const padTimeSeriesAndSortByDate = (series: Array<[timestamp: number, value: any]>, fromDate: number, toDate: number, interval: string, padWith: number = null): Array<[timestamp: number, value: any]> => {
     const intervalInMillis = intervalToMilliseconds(interval);
     if (series == null || series.length === 0 || intervalInMillis < 0) {
         return series;

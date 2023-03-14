@@ -11,7 +11,7 @@ import { AGGREGATION } from './types/aggregations';
 import { calculateAutoInterval, getMomentTimeUnitForQueryInterval } from './utils/intervalUtils';
 import { QUERY_INTERVAL } from './types/intervals';
 import { transform } from './result_transformer';
-import { ResultFormat } from './types/resultFormat';
+import {ResultData, ResultFormat, ResultSeriesData} from './types/resultFormat';
 import { OPERATOR } from './types/operators';
 import LicenseService from './licenseService';
 import RequestHandler from './requestHandler';
@@ -26,7 +26,7 @@ const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric): string => {
   return baseUrl + '/analytics/queries';
 };
 
-const mapMathOperatorToAnalyticsFilterOperator = (operator) => {
+const mapMathOperatorToAnalyticsFilterOperator = (operator): OPERATOR => {
   switch (operator) {
     case '=':
       return OPERATOR.EQ;
@@ -41,13 +41,11 @@ const mapMathOperatorToAnalyticsFilterOperator = (operator) => {
     case '>=':
       return OPERATOR.GTE;
     default:
-      return operator;
+      return OPERATOR[operator];
   }
 };
 
 export class BitmovinAnalyticsDatasource {
-
-  //TODOMY besser unknonw als any
   type: string;
   url: string;
   isAdAnalytics: boolean;
@@ -87,7 +85,7 @@ export class BitmovinAnalyticsDatasource {
     this.licenseService = new LicenseService(this.requestHandler, instanceSettings.url);
   }
 
-  query(options) {
+  query(options): Promise<{data: ResultSeriesData[], error?: {cancelled: boolean, message: string, status: string}}> {
     const query = this.buildQueryParameters(options);
     query.targets = query.targets.filter(t => !t.hide);
 
@@ -179,7 +177,7 @@ export class BitmovinAnalyticsDatasource {
     });
 
     return Promise.all(targetResponsePromises).then(targetResponses => {
-      let result = {
+      let result: ResultData = {
         series: [],
         datapointsCnt: 0
       };
@@ -195,7 +193,7 @@ export class BitmovinAnalyticsDatasource {
     });
   }
 
-  testDatasource() {
+  testDatasource(): {status: string, message: string, title: string} {
     const requestOptions = {
       url: this.url + '/analytics/licenses',
       method: 'GET',
@@ -223,12 +221,12 @@ export class BitmovinAnalyticsDatasource {
     return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
   }
 
-  buildQueryParameters(options) {
+  buildQueryParameters(options): any {
     return options;
   }
 
   // returns DataQueryError https://github.com/grafana/grafana/blob/08bf2a54523526a7f59f7c6a8dafaace79ab87db/packages/grafana-data/src/types/datasource.ts#L400
-  generateWarningsForResult(result) {
+  generateWarningsForResult(result): {cancelled: boolean, message: string, status: string} {
     if (result.datapointsCnt == 200) {
       return {
         cancelled: false,

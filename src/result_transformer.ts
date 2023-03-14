@@ -1,7 +1,7 @@
-import {ResultFormat} from './types/resultFormat';
+import {ResultData, ResultFormat, ResultSeriesData} from './types/resultFormat';
 import {padTimeSeriesAndSortByDate} from './utils/dataUtils';
 
-const transformDataToTable = (rows, options) => {
+const transformDataToTable = (rows, options): ResultSeriesData => {
   let datapoints = rows.map(row => {
     const timestamp = row[0];
     const value = row[1];
@@ -14,7 +14,7 @@ const transformDataToTable = (rows, options) => {
   }
 }
 
-const transformDataToTimeSeries = (analyticsResult, options) => {
+const transformDataToTimeSeries = (analyticsResult, options): ResultData => {
   const groupBys = options.data.groupBy;
   const series = [];
   let datapointsCnt = 0;
@@ -57,11 +57,11 @@ const transformDataToTimeSeries = (analyticsResult, options) => {
   };
 }
 
-const sortDatapointsByTime = (datapoints: [Array<number>]): [Array<number>] => {
+const sortDatapointsByTime = (datapoints: [Array<any>]): [Array<any>] => {
   return datapoints.sort((a, b) => {return a[1] - b[1]})
 }
 
-export const transform = (response, options) => {
+export const transform = (response, options): ResultData => {
   const analyticsResult = response.data.data.result;
   const config = response.config;
   if (config.resultFormat === ResultFormat.TABLE) {
