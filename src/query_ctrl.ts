@@ -1,16 +1,29 @@
-//TODOMY why doesn't typescript find this?
-// @ts-ignore
+// @ts-ignore - just a temporary solution we will migrate to grafana toolkit and react soon
 import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
-import { ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
+import {
+  ATTRIBUTE_LIST,
+  ORDERBY_ATTRIBUTES_LIST,
+  AD_ATTRIBUTE_LIST,
+  ORDERBY_AD_ATTRIBUTES_LIST,
+  METRICS_ATTRIBUTE_LIST,
+  ATTRIBUTE,
+  AD_ATTRIBUTE, QUERY_SPECIFIC_ORDERBY_ATTRIBUTES
+} from './types/queryAttributes';
 import { getAsOptionsList } from './utils/uiUtils';
 import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
-import { AGGREGATION_LIST } from './types/aggregations';
+import {AGGREGATION, AGGREGATION_LIST} from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
-import { GROUP_BY_ATTRIBUTE_LIST, GROUP_BY_AD_ATTRIBUTE_LIST } from './types/queryGrouByAttributes';
+import {
+  GROUP_BY_ATTRIBUTE_LIST,
+  GROUP_BY_AD_ATTRIBUTE_LIST,
+  GROUP_BY_ATTRIBUTE,
+  GROUP_BY_AD_ATTRIBUTE
+} from './types/queryGrouByAttributes';
 import { convertFilterValueToProperType } from './utils/queryUtils'
+import {LicenseViewModel} from "./types/licenses";
 
 const REMOVE_ITEM_TEXT = '-- Remove --';
 const DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
@@ -22,14 +35,14 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   scope: any;
   $q: any;
   uiSegmentSrv: any;
-  metrics: any;
-  fields: any;
-  groupByFields: any;
-  orderByFields: any[];
+  metrics: AGGREGATION[];
+  fields:  ATTRIBUTE[] | AD_ATTRIBUTE[];
+  groupByFields:  GROUP_BY_ATTRIBUTE[] | GROUP_BY_AD_ATTRIBUTE[];
+  orderByFields: (ATTRIBUTE | QUERY_SPECIFIC_ORDERBY_ATTRIBUTES)[] | (AD_ATTRIBUTE | QUERY_SPECIFIC_ORDERBY_ATTRIBUTES)[];
   datasource: any;
-  licenses: any;
-  resultFormats: any;
-  intervals: any;
+  licenses: LicenseViewModel[];
+  resultFormats: ResultFormat[];
+  intervals: QUERY_INTERVAL[];
   filterSegment: any;
   groupBySegment: any;
   orderBySegment: any;
@@ -37,7 +50,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
   orderBySegments: any;
   filterSegments: any;
   target: any;
-  lastQueryError: any;
+  lastQueryError: any[];
   panelCtrl: any;
   static templateUrl: string;
 
@@ -193,7 +206,7 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh();
   }
 
-  createFilter(name, operator = null, value = null) {
+  createFilter(name, operator = null, value = null): {name: string, operator: any, value: (boolean | number | string | Array<string>) } {
     const filter = { name, operator: operator || DEFAULT_OPERATOR, value };
     filter.value = convertFilterValueToProperType(filter)
     return filter;
