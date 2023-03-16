@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Development
 
 ### Changed
-- converts project to typescript
+- [internal] converts project to typescript
 
 ## 0.3.0
 

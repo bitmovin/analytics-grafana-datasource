@@ -1,37 +1,23 @@
 "use strict";
-
-System.register([], function (_export, _context) {
-  "use strict";
-
-  var OPERATOR, ORDERBY, OPERATOR_LIST, ORDERBY_LIST;
-  return {
-    setters: [],
-    execute: function () {
-      _export("OPERATOR", OPERATOR = {
-        GT: 'GT',
-        GTE: 'GTE',
-        LT: 'LT',
-        LTE: 'LTE',
-        EQ: 'EQ',
-        NE: 'NE',
-        CONTAINS: 'CONTAINS',
-        NOTCONTAINS: 'NOTCONTAINS',
-        IN: 'IN'
-      });
-
-      _export("ORDERBY", ORDERBY = {
-        ASC: 'ASC',
-        DESC: 'DESC'
-      });
-
-      _export("OPERATOR_LIST", OPERATOR_LIST = Object.keys(OPERATOR).map(function (key) {
-        return OPERATOR[key];
-      }));
-
-      _export("ORDERBY_LIST", ORDERBY_LIST = Object.keys(ORDERBY).map(function (key) {
-        return ORDERBY[key];
-      }));
-    }
-  };
-});
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ORDERBY_LIST = exports.OPERATOR_LIST = exports.ORDERBY = exports.OPERATOR = void 0;
+var OPERATOR;
+(function (OPERATOR) {
+    OPERATOR["GT"] = "GT";
+    OPERATOR["GTE"] = "GTE";
+    OPERATOR["LT"] = "LT";
+    OPERATOR["LTE"] = "LTE";
+    OPERATOR["EQ"] = "EQ";
+    OPERATOR["NE"] = "NE";
+    OPERATOR["CONTAINS"] = "CONTAINS";
+    OPERATOR["NOTCONTAINS"] = "NOTCONTAINS";
+    OPERATOR["IN"] = "IN";
+})(OPERATOR = exports.OPERATOR || (exports.OPERATOR = {}));
+var ORDERBY;
+(function (ORDERBY) {
+    ORDERBY["ASC"] = "ASC";
+    ORDERBY["DESC"] = "DESC";
+})(ORDERBY = exports.ORDERBY || (exports.ORDERBY = {}));
+exports.OPERATOR_LIST = Object.values(OPERATOR);
+exports.ORDERBY_LIST = Object.values(ORDERBY);
 //# sourceMappingURL=operators.js.map

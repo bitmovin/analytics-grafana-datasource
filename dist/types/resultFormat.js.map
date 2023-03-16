@@ -1,1 +1,1 @@
-{"version":3,"sources":["../../src/types/resultFormat.js"],"names":["ResultFormat","TABLE","TIME_SERIES"],"mappings":";;;;;;;;;8BAAaA,Y,GAAe;AAC1BC,QAAAA,KAAK,EAAE,OADmB;AAE1BC,QAAAA,WAAW,EAAE;AAFa,O","sourcesContent":["export const ResultFormat = {\n  TABLE: 'table',\n  TIME_SERIES: 'time_series'\n};\n"],"file":"resultFormat.js"}
+{"version":3,"file":"resultFormat.js","sourceRoot":"","sources":["../../src/types/resultFormat.ts"],"names":[],"mappings":";;;AAAA,IAAY,YAGX;AAHD,WAAY,YAAY;IACtB,+BAAe,CAAA;IACf,2CAA2B,CAAA;AAC7B,CAAC,EAHW,YAAY,GAAZ,oBAAY,KAAZ,oBAAY,QAGvB"}

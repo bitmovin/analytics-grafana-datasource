@@ -1,17 +1,9 @@
 "use strict";
-
-System.register([], function (_export, _context) {
-  "use strict";
-
-  var ResultFormat;
-  return {
-    setters: [],
-    execute: function () {
-      _export("ResultFormat", ResultFormat = {
-        TABLE: 'table',
-        TIME_SERIES: 'time_series'
-      });
-    }
-  };
-});
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ResultFormat = void 0;
+var ResultFormat;
+(function (ResultFormat) {
+    ResultFormat["TABLE"] = "table";
+    ResultFormat["TIME_SERIES"] = "time_series";
+})(ResultFormat = exports.ResultFormat || (exports.ResultFormat = {}));
 //# sourceMappingURL=resultFormat.js.map

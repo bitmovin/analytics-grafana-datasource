@@ -9,7 +9,7 @@ var _chai = _interopRequireDefault(require("chai"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 // Mock Grafana modules that are not available outside of the core project
-// Required for loading module.js
+// Required for loading module.ts
 _prunk["default"].mock('./css/query-editor.css!', 'no css, dude.');
 
 _prunk["default"].mock('app/plugins/sdk', {

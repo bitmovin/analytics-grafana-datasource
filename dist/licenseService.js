@@ -1,220 +1,129 @@
 "use strict";
-
-System.register([], function (_export, _context) {
-  "use strict";
-
-  var LicenseService;
-
-  function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
-
-  function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-  function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-  function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-  function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-  return {
-    setters: [],
-    execute: function () {
-      LicenseService =
-      /*#__PURE__*/
-      function () {
-        function LicenseService(requestHandler, baseURL) {
-          _classCallCheck(this, LicenseService);
-
-          this.requestHandler = requestHandler;
-          this.baseURL = baseURL;
-        }
-
-        _createClass(LicenseService, [{
-          key: "_fetchLicensesForEndpoint",
-          value: function () {
-            var _fetchLicensesForEndpoint2 = _asyncToGenerator(
-            /*#__PURE__*/
-            regeneratorRuntime.mark(function _callee(endpoint, mapperFunction) {
-              var requestOptions, licensesResponse, licenses, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, item, license;
-
-              return regeneratorRuntime.wrap(function _callee$(_context2) {
-                while (1) {
-                  switch (_context2.prev = _context2.next) {
-                    case 0:
-                      requestOptions = {
-                        url: this.baseURL + endpoint,
-                        method: 'GET'
-                      };
-                      _context2.next = 3;
-                      return this.requestHandler.doRequest(requestOptions);
-
-                    case 3:
-                      licensesResponse = _context2.sent;
-
-                      if (!(licensesResponse.status !== 200)) {
-                        _context2.next = 6;
-                        break;
-                      }
-
-                      return _context2.abrupt("return", []);
-
-                    case 6:
-                      licenses = [];
-                      _iteratorNormalCompletion = true;
-                      _didIteratorError = false;
-                      _iteratorError = undefined;
-                      _context2.prev = 10;
-
-                      for (_iterator = licensesResponse.data.data.result.items[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        item = _step.value;
-                        license = mapperFunction(item);
-                        licenses.push(license);
-                      }
-
-                      _context2.next = 18;
-                      break;
-
-                    case 14:
-                      _context2.prev = 14;
-                      _context2.t0 = _context2["catch"](10);
-                      _didIteratorError = true;
-                      _iteratorError = _context2.t0;
-
-                    case 18:
-                      _context2.prev = 18;
-                      _context2.prev = 19;
-
-                      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                        _iterator["return"]();
-                      }
-
-                    case 21:
-                      _context2.prev = 21;
-
-                      if (!_didIteratorError) {
-                        _context2.next = 24;
-                        break;
-                      }
-
-                      throw _iteratorError;
-
-                    case 24:
-                      return _context2.finish(21);
-
-                    case 25:
-                      return _context2.finish(18);
-
-                    case 26:
-                      return _context2.abrupt("return", licenses);
-
-                    case 27:
-                    case "end":
-                      return _context2.stop();
-                  }
-                }
-              }, _callee, this, [[10, 14, 18, 26], [19,, 21, 25]]);
-            }));
-
-            function _fetchLicensesForEndpoint(_x, _x2) {
-              return _fetchLicensesForEndpoint2.apply(this, arguments);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
             }
-
-            return _fetchLicensesForEndpoint;
-          }()
-        }, {
-          key: "fetchLicenses",
-          value: function () {
-            var _fetchLicenses = _asyncToGenerator(
-            /*#__PURE__*/
-            regeneratorRuntime.mark(function _callee2() {
-              var allLicenses, licenseEndpoints, _i, _licenseEndpoints, item, licenses;
-
-              return regeneratorRuntime.wrap(function _callee2$(_context3) {
-                while (1) {
-                  switch (_context3.prev = _context3.next) {
-                    case 0:
-                      allLicenses = [];
-                      licenseEndpoints = [{
-                        endpoint: '/analytics/licenses',
-                        mapperFunc: function mapperFunc(item) {
-                          return _objectSpread({}, item, {
-                            'label': item.name ? item.name : item.licenseKey
-                          });
-                        }
-                      }, {
-                        endpoint: '/analytics/virtual-licenses',
-                        mapperFunc: function mapperFunc(item) {
-                          return _objectSpread({}, item, {
-                            'licenseKey': item.id,
-                            'label': item.name ? item.name : item.id
-                          });
-                        }
-                      }, {
-                        endpoint: '/analytics/demo-licenses',
-                        mapperFunc: function mapperFunc(item) {
-                          return _objectSpread({}, item, {
-                            'licenseKey': item.id,
-                            'label': item.name ? item.name : item.id
-                          });
-                        }
-                      }];
-                      _i = 0, _licenseEndpoints = licenseEndpoints;
-
-                    case 3:
-                      if (!(_i < _licenseEndpoints.length)) {
-                        _context3.next = 17;
-                        break;
-                      }
-
-                      item = _licenseEndpoints[_i];
-                      _context3.prev = 5;
-                      _context3.next = 8;
-                      return this._fetchLicensesForEndpoint(item.endpoint, item.mapperFunc);
-
-                    case 8:
-                      licenses = _context3.sent;
-                      allLicenses = allLicenses.concat(licenses);
-                      _context3.next = 14;
-                      break;
-
-                    case 12:
-                      _context3.prev = 12;
-                      _context3.t0 = _context3["catch"](5);
-
-                    case 14:
-                      _i++;
-                      _context3.next = 3;
-                      break;
-
-                    case 17:
-                      return _context3.abrupt("return", allLicenses);
-
-                    case 18:
-                    case "end":
-                      return _context3.stop();
-                  }
-                }
-              }, _callee2, this, [[5, 12]]);
-            }));
-
-            function fetchLicenses() {
-              return _fetchLicenses.apply(this, arguments);
-            }
-
-            return fetchLicenses;
-          }()
-        }]);
-
-        return LicenseService;
-      }();
-
-      ;
-
-      _export("default", LicenseService);
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-  };
-});
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var LicenseService = (function () {
+    function LicenseService(requestHandler, baseURL) {
+        this.requestHandler = requestHandler;
+        this.baseURL = baseURL;
+    }
+    LicenseService.prototype._fetchLicensesForEndpoint = function (endpoint, mapperFunction) {
+        return __awaiter(this, void 0, void 0, function () {
+            var requestOptions, licensesResponse, licenses, _i, _a, item, license;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        requestOptions = {
+                            url: this.baseURL + endpoint,
+                            method: 'GET',
+                        };
+                        return [4, this.requestHandler.doRequest(requestOptions)];
+                    case 1:
+                        licensesResponse = _b.sent();
+                        if (licensesResponse.status !== 200) {
+                            return [2, []];
+                        }
+                        licenses = [];
+                        for (_i = 0, _a = licensesResponse.data.data.result.items; _i < _a.length; _i++) {
+                            item = _a[_i];
+                            license = mapperFunction(item);
+                            licenses.push(license);
+                        }
+                        return [2, licenses];
+                }
+            });
+        });
+    };
+    LicenseService.prototype.fetchLicenses = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var allLicenses, licenseEndpoints, _i, licenseEndpoints_1, item, licenses, e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        allLicenses = [];
+                        licenseEndpoints = [
+                            {
+                                endpoint: '/analytics/licenses',
+                                mapperFunc: function (item) { return ({
+                                    'licenseKey': item.licenseKey,
+                                    'label': item.name ? item.name : item.licenseKey
+                                }); },
+                            },
+                            {
+                                endpoint: '/analytics/virtual-licenses',
+                                mapperFunc: function (item) { return ({
+                                    'licenseKey': item.id,
+                                    'label': item.name ? item.name : item.id
+                                }); },
+                            },
+                            {
+                                endpoint: '/analytics/demo-licenses',
+                                mapperFunc: function (item) { return ({
+                                    'licenseKey': item.id,
+                                    'label': item.name ? item.name : item.id
+                                }); },
+                            },
+                        ];
+                        _i = 0, licenseEndpoints_1 = licenseEndpoints;
+                        _a.label = 1;
+                    case 1:
+                        if (!(_i < licenseEndpoints_1.length)) return [3, 6];
+                        item = licenseEndpoints_1[_i];
+                        _a.label = 2;
+                    case 2:
+                        _a.trys.push([2, 4, , 5]);
+                        return [4, this._fetchLicensesForEndpoint(item.endpoint, item.mapperFunc)];
+                    case 3:
+                        licenses = _a.sent();
+                        allLicenses = allLicenses.concat(licenses);
+                        return [3, 5];
+                    case 4:
+                        e_1 = _a.sent();
+                        return [3, 5];
+                    case 5:
+                        _i++;
+                        return [3, 1];
+                    case 6: return [2, allLicenses];
+                }
+            });
+        });
+    };
+    return LicenseService;
+}());
+;
+exports.default = LicenseService;
 //# sourceMappingURL=licenseService.js.map

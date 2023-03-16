@@ -1,43 +1,30 @@
 "use strict";
-
-System.register(["./datasource", "./query_ctrl"], function (_export, _context) {
-  "use strict";
-
-  var BitmovinAnalyticsDatasource, BitmovinAnalyticsDatasourceQueryCtrl, BitmovinAnalyticsConfigCtrl, BitmovinAnalyticsQueryOptionsCtrl, BitmovinAnalyticsAnnotationsQueryCtrl;
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-  return {
-    setters: [function (_datasource) {
-      BitmovinAnalyticsDatasource = _datasource.BitmovinAnalyticsDatasource;
-    }, function (_query_ctrl) {
-      BitmovinAnalyticsDatasourceQueryCtrl = _query_ctrl.BitmovinAnalyticsDatasourceQueryCtrl;
-    }],
-    execute: function () {
-      _export("ConfigCtrl", BitmovinAnalyticsConfigCtrl = function BitmovinAnalyticsConfigCtrl($scope) {
-        _classCallCheck(this, BitmovinAnalyticsConfigCtrl);
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AnnotationsQueryCtrl = exports.QueryOptionsCtrl = exports.ConfigCtrl = exports.QueryCtrl = exports.Datasource = void 0;
+var datasource_1 = require("./datasource");
+Object.defineProperty(exports, "Datasource", { enumerable: true, get: function () { return datasource_1.BitmovinAnalyticsDatasource; } });
+var query_ctrl_1 = require("./query_ctrl");
+Object.defineProperty(exports, "QueryCtrl", { enumerable: true, get: function () { return query_ctrl_1.BitmovinAnalyticsDatasourceQueryCtrl; } });
+var BitmovinAnalyticsConfigCtrl = (function () {
+    function BitmovinAnalyticsConfigCtrl($scope) {
         this.current.url = this.current.url || 'https://api.bitmovin.com/v1';
-      });
-
-      BitmovinAnalyticsConfigCtrl.templateUrl = 'partials/config.html';
-
-      _export("QueryOptionsCtrl", BitmovinAnalyticsQueryOptionsCtrl = function BitmovinAnalyticsQueryOptionsCtrl() {
-        _classCallCheck(this, BitmovinAnalyticsQueryOptionsCtrl);
-      });
-
-      BitmovinAnalyticsQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
-
-      _export("AnnotationsQueryCtrl", BitmovinAnalyticsAnnotationsQueryCtrl = function BitmovinAnalyticsAnnotationsQueryCtrl() {
-        _classCallCheck(this, BitmovinAnalyticsAnnotationsQueryCtrl);
-      });
-
-      BitmovinAnalyticsAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
-
-      _export("Datasource", BitmovinAnalyticsDatasource);
-
-      _export("QueryCtrl", BitmovinAnalyticsDatasourceQueryCtrl);
     }
-  };
-});
+    return BitmovinAnalyticsConfigCtrl;
+}());
+exports.ConfigCtrl = BitmovinAnalyticsConfigCtrl;
+BitmovinAnalyticsConfigCtrl.templateUrl = 'partials/config.html';
+var BitmovinAnalyticsQueryOptionsCtrl = (function () {
+    function BitmovinAnalyticsQueryOptionsCtrl() {
+    }
+    return BitmovinAnalyticsQueryOptionsCtrl;
+}());
+exports.QueryOptionsCtrl = BitmovinAnalyticsQueryOptionsCtrl;
+BitmovinAnalyticsQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
+var BitmovinAnalyticsAnnotationsQueryCtrl = (function () {
+    function BitmovinAnalyticsAnnotationsQueryCtrl() {
+    }
+    return BitmovinAnalyticsAnnotationsQueryCtrl;
+}());
+exports.AnnotationsQueryCtrl = BitmovinAnalyticsAnnotationsQueryCtrl;
+BitmovinAnalyticsAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
 //# sourceMappingURL=module.js.map

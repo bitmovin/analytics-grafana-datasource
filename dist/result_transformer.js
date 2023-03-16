@@ -1,91 +1,76 @@
 "use strict";
-
-System.register(["./types/resultFormat", "./utils"], function (_export, _context) {
-  "use strict";
-
-  var ResultFormat, padTimeSeriesAndSortByDate, transformDataToTable, transformDataToTimeSeries, transform;
-  return {
-    setters: [function (_typesResultFormat) {
-      ResultFormat = _typesResultFormat.ResultFormat;
-    }, function (_utils) {
-      padTimeSeriesAndSortByDate = _utils.padTimeSeriesAndSortByDate;
-    }],
-    execute: function () {
-      transformDataToTable = function transformDataToTable(rows, options) {
-        var datapoints = _.map(rows, function (row) {
-          var timestamp = row[0];
-          var value = row[1];
-          return [value, timestamp];
-        });
-
-        return {
-          target: options.resultTarget,
-          datapoints: datapoints
-        };
-      };
-
-      transformDataToTimeSeries = function transformDataToTimeSeries(analyticsResult, options) {
-        var groupBys = options.data.groupBy;
-        var series = [];
-        var datapointsCnt = 0;
-        var interval = options.data.interval;
-        var fromDate = new Date(options.data.start).getTime();
-        var toDate = new Date(options.data.end).getTime();
-
-        if (groupBys.length > 0) {
-          var groupings = {};
-
-          _.map(analyticsResult.rows, function (row) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.transform = void 0;
+var resultFormat_1 = require("./types/resultFormat");
+var dataUtils_1 = require("./utils/dataUtils");
+var transformDataToTable = function (rows, options) {
+    var datapoints = rows.map(function (row) {
+        var timestamp = row[0];
+        var value = row[1];
+        return [value, timestamp];
+    });
+    return {
+        target: options.resultTarget,
+        datapoints: datapoints
+    };
+};
+var transformDataToTimeSeries = function (analyticsResult, options) {
+    var groupBys = options.data.groupBy;
+    var series = [];
+    var datapointsCnt = 0;
+    var interval = options.data.interval;
+    var fromDate = new Date(options.data.start).getTime();
+    var toDate = new Date(options.data.end).getTime();
+    if (groupBys.length > 0) {
+        var groupings_1 = {};
+        analyticsResult.rows.map(function (row) {
             var metricLabel = row[1];
-
-            if (!groupings[metricLabel]) {
-              groupings[metricLabel] = [];
+            if (!groupings_1[metricLabel]) {
+                groupings_1[metricLabel] = [[]];
             }
-
             var value = row[2];
             var timestamp = row[0];
-            groupings[metricLabel].push([value, timestamp]);
+            groupings_1[metricLabel].push([value, timestamp]);
             datapointsCnt++;
-          });
-
-          for (var _i = 0, _Object$keys = Object.keys(groupings); _i < _Object$keys.length; _i++) {
-            var key = _Object$keys[_i];
-            var datapoints = groupings[key];
+        });
+        for (var _i = 0, _a = Object.keys(groupings_1); _i < _a.length; _i++) {
+            var key = _a[_i];
+            var datapoints = groupings_1[key];
             var groupData = {
-              target: key,
-              datapoints: _.orderBy(datapoints, [1], 'asc')
+                target: key,
+                datapoints: sortDatapointsByTime(datapoints)
             };
             series.push(groupData);
-          }
-        } else {
-          var paddedSeries = padTimeSeriesAndSortByDate(analyticsResult.rows, fromDate, toDate, interval);
-          var result = transformDataToTable(paddedSeries, options);
-          result.datapoints = _.orderBy(result.datapoints, [1], 'asc');
-          series.push(result);
-          datapointsCnt = result.datapoints.length;
         }
-
+    }
+    else {
+        var paddedSeries = (0, dataUtils_1.padTimeSeriesAndSortByDate)(analyticsResult.rows, fromDate, toDate, interval);
+        var result = transformDataToTable(paddedSeries, options);
+        result.datapoints = sortDatapointsByTime(result.datapoints);
+        series.push(result);
+        datapointsCnt = result.datapoints.length;
+    }
+    return {
+        series: series,
+        datapointsCnt: datapointsCnt
+    };
+};
+var sortDatapointsByTime = function (datapoints) {
+    return datapoints.sort(function (a, b) { return a[1] - b[1]; });
+};
+var transform = function (response, options) {
+    var analyticsResult = response.data.data.result;
+    var config = response.config;
+    if (config.resultFormat === resultFormat_1.ResultFormat.TABLE) {
+        var tableData = transformDataToTable(analyticsResult.rows, config);
         return {
-          series: series,
-          datapointsCnt: datapointsCnt
-        };
-      };
-
-      _export("transform", transform = function transform(response, options) {
-        var analyticsResult = response.data.data.result;
-        var config = response.config;
-
-        if (config.resultFormat === ResultFormat.TABLE) {
-          var tableData = transformDataToTable(analyticsResult.rows, config);
-          return {
             series: [tableData],
             datapointsCnt: tableData.datapoints.length
-          };
-        } else if (config.resultFormat === ResultFormat.TIME_SERIES) {
-          return transformDataToTimeSeries(analyticsResult, config);
-        }
-      });
+        };
     }
-  };
-});
+    else if (config.resultFormat === resultFormat_1.ResultFormat.TIME_SERIES) {
+        return transformDataToTimeSeries(analyticsResult, config);
+    }
+};
+exports.transform = transform;
 //# sourceMappingURL=result_transformer.js.map
