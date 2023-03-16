@@ -1,15 +1,29 @@
+// @ts-ignore - just a temporary solution we will migrate to grafana toolkit and react soon
 import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query-editor.css!'
 
-import _ from 'lodash';
-import { ATTRIBUTE_LIST, ORDERBY_ATTRIBUTES_LIST, AD_ATTRIBUTE_LIST, ORDERBY_AD_ATTRIBUTES_LIST, METRICS_ATTRIBUTE_LIST } from './types/queryAttributes';
+import {
+  ATTRIBUTE_LIST,
+  ORDERBY_ATTRIBUTES_LIST,
+  AD_ATTRIBUTE_LIST,
+  ORDERBY_AD_ATTRIBUTES_LIST,
+  METRICS_ATTRIBUTE_LIST,
+  ATTRIBUTE,
+  AD_ATTRIBUTE, QUERY_SPECIFIC_ORDERBY_ATTRIBUTES
+} from './types/queryAttributes';
 import { getAsOptionsList } from './utils/uiUtils';
 import { OPERATOR_LIST, OPERATOR, ORDERBY_LIST, ORDERBY } from './types/operators';
 import { QUERY_INTERVAL, QUERY_INTERVAL_LIST } from './types/intervals';
-import { AGGREGATION_LIST } from './types/aggregations';
+import {AGGREGATION, AGGREGATION_LIST} from './types/aggregations';
 import { ResultFormat } from './types/resultFormat';
-import { GROUP_BY_ATTRIBUTE_LIST, GROUP_BY_AD_ATTRIBUTE_LIST } from './types/queryGrouByAttributes';
+import {
+  GROUP_BY_ATTRIBUTE_LIST,
+  GROUP_BY_AD_ATTRIBUTE_LIST,
+  GROUP_BY_ATTRIBUTE,
+  GROUP_BY_AD_ATTRIBUTE
+} from './types/queryGrouByAttributes';
 import { convertFilterValueToProperType } from './utils/queryUtils'
+import {LicenseViewModel} from "./types/licenses";
 
 const REMOVE_ITEM_TEXT = '-- Remove --';
 const DEFAULT_LICENSE = { licenseKey: '<YOUR LICENSE KEY>', label: '-- Select License --' };
@@ -17,6 +31,29 @@ const DEFAULT_OPERATOR = OPERATOR.EQ;
 const GROUPBY_DEFAULT_ORDER = ORDERBY.ASC;
 
 export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
+
+  scope: any;
+  $q: any;
+  uiSegmentSrv: any;
+  metrics: AGGREGATION[];
+  fields:  ATTRIBUTE[] | AD_ATTRIBUTE[];
+  groupByFields:  GROUP_BY_ATTRIBUTE[] | GROUP_BY_AD_ATTRIBUTE[];
+  orderByFields: (ATTRIBUTE | QUERY_SPECIFIC_ORDERBY_ATTRIBUTES)[] | (AD_ATTRIBUTE | QUERY_SPECIFIC_ORDERBY_ATTRIBUTES)[];
+  datasource: any;
+  licenses: LicenseViewModel[];
+  resultFormats: ResultFormat[];
+  intervals: QUERY_INTERVAL[];
+  filterSegment: any;
+  groupBySegment: any;
+  orderBySegment: any;
+  groupByParts: any;
+  orderBySegments: any;
+  filterSegments: any;
+  target: any;
+  lastQueryError: any[];
+  panelCtrl: any;
+  static templateUrl: string;
+
 
   constructor($scope, $injector, templateSrv, $q, uiSegmentSrv) {
     super($scope, $injector);
@@ -169,8 +206,8 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh();
   }
 
-  createFilter(name, operator, value = null) {
-    const filter = { name, operator: operator || DEFAULT_OPERATOR, value };
+  createFilter(name, operator = DEFAULT_OPERATOR, value = null): {name: string, operator: any, value: (boolean | number | string | Array<string>) } {
+    const filter = { name, operator: operator, value };
     filter.value = convertFilterValueToProperType(filter)
     return filter;
   }
@@ -179,8 +216,8 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
   }
 
-  createOrderBy(name, order) {
-    return { name, order: order || GROUPBY_DEFAULT_ORDER };
+  createOrderBy(name, order = GROUPBY_DEFAULT_ORDER) {
+    return { name, order: order };
   }
 
   createOrderBySegment(orderBy) {

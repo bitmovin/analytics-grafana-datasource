@@ -1,7 +1,12 @@
 class RequestHandler {
   backendService: any;
-  headers: unknown;
-  withCredentials: unknown;
+  headers: {
+    'Content-Type': string,
+    'X-Api-Key': string,
+    'X-Tenant-Org-Id'?: string,
+    'Authorization'?: string,
+  };
+  withCredentials: boolean;
 
   constructor(backendService, headers, withCredentials) {
     this.backendService = backendService;

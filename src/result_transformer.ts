@@ -1,8 +1,8 @@
-import {ResultFormat} from './types/resultFormat';
+import {ResultData, ResultFormat, ResultSeriesData} from './types/resultFormat';
 import {padTimeSeriesAndSortByDate} from './utils/dataUtils';
 
-const transformDataToTable = (rows, options) => {
-  let datapoints = _.map(rows, row => {
+const transformDataToTable = (rows, options): ResultSeriesData => {
+  let datapoints = rows.map(row => {
     const timestamp = row[0];
     const value = row[1];
     return [value, timestamp];
@@ -14,7 +14,7 @@ const transformDataToTable = (rows, options) => {
   }
 }
 
-const transformDataToTimeSeries = (analyticsResult, options) => {
+const transformDataToTimeSeries = (analyticsResult, options): ResultData => {
   const groupBys = options.data.groupBy;
   const series = [];
   let datapointsCnt = 0;
@@ -23,11 +23,13 @@ const transformDataToTimeSeries = (analyticsResult, options) => {
   const fromDate = new Date(options.data.start).getTime();
   const toDate = new Date(options.data.end).getTime();
   if (groupBys.length > 0) {
-    let groupings = {};
-    _.map(analyticsResult.rows, row => {
+    let groupings: {
+      [id: string]: [Array<number>];
+    } = {};
+    analyticsResult.rows.map(row => {
       const metricLabel = row[1];
       if (!groupings[metricLabel]) {
-        groupings[metricLabel] = [];
+        groupings[metricLabel] = [[]];
       }
       const value = row[2];
       const timestamp = row[0];
@@ -38,14 +40,14 @@ const transformDataToTimeSeries = (analyticsResult, options) => {
       const datapoints = groupings[key];
       const groupData = {
         target: key,
-        datapoints: _.orderBy(datapoints, [1], 'asc')
+        datapoints: sortDatapointsByTime(datapoints)
       }
       series.push(groupData);
     }
   } else {
     const paddedSeries = padTimeSeriesAndSortByDate(analyticsResult.rows, fromDate, toDate, interval);
     let result =  transformDataToTable(paddedSeries, options);
-    result.datapoints = _.orderBy(result.datapoints, [1], 'asc');
+    result.datapoints = sortDatapointsByTime(result.datapoints)
     series.push(result);
     datapointsCnt = result.datapoints.length
   }
@@ -55,7 +57,11 @@ const transformDataToTimeSeries = (analyticsResult, options) => {
   };
 }
 
-export const transform = (response, options) => {
+const sortDatapointsByTime = (datapoints: [Array<any>]): [Array<any>] => {
+  return datapoints.sort((a, b) => {return a[1] - b[1]})
+}
+
+export const transform = (response, options): ResultData => {
   const analyticsResult = response.data.data.result;
   const config = response.config;
   if (config.resultFormat === ResultFormat.TABLE) {
