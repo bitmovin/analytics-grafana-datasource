@@ -206,8 +206,8 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh();
   }
 
-  createFilter(name, operator = null, value = null): {name: string, operator: any, value: (boolean | number | string | Array<string>) } {
-    const filter = { name, operator: operator || DEFAULT_OPERATOR, value };
+  createFilter(name, operator = DEFAULT_OPERATOR, value = null): {name: string, operator: any, value: (boolean | number | string | Array<string>) } {
+    const filter = { name, operator: operator, value };
     filter.value = convertFilterValueToProperType(filter)
     return filter;
   }
@@ -216,8 +216,8 @@ export class BitmovinAnalyticsDatasourceQueryCtrl extends QueryCtrl {
     return { html: filter.name, operator: { html: filter.operator || DEFAULT_OPERATOR }, filterValue: { html: filter.value || 'set filter value' } };
   }
 
-  createOrderBy(name, order = null) {
-    return { name, order: order || GROUPBY_DEFAULT_ORDER };
+  createOrderBy(name, order = GROUPBY_DEFAULT_ORDER) {
+    return { name, order: order };
   }
 
   createOrderBySegment(orderBy) {
