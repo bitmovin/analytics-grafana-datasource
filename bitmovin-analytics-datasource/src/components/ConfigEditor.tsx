@@ -48,7 +48,12 @@ export function ConfigEditor(props: Props) {
           <Input onChange={onAPIKeyChange} value={jsonData.apiKey || ''} placeholder="Analytics API Key" width={40} />
         </InlineField>
         <InlineField label="Tenant Org Id (Optional)" labelWidth={26}>
-          <Input onChange={onTenantOrgIdChange} value={jsonData.apiKey || ''} placeholder="Tenant Org Id" width={40} />
+          <Input
+            onChange={onTenantOrgIdChange}
+            value={jsonData.tenantOrgId || ''}
+            placeholder="Tenant Org Id"
+            width={40}
+          />
         </InlineField>
         <InlineField label="Ad Analytics" tooltip={'Check if you want to query ads data'} labelWidth={26}>
           <InlineSwitch value={jsonData.adAnalytics || false} onChange={onAdAnalyticsChange}></InlineSwitch>
