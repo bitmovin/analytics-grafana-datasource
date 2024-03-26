@@ -10,8 +10,16 @@ import {
 import { MyQuery, MyDataSourceOptions } from './types';
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+  apiKey: string;
+  tenantOrgId?: string;
+  adAnalytics?: boolean;
+
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
+
+    this.apiKey = instanceSettings.jsonData.apiKey;
+    this.tenantOrgId = instanceSettings.jsonData.tenantOrgId;
+    this.adAnalytics = instanceSettings.jsonData.adAnalytics;
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
