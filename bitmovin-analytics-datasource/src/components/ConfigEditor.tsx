@@ -44,10 +44,16 @@ export function ConfigEditor(props: Props) {
       />
 
       <FieldSet label="Bitmovin Analytics Details">
-        <InlineField label="API Key" labelWidth={26}>
-          <Input onChange={onAPIKeyChange} value={jsonData.apiKey || ''} placeholder="Analytics API Key" width={40} />
+        <InlineField required label="API Key" labelWidth={26}>
+          <Input
+            required
+            onChange={onAPIKeyChange}
+            value={jsonData.apiKey || ''}
+            placeholder="Analytics API Key"
+            width={40}
+          />
         </InlineField>
-        <InlineField label="Tenant Org Id (Optional)" labelWidth={26}>
+        <InlineField label="Tenant Org Id" labelWidth={26}>
           <Input
             onChange={onTenantOrgIdChange}
             value={jsonData.tenantOrgId || ''}
