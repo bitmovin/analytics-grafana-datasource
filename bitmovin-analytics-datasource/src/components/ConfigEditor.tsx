@@ -1,67 +1,70 @@
 import React, { ChangeEvent } from 'react';
-import { InlineField, Input, SecretInput } from '@grafana/ui';
+import { DataSourceHttpSettings, FieldSet, InlineField, InlineSwitch, Input } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { MyDataSourceOptions, MySecureJsonData } from '../types';
+import { MyDataSourceOptions } from '../types';
 
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
 
 export function ConfigEditor(props: Props) {
   const { onOptionsChange, options } = props;
-  const onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
+
+  const onAdAnalyticsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const jsonData = {
       ...options.jsonData,
-      path: event.target.value,
+      adAnalytics: event.currentTarget.checked,
     };
     onOptionsChange({ ...options, jsonData });
   };
 
-  // Secure field (only sent to the backend)
   const onAPIKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onOptionsChange({
-      ...options,
-      secureJsonData: {
-        apiKey: event.target.value,
-      },
-    });
+    const jsonData = {
+      ...options.jsonData,
+      apiKey: event.currentTarget.value,
+    };
+    onOptionsChange({ ...options, jsonData });
   };
 
-  const onResetAPIKey = () => {
-    onOptionsChange({
-      ...options,
-      secureJsonFields: {
-        ...options.secureJsonFields,
-        apiKey: false,
-      },
-      secureJsonData: {
-        ...options.secureJsonData,
-        apiKey: '',
-      },
-    });
+  const onTenantOrgIdChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const jsonData = {
+      ...options.jsonData,
+      tenantOrgId: event.currentTarget.value,
+    };
+    onOptionsChange({ ...options, jsonData });
   };
 
-  const { jsonData, secureJsonFields } = options;
-  const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
+  const { jsonData } = options;
 
   return (
-    <div className="gf-form-group">
-      <InlineField label="Path" labelWidth={12}>
-        <Input
-          onChange={onPathChange}
-          value={jsonData.path || ''}
-          placeholder="json field returned to frontend"
-          width={40}
-        />
-      </InlineField>
-      <InlineField label="API Key" labelWidth={12}>
-        <SecretInput
-          isConfigured={(secureJsonFields && secureJsonFields.apiKey) as boolean}
-          value={secureJsonData.apiKey || ''}
-          placeholder="secure json field (backend only)"
-          width={40}
-          onReset={onResetAPIKey}
-          onChange={onAPIKeyChange}
-        />
-      </InlineField>
-    </div>
+    <>
+      <DataSourceHttpSettings
+        defaultUrl="https://api.bitmovin.com/v1"
+        dataSourceConfig={options}
+        onChange={onOptionsChange}
+        showAccessOptions={true}
+      />
+
+      <FieldSet label="Bitmovin Analytics Details">
+        <InlineField required label="API Key" labelWidth={26}>
+          <Input
+            required
+            onChange={onAPIKeyChange}
+            value={jsonData.apiKey || ''}
+            placeholder="Analytics API Key"
+            width={40}
+          />
+        </InlineField>
+        <InlineField label="Tenant Org Id" labelWidth={26}>
+          <Input
+            onChange={onTenantOrgIdChange}
+            value={jsonData.tenantOrgId || ''}
+            placeholder="Tenant Org Id"
+            width={40}
+          />
+        </InlineField>
+        <InlineField label="Ad Analytics" tooltip={'Check if you want to query ads data'} labelWidth={26}>
+          <InlineSwitch value={jsonData.adAnalytics || false} onChange={onAdAnalyticsChange}></InlineSwitch>
+        </InlineField>
+      </FieldSet>
+    </>
   );
 }
