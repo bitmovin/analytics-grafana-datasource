@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useEffect } from 'react';
 import { DataSourceHttpSettings, FieldSet, InlineField, InlineSwitch, Input } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions } from '../types';
@@ -7,6 +7,12 @@ interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> 
 
 export function ConfigEditor(props: Props) {
   const { onOptionsChange, options } = props;
+
+  useEffect(() => {
+    if (options.url === '' || options.url == null) {
+      onOptionsChange({ ...options, url: 'https://api.bitmovin.com/v1' });
+    }
+  }, []);
 
   const onAdAnalyticsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const jsonData = {
