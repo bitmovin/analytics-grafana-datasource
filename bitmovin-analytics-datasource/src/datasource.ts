@@ -7,7 +7,7 @@ import {
   FieldType,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { lastValueFrom } from 'rxjs';
+import { catchError, lastValueFrom, map, of, Observable } from 'rxjs';
 
 import { MyQuery, MyDataSourceOptions } from './types';
 
@@ -51,26 +51,43 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       headers: { 'X-Api-Key': this.apiKey },
       method: method,
     };
-    const response = getBackendSrv().fetch(options);
-
-    return lastValueFrom(response);
+    return getBackendSrv().fetch(options);
   }
 
   async testDatasource() {
-    const response = await this.request('/analytics/licenses', 'GET');
+    return lastValueFrom(
+      this.request('/analytics/licenses', 'GET').pipe(
+        map(() => {
+          return {
+            status: 'success',
+            message: 'Data source successfully setup and connected.',
+          };
+        }),
+        catchError((err) => {
+          let message = 'Bitmovin: ';
+          if (err.status) message += err.status + ' ';
+          if (err.statusText) {
+            message += err.statusText;
+          } else {
+            message += 'Can not connect to Bitmovin API';
+          }
 
-    if (response.status === 200) {
-      return {
-        status: 'success',
-        message: 'Datasource setup successfully.',
-      };
-    } else {
-      return {
-        status: 'error',
-        message: response.statusText
-          ? response.statusText
-          : 'An unexpected error occurred. Datasource not setup correctly.',
-      };
-    }
+          let errorMessage = err.data?.message || err.data?.data?.message;
+
+          //additional errorDetails like requestId and timestamp if requestId is set
+          let errorDetails;
+          if (err.data?.requestId) {
+            errorDetails = 'Timestamp: ' + new Date().toISOString();
+            errorDetails += err.data?.requestId ? '\nRequestId: ' + err.data?.requestId : '';
+          }
+
+          return of({
+            status: 'error',
+            message: message,
+            details: { message: errorMessage, verboseMessage: errorDetails },
+          });
+        })
+      )
+    );
   }
 }
