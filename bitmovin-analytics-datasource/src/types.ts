@@ -18,3 +18,12 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
   tenantOrgId?: string;
   adAnalytics?: boolean;
 }
+
+export enum QUERY_INTERVAL {
+  SECOND = 'SECOND',
+  MINUTE = 'MINUTE',
+  HOUR = 'HOUR',
+  DAY = 'DAY',
+  MONTH = 'MONTH',
+  AUTO = 'AUTO',
+}
