@@ -12,7 +12,7 @@ import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import { MyDataSourceOptions, MyQuery } from './types';
 import { zip } from 'lodash';
-import { padAndSortTimeSeries } from './utils/dataUtils';
+import { padAndSortTimeSeries, transformGroupedTimeSeriesData } from './utils/dataUtils';
 
 type AnalyticsQuery = {
   filters: { name: string; operator: string; value: number }[];
@@ -87,44 +87,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
       //one row will look like this [timestamp, groupBy1, ... groupByN, value]
       if (query.interval && query.groupBy.length > 0) {
-        //group the result by the groupBy values to be able to display it as multiple time series in one graph
-        const groupedTimeSeriesMap = new Map<string, Array<Array<string | number>>>();
-        dataRows.forEach((row) => {
-          const groupKey = row.slice(1, row.length - 1).toString();
-          if (!groupedTimeSeriesMap.has(groupKey)) {
-            groupedTimeSeriesMap.set(groupKey, []);
-          }
-          groupedTimeSeriesMap.get(groupKey)?.push(row as []);
-        });
-
-        //pad grouped data as there can only be one time field for a graph with multiple time series
-        const paddedTimeSeries: Array<Array<Array<string | number>>> = [];
-        groupedTimeSeriesMap.forEach((data) => {
-          paddedTimeSeries.push(padAndSortTimeSeries(data, from.getTime(), to.getTime(), query.interval!));
-        });
-
-        //TODOMY we could probably also just use the range fucntion to save the timestamps, not sure whats better here?
-        //extract timestamps
-        const transposedFirstGroupData = zip(...paddedTimeSeries[0]);
-        const timestamps = transposedFirstGroupData[0];
-
-        fields.push({ name: 'Time', values: timestamps, type: FieldType.time });
-
-        // extract and save the values for every grouped time series
-        paddedTimeSeries.forEach((data, key) => {
-          //Field name that consists of the groupBy values of the current timeSeries
-          const name = data[0].slice(1, data[0].length - 1).join(', ');
-
-          //extract values
-          const columns = zip(...data);
-          const valueColumn = columns.slice(columns.length - 1);
-
-          fields.push({
-            name: name,
-            values: valueColumn[0] as number[],
-            type: FieldType.number,
-          });
-        });
+        fields.push(...transformGroupedTimeSeriesData(dataRows, from.getTime(), to.getTime(), query.interval));
       } else {
         //data is a time series data so padding is needed and time data needs to be extracted
         if (query.interval) {
