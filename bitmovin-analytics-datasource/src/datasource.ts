@@ -39,12 +39,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   /**
-   * The Bitmovin API Response follows this rules:
-   * - if the interval property is given on the request query, then time series data is returned and the first value of a row is a timestamp in milliseconds
-   * - if the groupBy property array is not empty on the request query, then depending on whether the interval property is set all values
-   *    - between the first one (if interval is set) and the last one (not included) can be considered string values
-   *    - up to the last one (not included) can be considered string values
-   * - the last value of a row will always be a number
+   * The Bitmovin API Response follows these rules:
+   * - If the interval property is provided in the request query, time series data is returned and the first value of each row is a timestamp in milliseconds.
+   * - If the groupBy property array is not empty in the request query:
+   *    - Depending on whether the interval property is set:
+   *      - Interval is set: All values between the first one (timestamp) and the last one (not included) can be considered string values.
+   *      - Interval is not set: All values up to the last one (not included) can be considered string values
+   * - The last value of each row is always be a number.
    * */
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     const { range } = options;

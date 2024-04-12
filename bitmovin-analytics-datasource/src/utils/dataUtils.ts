@@ -4,10 +4,11 @@ import { Field, FieldType } from '@grafana/data';
 
 /**
  * Adds padding to a given time series to fill in any missing timestamps for a given interval.
- * @param {Array<Array<string | number>>} data The time series data to be padded.
- * @param {number} startTimestamp The start timestamp for the padding interval.
- * @param {number} endTimestamp The end timestamp for the padding interval.
- * @param {String} interval The interval used for the query, e.g. SECOND, MINUTE, HOUR, ... .
+ *
+ * @param {Array<Array<string | number>>} data The time series data to be padded. Each data row must have the following structure: [timestamp: number, groupBy1?: string, ... ,groupByN?: string, value: number]
+ * @param {number} startTimestamp The start timestamp in milliseconds for the padding interval.
+ * @param {number} endTimestamp The end timestamp in milliseconds for the padding interval.
+ * @param {String} interval The interval used for the query, e.g. MINUTE, HOUR, ... .
  * @returns {Array<Array<string | number>>} The padded and sorted time series data.
  */
 export function padAndSortTimeSeries(
@@ -48,9 +49,9 @@ export function padAndSortTimeSeries(
 /**
  * Transforms grouped time series data into the Data Frame format.
  *
- * @param {Array<Array<string | number>>} dataRows The grouped time series data to be transformed.
- * @param {number} startTimestamp The start timestamp for the time series data.
- * @param {number} endTimestamp The end timestamp for the time series data.
+ * @param {Array<Array<string | number>>} dataRows The grouped time series data to be transformed. Each data row must have the following structure: [timestamp: number, groupBy1: string, groupBy2: string, ... ,groupByN: string, value: number]
+ * @param {number} startTimestamp The start timestamp in milliseconds for the time series data.
+ * @param {number} endTimestamp The end timestamp in milliseconds for the time series data.
  * @param {string} interval The interval used for the time series data.
  * @returns {Array<Partial<Field>>} The transformed time series data.
  */
