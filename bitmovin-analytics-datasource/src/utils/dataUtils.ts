@@ -101,3 +101,70 @@ export function transformGroupedTimeSeriesData(
 
   return fields;
 }
+
+/**
+ * Transforms simple time series data into the Data Frame format.
+ *
+ * @param {Array<Array<number>>} dataRows The time series data to be transformed. Each data row must have the following structure: [timestamp: number, value: number]
+ * @param {string} columnName The name for the value column in the time series data.
+ * @param {number} startTimestamp The start timestamp in milliseconds for the time series data.
+ * @param {number} endTimestamp The end timestamp in milliseconds for the time series data.
+ * @param {string} interval The interval used for the time series data.
+ * @returns {Array<Partial<Field>>} The transformed time series data.
+ */
+export function transformSimpleTimeSeries(
+  dataRows: Array<Array<number>>,
+  columnName: string,
+  startTimestamp: number,
+  endTimestamp: number,
+  interval: string
+): Array<Partial<Field>> {
+  const fields: Array<Partial<Field>> = [];
+  const paddedData = padAndSortTimeSeries(dataRows, startTimestamp, endTimestamp, interval);
+  const columns = zip(...paddedData);
+
+  fields.push({ name: 'Time', values: columns[0] as number[], type: FieldType.time });
+  fields.push({
+    name: columnName,
+    values: columns[columns.length - 1] as number[],
+    type: FieldType.number,
+  });
+
+  return fields;
+}
+
+/**
+ * Transforms table data into the Data Frame format.
+ *
+ * @param {Array<Array<string | number>>} dataRows The table data to be transformed. Each data row must have the following structure: [groupBy1: string, groupBy2: string, ... ,groupByN: string, value: number]
+ * @param {Array<{ key: string; label: string }>} columnLabels The labels for each column in the table data.
+ * @returns {Array<Partial<Field>>} The transformed table data.
+ */
+export function transformTableData(
+  dataRows: Array<Array<string | number>>,
+  columnLabels: Array<{ key: string; label: string }>
+): Array<Partial<Field>> {
+  const fields: Array<Partial<Field>> = [];
+  const columns = zip(...dataRows);
+
+  if (dataRows[0].length > 1) {
+    const groupByColumns = columns.slice(0, -1);
+
+    groupByColumns.forEach((column, index) => {
+      fields.push({
+        name: columnLabels[index].label,
+        values: column as string[],
+        type: FieldType.string,
+      });
+    });
+  }
+
+  // Add the last column as a number field
+  fields.push({
+    name: columnLabels[columnLabels.length - 1].label,
+    values: columns[columns.length - 1] as number[],
+    type: FieldType.number,
+  });
+
+  return fields;
+}

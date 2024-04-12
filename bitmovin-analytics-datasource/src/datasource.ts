@@ -5,14 +5,12 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   Field,
-  FieldType,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import { MyDataSourceOptions, MyQuery } from './types';
-import { zip } from 'lodash';
-import { padAndSortTimeSeries, transformGroupedTimeSeriesData } from './utils/dataUtils';
+import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 
 type AnalyticsQuery = {
   filters: { name: string; operator: string; value: number }[];
@@ -85,44 +83,25 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
       const fields: Array<Partial<Field>> = [];
 
-      //one row will look like this [timestamp, groupBy1, ... groupByN, value]
+      // Determine the appropriate transformation based on query parameters
       if (query.interval && query.groupBy.length > 0) {
+        // If the query has an interval and group by columns, transform the data as grouped time series
         fields.push(...transformGroupedTimeSeriesData(dataRows, from.getTime(), to.getTime(), query.interval));
       } else {
-        //data is a time series data so padding is needed and time data needs to be extracted
         if (query.interval) {
-          const paddedData = padAndSortTimeSeries(dataRows, from.getTime(), to.getTime(), 'MINUTE');
-          const columns = zip(...paddedData);
-          fields.push({ name: 'Time', values: columns[0] as number[], type: FieldType.time });
-          fields.push({
-            name: columnLabels[columnLabels.length - 1].label,
-            values: columns[columns.length - 1] as number[],
-            type: FieldType.number,
-          });
+          // If the query has an interval but no group by columns, transform the data as simple time series
+          fields.push(
+            ...transformSimpleTimeSeries(
+              dataRows as number[][],
+              columnLabels[columnLabels.length - 1].label,
+              from.getTime(),
+              to.getTime(),
+              query.interval
+            )
+          );
         } else {
-          //data is no timeseries, no padding required
-          const columns = zip(...dataRows);
-
-          if (query.groupBy.length > 0) {
-            const start = query.interval !== undefined ? 1 : 0;
-            const end = columns.length - 1;
-
-            const groupByColumns = columns.slice(start, end);
-
-            groupByColumns.forEach((column, index) => {
-              fields.push({
-                name: columnLabels[index].label,
-                values: column as string[],
-                type: FieldType.string,
-              });
-            });
-          }
-
-          fields.push({
-            name: columnLabels[columnLabels.length - 1].label,
-            values: columns[columns.length - 1] as number[],
-            type: FieldType.number,
-          });
+          // If no interval is specified, transform the data as table data
+          fields.push(...transformTableData(dataRows, columnLabels));
         }
       }
 
