@@ -17,8 +17,14 @@ export function padAndSortTimeSeries(
   endTimestamp: number,
   interval: string
 ): Array<Array<string | number>> {
-  //TODOMY error handling for when this method returns -1 and the data is empty
+  if (data.length === 0) {
+    return [];
+  }
+
   const intervalInMs = intervalToMilliseconds(interval);
+  if (intervalInMs < 0) {
+    throw new Error(`Query interval ${interval} is not a valid interval.`);
+  }
 
   let dataRows: (string | number)[] = [0];
   const zeroValueTimeSeries: Array<Array<string | number>> = [];
@@ -61,6 +67,10 @@ export function transformGroupedTimeSeriesData(
   endTimestamp: number,
   interval: string
 ): Array<Partial<Field>> {
+  if (dataRows.length === 0) {
+    return [];
+  }
+
   const fields: Array<Partial<Field>> = [];
 
   // Group the data by the groupBy values to display multiple time series in one graph
@@ -120,6 +130,10 @@ export function transformSimpleTimeSeries(
   endTimestamp: number,
   interval: string
 ): Array<Partial<Field>> {
+  if (dataRows.length === 0) {
+    return [];
+  }
+
   const fields: Array<Partial<Field>> = [];
   const paddedData = padAndSortTimeSeries(dataRows, startTimestamp, endTimestamp, interval);
   const columns = zip(...paddedData);
@@ -137,7 +151,7 @@ export function transformSimpleTimeSeries(
 /**
  * Transforms table data into the Data Frame format.
  *
- * @param {Array<Array<string | number>>} dataRows The table data to be transformed. Each data row must have the following structure: [groupBy1: string, groupBy2: string, ... ,groupByN: string, value: number]
+ * @param {Array<Array<string | number>>} dataRows The table data to be transformed. Each data row must have the following structure: [groupBy1: string, groupBy2: string, ... , groupByN: string, value: number]
  * @param {Array<{ key: string; label: string }>} columnLabels The labels for each column in the table data.
  * @returns {Array<Partial<Field>>} The transformed table data.
  */
@@ -145,15 +159,28 @@ export function transformTableData(
   dataRows: Array<Array<string | number>>,
   columnLabels: Array<{ key: string; label: string }>
 ): Array<Partial<Field>> {
+  if (dataRows.length === 0) {
+    return [];
+  }
+
   const fields: Array<Partial<Field>> = [];
   const columns = zip(...dataRows);
+
+  let columnNames: string[] = [];
+  if (columnLabels.length === 0) {
+    for (let i = 0; i < columns.length; i++) {
+      columnNames.push(`Column ${i + 1}`);
+    }
+  } else {
+    columnNames.push(...columnLabels.map((label) => label.label));
+  }
 
   if (dataRows[0].length > 1) {
     const groupByColumns = columns.slice(0, -1);
 
     groupByColumns.forEach((column, index) => {
       fields.push({
-        name: columnLabels[index].label,
+        name: columnNames[index],
         values: column as string[],
         type: FieldType.string,
       });
@@ -162,7 +189,7 @@ export function transformTableData(
 
   // Add the last column as a number field
   fields.push({
-    name: columnLabels[columnLabels.length - 1].label,
+    name: columnNames[columnNames.length - 1],
     values: columns[columns.length - 1] as number[],
     type: FieldType.number,
   });

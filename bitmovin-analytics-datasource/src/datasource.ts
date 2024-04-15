@@ -77,15 +77,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const promises = options.targets.map(async (target) => {
       const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
 
-      //TODOMY implement error handling
-
       const dataRows: Array<Array<string | number>> = response.data.data.result.rows;
       const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
 
       const fields: Array<Partial<Field>> = [];
 
       // Determine the appropriate transformation based on query parameters
-      if (query.interval && query.groupBy.length > 0) {
+      if (query.interval && query.groupBy?.length > 0) {
         // If the query has an interval and group by columns, transform the data as grouped time series
         fields.push(...transformGroupedTimeSeriesData(dataRows, from.getTime(), to.getTime(), query.interval));
       } else {
@@ -94,7 +92,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           fields.push(
             ...transformSimpleTimeSeries(
               dataRows as number[][],
-              columnLabels[columnLabels.length - 1].label,
+              columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
               from.getTime(),
               to.getTime(),
               query.interval
@@ -111,9 +109,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       });
     });
 
-    //TODOMY show error message beside the Dimension if aggregation was called on a non numeric dimension
-
-    //TODOMY toggle for timeseries or table
     return Promise.all(promises).then((data) => ({ data }));
   }
 

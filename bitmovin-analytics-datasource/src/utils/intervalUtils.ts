@@ -2,6 +2,7 @@ import { QUERY_INTERVAL } from '../types';
 
 /**
  * Get corresponding interval in milliseconds.
+ *
  * @param {String} interval The interval
  * @returns {number} Interval in milliseconds or -1 if unknown.
  */
