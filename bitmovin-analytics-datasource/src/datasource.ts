@@ -70,7 +70,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       dimension: 'IMPRESSION_ID',
       start: from,
       end: to,
-      licenseKey: '45adcf9b-8f7c-4e28-91c5-50ba3d442cd4',
+      licenseKey: '',
       interval: 'MINUTE',
     };
 
