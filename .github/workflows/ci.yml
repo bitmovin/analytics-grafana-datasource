@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref }}
           sparse-checkout: |
             bitmovin-analytics-datasource
           sparse-checkout-cone-mode: false
