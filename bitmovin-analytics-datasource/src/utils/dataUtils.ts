@@ -1,22 +1,23 @@
 import { differenceWith, sortBy, zip } from 'lodash';
 import { intervalToMilliseconds } from './intervalUtils';
 import { Field, FieldType } from '@grafana/data';
+import { MixedDataRowList, NumberDataRow, NumberDataRowList } from '../types';
 
 /**
  * Adds padding to a given time series to fill in any missing timestamps for a given interval.
  *
- * @param {Array<Array<string | number>>} data The time series data to be padded. Each data row must have the following structure: [timestamp: number, groupBy1?: string, ... ,groupByN?: string, value: number]
+ * @param {MixedDataRowList} data The time series data to be padded. Each data row must have the following structure: [timestamp: number, groupBy1?: string, ... , groupByN?: string, value: number] where each row has the same groupByValue. If the groupByValues differ from row to row, only the groupByValues of the first row are considered.
  * @param {number} startTimestamp The start timestamp in milliseconds for the padding interval.
  * @param {number} endTimestamp The end timestamp in milliseconds for the padding interval.
  * @param {String} interval The interval used for the query, e.g. MINUTE, HOUR, ... .
- * @returns {Array<Array<string | number>>} The padded and sorted time series data.
+ * @returns {MixedDataRowList} The padded and sorted time series data.
  */
 export function padAndSortTimeSeries(
-  data: Array<Array<string | number>>,
+  data: MixedDataRowList,
   startTimestamp: number,
   endTimestamp: number,
   interval: string
-): Array<Array<string | number>> {
+): MixedDataRowList {
   if (data.length === 0) {
     return [];
   }
@@ -27,7 +28,7 @@ export function padAndSortTimeSeries(
   }
 
   let dataRows: (string | number)[] = [0];
-  const zeroValueTimeSeries: Array<Array<string | number>> = [];
+  const zeroValueTimeSeries: MixedDataRowList = [];
 
   // Preserve groupBys in the data if present
   if (data[0].length > 2) {
@@ -55,14 +56,14 @@ export function padAndSortTimeSeries(
 /**
  * Transforms grouped time series data into the Data Frame format.
  *
- * @param {Array<Array<string | number>>} dataRows The grouped time series data to be transformed. Each data row must have the following structure: [timestamp: number, groupBy1: string, groupBy2: string, ... ,groupByN: string, value: number]
+ * @param {MixedDataRowList} dataRows The grouped time series data to be transformed. Each data row must have the following structure: [timestamp: number, groupBy1: string, groupBy2: string, ... ,groupByN: string, value: number]
  * @param {number} startTimestamp The start timestamp in milliseconds for the time series data.
  * @param {number} endTimestamp The end timestamp in milliseconds for the time series data.
  * @param {string} interval The interval used for the time series data.
  * @returns {Array<Partial<Field>>} The transformed time series data.
  */
 export function transformGroupedTimeSeriesData(
-  dataRows: Array<Array<string | number>>,
+  dataRows: MixedDataRowList,
   startTimestamp: number,
   endTimestamp: number,
   interval: string
@@ -74,7 +75,7 @@ export function transformGroupedTimeSeriesData(
   const fields: Array<Partial<Field>> = [];
 
   // Group the data by the groupBy values to display multiple time series in one graph
-  const groupedTimeSeriesMap = new Map<string, Array<Array<string | number>>>();
+  const groupedTimeSeriesMap = new Map<string, MixedDataRowList>();
   dataRows.forEach((row) => {
     const groupKey = row.slice(1, -1).toString();
     if (!groupedTimeSeriesMap.has(groupKey)) {
@@ -84,17 +85,16 @@ export function transformGroupedTimeSeriesData(
   });
 
   // Pad grouped data as there can only be one time field for a graph with multiple time series
-  const paddedTimeSeries: Array<Array<Array<string | number>>> = [];
+  const paddedTimeSeries: Array<MixedDataRowList> = [];
   groupedTimeSeriesMap.forEach((data) => {
-    paddedTimeSeries.push(padAndSortTimeSeries(data, startTimestamp, endTimestamp, interval!));
+    paddedTimeSeries.push(padAndSortTimeSeries(data, startTimestamp, endTimestamp, interval));
   });
 
   // Extract and save timestamps from the first group data
-  const transposedFirstGroupData = zip(...paddedTimeSeries[0]);
-  const timestamps = transposedFirstGroupData[0];
-  fields.push({ name: 'Time', values: timestamps, type: FieldType.time });
+  const timestamps = paddedTimeSeries[0].map((row) => row[0]);
+  fields.push({ name: 'Time', values: timestamps as NumberDataRow, type: FieldType.time });
 
-  // Extract and save the values for every grouped time series
+  // Extract time series values per group
   paddedTimeSeries.forEach((data) => {
     // Field name consisting of the groupBy values of the current time series
     const name = data[0].slice(1, -1).join(', ');
@@ -105,7 +105,7 @@ export function transformGroupedTimeSeriesData(
 
     fields.push({
       name: name,
-      values: valueColumn[0] as number[],
+      values: valueColumn[0] as NumberDataRow,
       type: FieldType.number,
     });
   });
@@ -116,7 +116,7 @@ export function transformGroupedTimeSeriesData(
 /**
  * Transforms simple time series data into the Data Frame format.
  *
- * @param {Array<Array<number>>} dataRows The time series data to be transformed. Each data row must have the following structure: [timestamp: number, value: number]
+ * @param {NumberDataRowList} dataRows The time series data to be transformed. Each data row must have the following structure: [timestamp: number, value: number]
  * @param {string} columnName The name for the value column in the time series data.
  * @param {number} startTimestamp The start timestamp in milliseconds for the time series data.
  * @param {number} endTimestamp The end timestamp in milliseconds for the time series data.
@@ -124,7 +124,7 @@ export function transformGroupedTimeSeriesData(
  * @returns {Array<Partial<Field>>} The transformed time series data.
  */
 export function transformSimpleTimeSeries(
-  dataRows: Array<Array<number>>,
+  dataRows: NumberDataRowList,
   columnName: string,
   startTimestamp: number,
   endTimestamp: number,
@@ -138,10 +138,10 @@ export function transformSimpleTimeSeries(
   const paddedData = padAndSortTimeSeries(dataRows, startTimestamp, endTimestamp, interval);
   const columns = zip(...paddedData);
 
-  fields.push({ name: 'Time', values: columns[0] as number[], type: FieldType.time });
+  fields.push({ name: 'Time', values: columns[0] as NumberDataRow, type: FieldType.time });
   fields.push({
     name: columnName,
-    values: columns[columns.length - 1] as number[],
+    values: columns[columns.length - 1] as NumberDataRow,
     type: FieldType.number,
   });
 
@@ -151,12 +151,12 @@ export function transformSimpleTimeSeries(
 /**
  * Transforms table data into the Data Frame format.
  *
- * @param {Array<Array<string | number>>} dataRows The table data to be transformed. Each data row must have the following structure: [groupBy1: string, groupBy2: string, ... , groupByN: string, value: number]
+ * @param {MixedDataRowList} dataRows The table data to be transformed. Each data row must have the following structure: [groupBy1: string, groupBy2: string, ... , groupByN: string, value: number]
  * @param {Array<{ key: string; label: string }>} columnLabels The labels for each column in the table data.
  * @returns {Array<Partial<Field>>} The transformed table data.
  */
 export function transformTableData(
-  dataRows: Array<Array<string | number>>,
+  dataRows: MixedDataRowList,
   columnLabels: Array<{ key: string; label: string }>
 ): Array<Partial<Field>> {
   if (dataRows.length === 0) {
@@ -175,7 +175,8 @@ export function transformTableData(
     columnNames.push(...columnLabels.map((label) => label.label));
   }
 
-  if (dataRows[0].length > 1) {
+  const containsGroupByValues = dataRows[0].length > 1;
+  if (containsGroupByValues) {
     const groupByColumns = columns.slice(0, -1);
 
     groupByColumns.forEach((column, index) => {
@@ -190,7 +191,7 @@ export function transformTableData(
   // Add the last column as a number field
   fields.push({
     name: columnNames[columnNames.length - 1],
-    values: columns[columns.length - 1] as number[],
+    values: columns[columns.length - 1] as NumberDataRow,
     type: FieldType.number,
   });
 

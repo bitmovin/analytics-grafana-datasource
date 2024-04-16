@@ -9,7 +9,7 @@ import {
 import { getBackendSrv } from '@grafana/runtime';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-import { MyDataSourceOptions, MyQuery } from './types';
+import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 
 type AnalyticsQuery = {
@@ -77,7 +77,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const promises = options.targets.map(async (target) => {
       const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
 
-      const dataRows: Array<Array<string | number>> = response.data.data.result.rows;
+      const dataRows: MixedDataRowList = response.data.data.result.rows;
       const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
 
       const fields: Array<Partial<Field>> = [];
@@ -91,7 +91,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           // If the query has an interval but no group by columns, transform the data as simple time series
           fields.push(
             ...transformSimpleTimeSeries(
-              dataRows as number[][],
+              dataRows as NumberDataRowList,
               columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
               from.getTime(),
               to.getTime(),
