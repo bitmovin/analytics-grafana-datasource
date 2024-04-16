@@ -13,9 +13,9 @@ import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } fro
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 
 type AnalyticsQuery = {
-  filters: { name: string; operator: string; value: number }[];
+  filters: Array<{ name: string; operator: string; value: number }>;
   groupBy: string[];
-  orderBy: { name: string; order: string }[];
+  orderBy: Array<{ name: string; order: string }>;
   dimension: string;
   start: Date;
   end: Date;
@@ -142,7 +142,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         }),
         catchError((err) => {
           let message = 'Bitmovin: ';
-          if (err.status) message += err.status + ' ';
+          if (err.status) {
+            message += err.status + ' ';
+          }
           if (err.statusText) {
             message += err.statusText;
           } else {

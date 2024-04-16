@@ -29,7 +29,7 @@ export enum QUERY_INTERVAL {
 }
 
 export type MixedDataRow = Array<string | number>;
-export type MixedDataRowList = Array<MixedDataRow>;
+export type MixedDataRowList = MixedDataRow[];
 
-export type NumberDataRow = Array<number>;
-export type NumberDataRowList = Array<NumberDataRow>;
+export type NumberDataRow = number[];
+export type NumberDataRowList = NumberDataRow[];

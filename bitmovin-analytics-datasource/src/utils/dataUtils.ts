@@ -1,7 +1,7 @@
 import { differenceWith, sortBy, zip } from 'lodash';
 import { intervalToMilliseconds } from './intervalUtils';
 import { Field, FieldType } from '@grafana/data';
-import { MixedDataRowList, NumberDataRow, NumberDataRowList } from '../types';
+import { MixedDataRow, MixedDataRowList, NumberDataRow, NumberDataRowList } from '../types';
 
 /**
  * Adds padding to a given time series to fill in any missing timestamps for a given interval.
@@ -27,7 +27,7 @@ export function padAndSortTimeSeries(
     throw new Error(`Query interval ${interval} is not a valid interval.`);
   }
 
-  let dataRows: (string | number)[] = [0];
+  let dataRows: MixedDataRow = [0];
   const zeroValueTimeSeries: MixedDataRowList = [];
 
   // Preserve groupBys in the data if present
@@ -85,7 +85,7 @@ export function transformGroupedTimeSeriesData(
   });
 
   // Pad grouped data as there can only be one time field for a graph with multiple time series
-  const paddedTimeSeries: Array<MixedDataRowList> = [];
+  const paddedTimeSeries: MixedDataRowList[] = [];
   groupedTimeSeriesMap.forEach((data) => {
     paddedTimeSeries.push(padAndSortTimeSeries(data, startTimestamp, endTimestamp, interval));
   });
