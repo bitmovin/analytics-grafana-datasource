@@ -1,5 +1,14 @@
 export type QueryInterval = 'MINUTE' | 'HOUR' | 'DAY';
 
+export const QueryIntervals: Array<{ value: QueryInterval; label: string }> = [
+  { value: 'AUTO', label: 'Auto' },
+  { value: 'SECOND', label: 'Second' },
+  { value: 'MINUTE', label: 'Minute' },
+  { value: 'HOUR', label: 'Hour' },
+  { value: 'DAY', label: 'Day' },
+  { value: 'MONTH', label: 'Month' },
+];
+
 /**
  * Get corresponding interval in milliseconds.
  *

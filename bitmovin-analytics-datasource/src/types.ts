@@ -1,13 +1,13 @@
 import { DataSourceJsonData } from '@grafana/data';
 import { DataQuery } from '@grafana/schema';
+import { QueryInterval } from './utils/intervalUtils';
 
 export interface MyQuery extends DataQuery {
-  queryText?: string;
-  constant: number;
+  interval: QueryInterval;
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {
-  constant: 6.5,
+  //constant: 6.5,
 };
 
 /**

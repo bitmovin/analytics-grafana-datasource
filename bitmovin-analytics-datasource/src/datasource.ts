@@ -53,29 +53,29 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const from = new Date(range!.from.toDate().setSeconds(0, 0));
     const to = range!.to.toDate();
 
-    const query: AnalyticsQuery = {
-      filters: [
-        {
-          name: 'VIDEO_STARTUPTIME',
-          operator: 'GT',
-          value: 0,
-        },
-      ],
-      groupBy: [],
-      orderBy: [
-        {
-          name: 'MINUTE',
-          order: 'DESC',
-        },
-      ],
-      dimension: 'IMPRESSION_ID',
-      start: from,
-      end: to,
-      licenseKey: '',
-      interval: 'MINUTE',
-    };
-
     const promises = options.targets.map(async (target) => {
+      const query: AnalyticsQuery = {
+        filters: [
+          {
+            name: 'VIDEO_STARTUPTIME',
+            operator: 'GT',
+            value: 0,
+          },
+        ],
+        groupBy: ['BROWSER', 'DEVICE_TYPE'],
+        orderBy: [
+          {
+            name: 'MINUTE',
+            order: 'DESC',
+          },
+        ],
+        dimension: 'IMPRESSION_ID',
+        start: from,
+        end: to,
+        licenseKey: '',
+        interval: target.interval,
+      };
+
       const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
