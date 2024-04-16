@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-    defaults:
-      run:
-        working-directory: ./bitmovin-analytics-datasource
+#    defaults:
+#      run:
+#        working-directory: ./bitmovin-analytics-datasource
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: bitmovin-analytics-datasource
+          path: bitmovin-analytics-datasource
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
