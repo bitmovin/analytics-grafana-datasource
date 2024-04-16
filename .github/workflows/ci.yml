@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
+    defaults:
+      run:
+        working-directory: ./bitmovin-analytics-datasource
     steps:
-      - name: Go to grafana folder
-        run: cd bitmovin-analytics-datasource
-
       - uses: actions/checkout@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
