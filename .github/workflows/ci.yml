@@ -17,6 +17,9 @@ jobs:
           node-version: '20'
           cache: 'yarn'
 
+      - name: Go to grafana folder
+        run: cd bitmovin-analytics-datasource
+
       - name: Install dependencies
         run: yarn install --immutable --prefer-offline
 
