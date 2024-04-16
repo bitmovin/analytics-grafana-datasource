@@ -91,7 +91,8 @@ export function transformGroupedTimeSeriesData(
   });
 
   // Extract and save timestamps from the first group data
-  const timestamps = paddedTimeSeries[0].map((row) => row[0]);
+  const transposedFirstGroupTimeSeriesData = zip(...paddedTimeSeries[0]);
+  const timestamps = transposedFirstGroupTimeSeriesData[0];
   fields.push({ name: 'Time', values: timestamps as NumberDataRow, type: FieldType.time });
 
   // Extract time series values per group
