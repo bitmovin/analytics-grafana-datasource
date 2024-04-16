@@ -16,6 +16,10 @@ jobs:
           sparse-checkout: |
             bitmovin-analytics-datasource
           sparse-checkout-cone-mode: false
+
+      - name: list structure
+        run: ls
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
