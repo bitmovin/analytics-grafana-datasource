@@ -9,19 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-    defaults:
-      run:
-        working-directory: ./bitmovin-analytics-datasource
     steps:
       - uses: actions/checkout@v4
         with:
-          path: bitmovin-analytics-datasource
+          sparse-checkout: 'bitmovin-analytics-datasource'
+          sparse-checkout-cone-mode: false
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'yarn'
-          path: bitmovin-analytics-datasource
 
       - name: Install dependencies
         run: yarn install --immutable --prefer-offline
