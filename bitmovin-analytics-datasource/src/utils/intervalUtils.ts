@@ -1,22 +1,22 @@
-import { QUERY_INTERVAL } from '../types';
+export type QueryInterval = 'SECOND' | 'MINUTE' | 'HOUR' | 'DAY' | 'MONTH' | 'AUTO';
 
 /**
  * Get corresponding interval in milliseconds.
  *
- * @param {String} interval The interval
+ * @param {QueryInterval} interval The interval
  * @returns {number} Interval in milliseconds or -1 if unknown.
  */
-export const intervalToMilliseconds = (interval: string): number => {
+export const intervalToMilliseconds = (interval: QueryInterval): number => {
   switch (interval) {
-    case QUERY_INTERVAL.SECOND:
+    case 'SECOND':
       return 1000;
-    case QUERY_INTERVAL.MINUTE:
+    case 'MINUTE':
       return 1000 * 60;
-    case QUERY_INTERVAL.HOUR:
+    case 'HOUR':
       return 1000 * 60 * 60;
-    case QUERY_INTERVAL.DAY:
+    case 'DAY':
       return 1000 * 60 * 60 * 24;
-    case QUERY_INTERVAL.MONTH:
+    case 'MONTH':
       return 1000 * 60 * 60 * 24 * 30;
     default:
       return -1;

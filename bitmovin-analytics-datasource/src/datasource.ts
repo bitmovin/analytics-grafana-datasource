@@ -11,6 +11,7 @@ import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
+import { QueryInterval } from './utils/intervalUtils';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
@@ -20,7 +21,7 @@ type AnalyticsQuery = {
   start: Date;
   end: Date;
   licenseKey: string;
-  interval?: string;
+  interval?: QueryInterval;
 };
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
