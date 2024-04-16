@@ -14,7 +14,8 @@ jobs:
         working-directory: ./bitmovin-analytics-datasource
     steps:
       - uses: actions/checkout@v4
-        with: ./bitmovin-analytics-datasource
+        with:
+          sparse-checkout: bitmovin-analytics-datasource
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
