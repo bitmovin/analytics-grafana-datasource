@@ -35,6 +35,8 @@ export function padAndSortTimeSeries(
     dataRows = [...data[0].slice(1, -1), 0];
   }
 
+  //TODOMY fix rounding of end and start timestamp, starttimestamp does not begin with the full hour always, so the increment from the first timestamp to the seconds needs to be to the next full hour or full day, what to do with days? whats the hour there?
+
   // Create zero value time series data for the entire interval
   for (let timestamp = startTimestamp; timestamp <= endTimestamp; timestamp += intervalInMs) {
     const row = [timestamp, ...dataRows];

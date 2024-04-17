@@ -3,7 +3,7 @@ import { FieldSet, InlineField, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { MyDataSourceOptions, MyQuery } from '../types';
-import { QueryIntervals } from '../utils/intervalUtils';
+import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -18,10 +18,10 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
       <FieldSet>
         <InlineField label="Interval" labelWidth={10}>
           <Select
-            defaultValue={QueryIntervals[0]}
+            defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
             onChange={(item) => onIntervalChange(item)}
             width={20}
-            options={QueryIntervals}
+            options={SELECTABLE_QUERY_INTERVALS}
           />
         </InlineField>
       </FieldSet>

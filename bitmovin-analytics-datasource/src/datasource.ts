@@ -11,7 +11,7 @@ import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
-import { QueryInterval } from './utils/intervalUtils';
+import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
@@ -54,6 +54,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const to = range!.to.toDate();
 
     const promises = options.targets.map(async (target) => {
+      let interval: QueryInterval | undefined;
+      if (target.interval) {
+        interval = calculateQueryInterval(target.interval!, from.getTime(), to.getTime());
+      }
+
       const query: AnalyticsQuery = {
         filters: [
           {
@@ -62,18 +67,18 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             value: 0,
           },
         ],
-        groupBy: ['BROWSER', 'DEVICE_TYPE'],
+        groupBy: [],
         orderBy: [
           {
-            name: 'MINUTE',
+            name: interval!,
             order: 'DESC',
           },
         ],
         dimension: 'IMPRESSION_ID',
         start: from,
         end: to,
-        licenseKey: '',
-        interval: target.interval,
+        licenseKey: '45adcf9b-8f7c-4e28-91c5-50ba3d442cd4',
+        interval: interval,
       };
 
       const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
