@@ -58,6 +58,7 @@ describe('padAndSortTimeSeries', () => {
     const data = [[0, 0]];
 
     //act && assert
+    // @ts-ignore
     expect(() => padAndSortTimeSeries(data, 0, 0, 'INVALID INTERVAL')).toThrow(
       new Error('Query interval INVALID INTERVAL is not a valid interval.')
     );
@@ -133,6 +134,7 @@ describe('transformGroupedTimeSeriesData', () => {
     const endTimestamp = 1712919780000; //Friday, 12 April 2024 11:03:00
 
     //act && assert
+    // @ts-ignore
     expect(() => transformGroupedTimeSeriesData(data, startTimestamp, endTimestamp, 'INVALID INTERVAL')).toThrow(
       new Error('Query interval INVALID INTERVAL is not a valid interval.')
     );
@@ -189,7 +191,9 @@ describe('transformSimpleTimeSeries', () => {
     const endTimestamp = 1712919780000; //Friday, 12 April 2024 11:03:00
 
     //act && assert
+    // @ts-ignore
     expect(() =>
+      // @ts-ignore
       transformSimpleTimeSeries(data, 'Impression Id', startTimestamp, endTimestamp, 'INVALID INTERVAL')
     ).toThrow(new Error('Query interval INVALID INTERVAL is not a valid interval.'));
   });

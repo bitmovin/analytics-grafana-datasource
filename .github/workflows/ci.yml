@@ -1,14 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - master
-      - main
-  pull_request:
-    branches:
-      - master
-      - main
+on: [push]
 
 permissions: read-all
 
@@ -17,13 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
+    #TODO delete after merge to main
+    defaults:
+      run:
+        working-directory: ./bitmovin-analytics-datasource
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'yarn'
+          #TODO delete after merge to main
+          cache-dependency-path: './bitmovin-analytics-datasource/yarn.lock'
 
       - name: Install dependencies
         run: yarn install --immutable --prefer-offline
