@@ -1,5 +1,5 @@
 import { differenceWith, sortBy, zip } from 'lodash';
-import { intervalToMilliseconds } from './intervalUtils';
+import { intervalToMilliseconds, QueryInterval } from './intervalUtils';
 import { Field, FieldType } from '@grafana/data';
 import { MixedDataRow, MixedDataRowList, NumberDataRow, NumberDataRowList } from '../types';
 
@@ -16,7 +16,7 @@ export function padAndSortTimeSeries(
   data: MixedDataRowList,
   startTimestamp: number,
   endTimestamp: number,
-  interval: string
+  interval: QueryInterval
 ): MixedDataRowList {
   if (data.length === 0) {
     return [];
@@ -66,7 +66,7 @@ export function transformGroupedTimeSeriesData(
   dataRows: MixedDataRowList,
   startTimestamp: number,
   endTimestamp: number,
-  interval: string
+  interval: QueryInterval
 ): Array<Partial<Field>> {
   if (dataRows.length === 0) {
     return [];
@@ -129,7 +129,7 @@ export function transformSimpleTimeSeries(
   columnName: string,
   startTimestamp: number,
   endTimestamp: number,
-  interval: string
+  interval: QueryInterval
 ): Array<Partial<Field>> {
   if (dataRows.length === 0) {
     return [];
