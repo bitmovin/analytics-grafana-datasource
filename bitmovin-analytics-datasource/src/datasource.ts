@@ -1,15 +1,28 @@
 import {
+  createDataFrame,
   DataQueryRequest,
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
-  MutableDataFrame,
-  FieldType,
+  Field,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { catchError, lastValueFrom, map, of, Observable } from 'rxjs';
+import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-import { MyQuery, MyDataSourceOptions } from './types';
+import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
+import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
+import { QueryInterval } from './utils/intervalUtils';
+
+type AnalyticsQuery = {
+  filters: Array<{ name: string; operator: string; value: number }>;
+  groupBy: string[];
+  orderBy: Array<{ name: string; order: string }>;
+  dimension: string;
+  start: Date;
+  end: Date;
+  licenseKey: string;
+  interval?: QueryInterval;
+};
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   baseUrl: string;
@@ -26,31 +39,96 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     this.baseUrl = instanceSettings.url!;
   }
 
+  /**
+   * The Bitmovin API Response follows these rules:
+   * - If the interval property is provided in the request query, time series data is returned and the first value of each row is a timestamp in milliseconds.
+   * - If the groupBy property array is not empty in the request query:
+   *    - Depending on whether the interval property is set:
+   *      - Interval is set: All values between the first one (timestamp) and the last one (not included) can be considered string values.
+   *      - Interval is not set: All values up to the last one (not included) can be considered string values
+   * - The last value of each row is always be a number.
+   * */
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const from = range!.from.valueOf();
-    const to = range!.to.valueOf();
+    const from = new Date(range!.from.toDate().setSeconds(0, 0));
+    const to = range!.to.toDate();
 
-    // Return a constant for each query.
-    const data = options.targets.map((target) => {
-      return new MutableDataFrame({
-        refId: target.refId,
-        fields: [
-          { name: 'Time', values: [from, to], type: FieldType.time },
-          { name: 'Value', values: [target.constant, target.constant], type: FieldType.number },
-        ],
+    const query: AnalyticsQuery = {
+      filters: [
+        {
+          name: 'VIDEO_STARTUPTIME',
+          operator: 'GT',
+          value: 0,
+        },
+      ],
+      groupBy: [],
+      orderBy: [
+        {
+          name: 'MINUTE',
+          order: 'DESC',
+        },
+      ],
+      dimension: 'IMPRESSION_ID',
+      start: from,
+      end: to,
+      licenseKey: '',
+      interval: 'MINUTE',
+    };
+
+    const promises = options.targets.map(async (target) => {
+      const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
+
+      const dataRows: MixedDataRowList = response.data.data.result.rows;
+      const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
+
+      const fields: Array<Partial<Field>> = [];
+
+      // Determine the appropriate transformation based on query parameters
+      if (query.interval && query.groupBy?.length > 0) {
+        // If the query has an interval and group by columns, transform the data as grouped time series
+        fields.push(...transformGroupedTimeSeriesData(dataRows, from.getTime(), to.getTime(), query.interval));
+      } else {
+        if (query.interval) {
+          // If the query has an interval but no group by columns, transform the data as simple time series
+          fields.push(
+            ...transformSimpleTimeSeries(
+              dataRows as NumberDataRowList,
+              columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
+              from.getTime(),
+              to.getTime(),
+              query.interval
+            )
+          );
+        } else {
+          // If no interval is specified, transform the data as table data
+          fields.push(...transformTableData(dataRows, columnLabels));
+        }
+      }
+
+      return createDataFrame({
+        fields: fields,
       });
     });
 
-    return { data };
+    return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async request(url: string, method: string) {
+  getRequestUrl(): string {
+    if (this.adAnalytics === true) {
+      return '/analytics/ads/queries';
+    }
+
+    return '/analytics/queries/count';
+  }
+
+  request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
     const options = {
       url: this.baseUrl + url,
       headers: { 'X-Api-Key': this.apiKey },
       method: method,
+      data: payload,
     };
+
     return getBackendSrv().fetch(options);
   }
 
@@ -65,7 +143,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         }),
         catchError((err) => {
           let message = 'Bitmovin: ';
-          if (err.status) message += err.status + ' ';
+          if (err.status) {
+            message += err.status + ' ';
+          }
           if (err.statusText) {
             message += err.statusText;
           } else {

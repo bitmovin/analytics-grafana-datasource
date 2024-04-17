@@ -18,3 +18,9 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
   tenantOrgId?: string;
   adAnalytics?: boolean;
 }
+
+export type MixedDataRow = Array<string | number>;
+export type MixedDataRowList = MixedDataRow[];
+
+export type NumberDataRow = number[];
+export type NumberDataRowList = NumberDataRow[];
