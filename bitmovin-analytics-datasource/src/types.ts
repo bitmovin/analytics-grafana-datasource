@@ -4,10 +4,14 @@ import { QueryInterval } from './utils/intervalUtils';
 
 export interface MyQuery extends DataQuery {
   interval?: QueryInterval | 'AUTO';
+  timeSeries: boolean;
+  limit: number;
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {
   interval: 'AUTO',
+  timeSeries: true,
+  limit: 100,
 };
 
 /**
