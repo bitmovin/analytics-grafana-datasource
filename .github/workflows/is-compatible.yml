@@ -12,10 +12,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-          #TODO delete after merge to main
-          sparse-checkout: |
-            bitmovin-analytics-datasource
-          sparse-checkout-cone-mode: false
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
