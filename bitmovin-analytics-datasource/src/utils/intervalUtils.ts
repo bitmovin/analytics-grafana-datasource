@@ -1,4 +1,4 @@
-export type QueryInterval = 'SECOND' | 'MINUTE' | 'HOUR' | 'DAY' | 'MONTH' | 'AUTO';
+export type QueryInterval = 'MINUTE' | 'HOUR' | 'DAY';
 
 /**
  * Get corresponding interval in milliseconds.
@@ -8,16 +8,12 @@ export type QueryInterval = 'SECOND' | 'MINUTE' | 'HOUR' | 'DAY' | 'MONTH' | 'AU
  */
 export const intervalToMilliseconds = (interval: QueryInterval): number => {
   switch (interval) {
-    case 'SECOND':
-      return 1000;
     case 'MINUTE':
       return 1000 * 60;
     case 'HOUR':
       return 1000 * 60 * 60;
     case 'DAY':
       return 1000 * 60 * 60 * 24;
-    case 'MONTH':
-      return 1000 * 60 * 60 * 24 * 30;
     default:
       return -1;
   }
