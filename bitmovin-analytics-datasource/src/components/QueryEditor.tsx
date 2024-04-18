@@ -4,12 +4,19 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { MyDataSourceOptions, MyQuery } from '../types';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
+import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggreagtions';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
 export function QueryEditor({ query, onChange, onRunQuery }: Props) {
   const onIntervalChange = (item: SelectableValue) => {
     onChange({ ...query, interval: item.value });
+    //TODOMY when should the query be rerun?
+    onRunQuery();
+  };
+
+  const onMetricChange = (item: SelectableValue) => {
+    onChange({ ...query, aggregation: item.value });
     onRunQuery();
   };
 
@@ -41,6 +48,14 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
   return (
     <div className="gf-form">
       <FieldSet>
+        <InlineField label="Metric" labelWidth={20}>
+          <Select
+            defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
+            onChange={(item) => onMetricChange(item)}
+            width={20}
+            options={SELECTABLE_AGGREGATIONS}
+          />
+        </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>
