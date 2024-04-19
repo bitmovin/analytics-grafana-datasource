@@ -53,6 +53,8 @@ describe('padAndSortTimeSeries', () => {
     ]);
   });
 
+  //TODOMY add more tests for different timestamps and intervals to also check the trimming of first incomplete timestamps
+
   it('should throw error when interval is not valid', () => {
     //arrange
     const data = [[0, 0]];

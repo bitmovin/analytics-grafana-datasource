@@ -58,3 +58,25 @@ export const calculateQueryInterval = (
   }
   return 'DAY';
 };
+
+export function ceilTimestampAccordingToQueryInterval(timestamp: number, interval: QueryInterval): number {
+  const date = new Date(timestamp);
+  switch (interval) {
+    case 'MINUTE':
+      if (date.getSeconds() === 0 && date.getMilliseconds() === 0) {
+        return timestamp;
+      }
+      return date.setMinutes(date.getMinutes() + 1, 0, 0);
+    case 'HOUR':
+      if (date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0) {
+        return timestamp;
+      }
+      return date.setHours(date.getHours() + 1, 0, 0, 0);
+    case 'DAY':
+      if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0) {
+        return timestamp;
+      }
+      const nextDay = new Date(date.setDate(date.getDate() + 1));
+      return nextDay.setHours(0, 0, 0, 0);
+  }
+}
