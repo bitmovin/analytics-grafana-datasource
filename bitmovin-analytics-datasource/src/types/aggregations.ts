@@ -13,5 +13,6 @@ export const SELECTABLE_AGGREGATIONS: Array<{ value: Aggregation; label: string 
   { value: 'variance', label: 'Variance' },
   { value: 'median', label: 'Median' },
 ];
+//TODOMY should I put the metrics here as well?
 
 export const DEFAULT_SELECTABLE_AGGREGATION = SELECTABLE_AGGREGATIONS[0];

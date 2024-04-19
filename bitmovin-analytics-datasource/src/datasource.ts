@@ -50,7 +50,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
    * */
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const from = new Date(range!.from.toDate().setSeconds(0, 0));
+    const from = range!.from.toDate();
     const to = range!.to.toDate();
 
     const promises = options.targets.map(async (target) => {
@@ -79,7 +79,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         dimension: 'IMPRESSION_ID',
         start: from,
         end: to,
-        licenseKey: '45adcf9b-8f7c-4e28-91c5-50ba3d442cd4',
+        licenseKey: target.licenseKey,
         interval: interval,
       };
 
