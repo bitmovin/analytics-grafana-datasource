@@ -2,6 +2,8 @@ import { DataSourceJsonData } from '@grafana/data';
 import { DataQuery } from '@grafana/schema';
 import { QueryInterval } from './utils/intervalUtils';
 import { Aggregation } from './types/aggregations';
+import { QueryAttribute } from './types/queryAttributes';
+import { QueryAdAttribute } from './types/queryAdAttributes';
 
 export interface MyQuery extends DataQuery {
   interval?: QueryInterval | 'AUTO';
@@ -9,14 +11,15 @@ export interface MyQuery extends DataQuery {
   limit: number;
   aggregation: Aggregation;
   licenseKey: string;
+  dimension: QueryAttribute | QueryAdAttribute;
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {
   interval: 'AUTO',
-  timeSeries: true,
   limit: 100,
   aggregation: 'count',
   licenseKey: '',
+  dimension: 'IMPRESSION_ID',
 };
 
 /**

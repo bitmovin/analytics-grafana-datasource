@@ -75,7 +75,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             order: 'DESC',
           },
         ],
-        dimension: 'IMPRESSION_ID',
+        dimension: target.dimension,
         start: from,
         end: to,
         licenseKey: target.licenseKey,

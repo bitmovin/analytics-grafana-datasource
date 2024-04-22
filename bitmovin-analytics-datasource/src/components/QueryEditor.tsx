@@ -6,11 +6,14 @@ import { MyDataSourceOptions, MyQuery } from '../types';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggregations';
 import { fetchLicenses, SelectableLicense } from '../utils/licenses';
+import { SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
+import { SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
 export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
   const [licenses, setLicenses] = useState<SelectableLicense[]>([]);
+  const [isTimeSeries, setIsTimeSeries] = useState(true);
 
   useEffect(() => {
     fetchLicenses(datasource.apiKey, datasource.baseUrl).then((licenses) => {
@@ -23,18 +26,29 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
-  const onMetricChange = (item: SelectableValue) => {
-    onChange({ ...query, aggregation: item.value });
-    onRunQuery();
-  };
-
   const onLicenseChange = (item: SelectableValue) => {
     onChange({ ...query, licenseKey: item.value });
     onRunQuery();
   };
 
+  const onMetricChange = (item: SelectableValue) => {
+    onChange({ ...query, aggregation: item.value });
+    onRunQuery();
+  };
+
+  const onDimensionChange = (item: SelectableValue) => {
+    onChange({ ...query, dimension: item.value });
+    onRunQuery();
+  };
+
   const onFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...query, timeSeries: event.currentTarget.checked });
+    setIsTimeSeries(event.currentTarget.checked);
+    if (event.currentTarget.checked) {
+      onChange({ ...query, interval: 'AUTO' });
+    } else {
+      onChange({ ...query, interval: undefined });
+    }
+    onRunQuery();
   };
 
   const onLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -56,8 +70,6 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     );
   };
 
-  const { timeSeries } = query;
-
   return (
     <div className="gf-form">
       <FieldSet>
@@ -72,10 +84,17 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             options={SELECTABLE_AGGREGATIONS}
           />
         </InlineField>
-        <InlineField label="Format as time series" labelWidth={20}>
-          <InlineSwitch onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
+        <InlineField label="Dimension" labelWidth={20}>
+          <Select
+            onChange={(item) => onDimensionChange(item)}
+            width={20}
+            options={datasource.adAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
+          />
         </InlineField>
-        {timeSeries && renderTimeSeriesOption()}
+        <InlineField label="Format as time series" labelWidth={20}>
+          <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
+        </InlineField>
+        {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Limit" labelWidth={20}>
           <Input type="number" onChange={onLimitChange} width={20} />
         </InlineField>
