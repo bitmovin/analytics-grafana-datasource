@@ -56,10 +56,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const promises = options.targets.map(async (target) => {
       const urlAppendix = target.aggregation;
 
-      let interval: QueryInterval | undefined;
-      if (target.interval) {
-        interval = calculateQueryInterval(target.interval!, from.getTime(), to.getTime());
-      }
+      const interval = target.interval
+        ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
+        : undefined;
 
       const query: AnalyticsQuery = {
         filters: [
