@@ -12,6 +12,7 @@ export interface MyQuery extends DataQuery {
   aggregation: Aggregation;
   licenseKey: string;
   dimension: QueryAttribute | QueryAdAttribute;
+  groupBy: QueryAttribute[] | QueryAdAttribute[];
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {
@@ -20,6 +21,7 @@ export const DEFAULT_QUERY: Partial<MyQuery> = {
   aggregation: 'count',
   licenseKey: '',
   dimension: 'IMPRESSION_ID',
+  groupBy: [],
 };
 
 /**

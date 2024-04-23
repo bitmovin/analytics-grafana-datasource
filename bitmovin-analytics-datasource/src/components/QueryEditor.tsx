@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
+import { FieldSet, InlineField, InlineSwitch, Input, MultiSelect, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { MyDataSourceOptions, MyQuery } from '../types';
@@ -41,6 +41,12 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
+  const onGroupByChange = (item: SelectableValue[]) => {
+    const groupBys = item.map((groupBy) => groupBy.value);
+    onChange({ ...query, groupBy: groupBys });
+    onRunQuery();
+  };
+
   const onFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
     if (event.currentTarget.checked) {
@@ -62,7 +68,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           <Select
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
             onChange={(item) => onIntervalChange(item)}
-            width={20}
+            width={40}
             options={SELECTABLE_QUERY_INTERVALS}
           />
         </InlineField>
@@ -74,20 +80,27 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     <div className="gf-form">
       <FieldSet>
         <InlineField label="License" labelWidth={20}>
-          <Select onChange={(item) => onLicenseChange(item)} width={20} options={licenses} />
+          <Select onChange={(item) => onLicenseChange(item)} width={40} options={licenses} />
         </InlineField>
         <InlineField label="Metric" labelWidth={20}>
           <Select
             defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
             onChange={(item) => onMetricChange(item)}
-            width={20}
+            width={40}
             options={SELECTABLE_AGGREGATIONS}
           />
         </InlineField>
         <InlineField label="Dimension" labelWidth={20}>
           <Select
-            onChange={(item) => onDimensionChange(item)}
-            width={20}
+            onChange={onDimensionChange}
+            width={40}
+            options={datasource.adAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
+          />
+        </InlineField>
+        <InlineField label="Group By" labelWidth={20}>
+          <MultiSelect
+            onChange={onGroupByChange}
+            width={40}
             options={datasource.adAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
           />
         </InlineField>
@@ -96,7 +109,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Limit" labelWidth={20}>
-          <Input type="number" onChange={onLimitChange} width={20} />
+          <Input type="number" onChange={onLimitChange} width={40} />
         </InlineField>
       </FieldSet>
     </div>

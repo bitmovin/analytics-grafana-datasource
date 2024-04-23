@@ -139,7 +139,7 @@ enum QUERY_ATTRIBUTES {
 
 export type QueryAttribute = keyof typeof QUERY_ATTRIBUTES;
 
-export const SELECTABLE_QUERY_ATTRIBUTES: SelectableValue<string>[] = [
+export const SELECTABLE_QUERY_ATTRIBUTES: SelectableValue<QueryAttribute>[] = [
   { value: QUERY_ATTRIBUTES.AD, label: 'Ad' },
   { value: QUERY_ATTRIBUTES.ANALYTICS_VERSION, label: 'Analytics Software Version' },
   { value: QUERY_ATTRIBUTES.AUDIO_BITRATE, label: 'Audio Bitrate' },

@@ -68,7 +68,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             value: 0,
           },
         ],
-        groupBy: [],
+        groupBy: target.groupBy,
         orderBy: [
           {
             name: interval!,
