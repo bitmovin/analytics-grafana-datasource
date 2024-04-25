@@ -12,11 +12,13 @@ import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
+import { QueryFilter } from './types/queryFilter';
+import { QueryOrderBy } from './types/queryOrderBy';
 
 type AnalyticsQuery = {
-  filters: Array<{ name: string; operator: string; value: number }>;
+  filters: QueryFilter[];
   groupBy: string[];
-  orderBy: Array<{ name: string; order: string }>;
+  orderBy: QueryOrderBy[];
   dimension: string;
   start: Date;
   end: Date;
@@ -61,13 +63,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         : undefined;
 
       const query: AnalyticsQuery = {
-        filters: [
-          {
-            name: 'VIDEO_STARTUPTIME',
-            operator: 'GT',
-            value: 0,
-          },
-        ],
+        filters: target.filters,
         groupBy: target.groupBy,
         orderBy: target.orderBy,
         dimension: target.dimension,

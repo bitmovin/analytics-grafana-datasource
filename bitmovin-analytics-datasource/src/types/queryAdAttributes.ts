@@ -1,6 +1,6 @@
 import { SelectableValue } from '@grafana/data';
 
-enum QUERY_AD_ATTRIBUTES {
+export enum QUERY_AD_ATTRIBUTES {
   ADVERTISER_NAME = 'ADVERTISER_NAME',
   AD_CLICKTHROUGH_URL = 'AD_CLICKTHROUGH_URL',
   AD_DESCRIPTION = 'AD_DESCRIPTION',

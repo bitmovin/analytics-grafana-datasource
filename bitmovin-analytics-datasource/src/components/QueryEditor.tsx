@@ -10,6 +10,8 @@ import { SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { OrderByRow } from './OrderByRow';
 import { QueryOrderBy } from '../types/queryOrderBy';
+import { FilterRow } from './FilterRow';
+import { QueryFilter } from '../types/queryFilter';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -51,6 +53,12 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
 
   const onOrderByChange = (newOrderBy: QueryOrderBy[]) => {
     onChange({ ...query, orderBy: newOrderBy });
+    onRunQuery();
+  };
+
+  const onFiltersChange = (newFilters: QueryFilter[]) => {
+    console.log('filters in QueryEditor', newFilters);
+    onChange({ ...query, filters: newFilters });
     onRunQuery();
   };
 
@@ -116,6 +124,9 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         }
         <InlineField label="Order By" labelWidth={20}>
           <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
+        </InlineField>
+        <InlineField label="Filters" labelWidth={20}>
+          <FilterRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onFiltersChange} />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>

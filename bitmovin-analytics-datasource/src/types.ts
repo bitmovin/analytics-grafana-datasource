@@ -5,16 +5,17 @@ import { Aggregation } from './types/aggregations';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
+import { QueryFilter } from './types/queryFilter';
 
 export interface MyQuery extends DataQuery {
   interval?: QueryInterval | 'AUTO';
-  timeSeries: boolean;
   limit: number;
   aggregation: Aggregation;
   licenseKey: string;
   dimension: QueryAttribute | QueryAdAttribute;
   groupBy: QueryAttribute[] | QueryAdAttribute[];
   orderBy: QueryOrderBy[];
+  filters: QueryFilter[];
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {
@@ -25,6 +26,7 @@ export const DEFAULT_QUERY: Partial<MyQuery> = {
   dimension: 'IMPRESSION_ID',
   groupBy: [],
   orderBy: [],
+  filters: [],
 };
 
 /**
