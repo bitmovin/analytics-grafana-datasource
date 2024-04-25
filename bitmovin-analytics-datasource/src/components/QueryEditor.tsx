@@ -8,6 +8,8 @@ import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../type
 import { fetchLicenses, SelectableLicense } from '../utils/licenses';
 import { SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
+import { OrderByRow } from './OrderByRow';
+import { QueryOrderBy } from '../types/queryOrderBy';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
@@ -44,6 +46,11 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
   const onGroupByChange = (item: SelectableValue[]) => {
     const groupBys = item.map((groupBy) => groupBy.value);
     onChange({ ...query, groupBy: groupBys });
+    onRunQuery();
+  };
+
+  const onOrderByChange = (newOrderBy: QueryOrderBy[]) => {
+    onChange({ ...query, orderBy: newOrderBy });
     onRunQuery();
   };
 
@@ -103,6 +110,12 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             width={40}
             options={datasource.adAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
           />
+        </InlineField>
+        {
+          //TODOMY rethink InlineField, maybe Field would be better
+        }
+        <InlineField label="Order By" labelWidth={20}>
+          <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>

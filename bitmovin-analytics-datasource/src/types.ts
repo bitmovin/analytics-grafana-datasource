@@ -4,6 +4,7 @@ import { QueryInterval } from './utils/intervalUtils';
 import { Aggregation } from './types/aggregations';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
+import { QueryOrderBy } from './types/queryOrderBy';
 
 export interface MyQuery extends DataQuery {
   interval?: QueryInterval | 'AUTO';
@@ -13,6 +14,7 @@ export interface MyQuery extends DataQuery {
   licenseKey: string;
   dimension: QueryAttribute | QueryAdAttribute;
   groupBy: QueryAttribute[] | QueryAdAttribute[];
+  orderBy: QueryOrderBy[];
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {
@@ -22,6 +24,7 @@ export const DEFAULT_QUERY: Partial<MyQuery> = {
   licenseKey: '',
   dimension: 'IMPRESSION_ID',
   groupBy: [],
+  orderBy: [],
 };
 
 /**

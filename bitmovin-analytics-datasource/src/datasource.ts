@@ -69,12 +69,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           },
         ],
         groupBy: target.groupBy,
-        orderBy: [
-          {
-            name: interval!,
-            order: 'DESC',
-          },
-        ],
+        orderBy: target.orderBy,
         dimension: target.dimension,
         start: from,
         end: to,
