@@ -151,7 +151,7 @@ export enum QUERY_AD_ATTRIBUTES {
 
 export type QueryAdAttribute = keyof typeof QUERY_AD_ATTRIBUTES;
 
-export const SELECTABLE_QUERY_AD_ATTRIBUTES: SelectableValue<QueryAdAttribute>[] = [
+export const SELECTABLE_QUERY_AD_ATTRIBUTES: Array<SelectableValue<QueryAdAttribute>> = [
   { value: QUERY_AD_ATTRIBUTES.ADVERTISER_NAME, label: 'Advertiser Name' },
   { value: QUERY_AD_ATTRIBUTES.AD_CLICKTHROUGH_URL, label: 'Ad Clickthrough Url' },
   { value: QUERY_AD_ATTRIBUTES.AD_DESCRIPTION, label: 'Ad Description' },
