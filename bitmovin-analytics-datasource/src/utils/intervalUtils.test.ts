@@ -52,93 +52,119 @@ describe('calculateQueryInterval', () => {
 });
 
 describe('ceilTimestampAccordingToQueryInterval', () => {
-  it('should return same timestamp for already rounded MINUTE interval timestamp ', () => {
+  it('should return same timestamp for already rounded MINUTE interval start timestamp ', () => {
     //arrange
-    const timestamp = 1713513900000; //Friday, 19 April 2024 08:05:00
+    const startTimestamp = 1713513900000; //Friday, 19 April 2024 08:05:00
 
     //act
-    const result = ceilTimestampAccordingToQueryInterval(timestamp, 'MINUTE', 0);
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'MINUTE', 0);
 
     //assert
-    expect(result).toEqual(timestamp);
+    expect(result).toEqual(startTimestamp);
   });
 
-  it('should return ceiled timestamp for MINUTE interval timestamp with milliseconds != 0', () => {
+  it('should return ceiled timestamp for MINUTE interval and start timestamp with milliseconds != 0', () => {
     //arrange
-    const timestamp = 1713513900100; //Friday, 19 April 2024 08:05:00.100
+    const startTimestamp = 1713513900100; //Friday, 19 April 2024 08:05:00.100
     const expectedTimestamp = 1713513960000; //Friday, 19 April 2024 08:06:00
 
     //act
-    const result = ceilTimestampAccordingToQueryInterval(timestamp, 'MINUTE', 0);
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'MINUTE', 0);
 
     //assert
     expect(result).toEqual(expectedTimestamp);
   });
 
-  it('should return ceiled timestamp for MINUTE interval timestamp with seconds != 0', () => {
+  it('should return ceiled timestamp for MINUTE interval and start timestamp with seconds != 0', () => {
     //arrange
-    const timestamp = 1713513912000; //Friday, 19 April 2024 08:05:12
+    const startTimestamp = 1713513912000; //Friday, 19 April 2024 08:05:12
     const expectedTimestamp = 1713513960000; //Friday, 19 April 2024 08:06:00
 
     //act
-    const result = ceilTimestampAccordingToQueryInterval(timestamp, 'MINUTE', 0);
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'MINUTE', 0);
 
     //assert
     expect(result).toEqual(expectedTimestamp);
   });
 
-  it('should return same timestamp for already rounded HOUR interval timestamp ', () => {
+  it('should return same timestamp for already rounded HOUR interval start timestamp ', () => {
     //arrange
-    const timestamp = 1713513600000; //Friday, 19 April 2024 08:00:00
+    const startTimestamp = 1713513600000; //Friday, 19 April 2024 08:00:00
 
     //act
-    const result = ceilTimestampAccordingToQueryInterval(timestamp, 'HOUR', 0);
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'HOUR', 0);
 
     //assert
-    expect(result).toEqual(timestamp);
+    expect(result).toEqual(startTimestamp);
   });
 
-  it('should return ceiled timestamp for HOUR interval timestamp with milliseconds != 0', () => {
+  it('should return ceiled timestamp for HOUR interval and start timestamp with milliseconds != 0', () => {
     //arrange
-    const timestamp = 1713513600100; //Friday, 19 April 2024 08:00:00.100
+    const startTimestamp = 1713513600100; //Friday, 19 April 2024 08:00:00.100
     const expectedTimestamp = 1713517200000; //Friday, 19 April 2024 09:00:00
 
     //act
-    const result = ceilTimestampAccordingToQueryInterval(timestamp, 'HOUR', 0);
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'HOUR', 0);
 
     //assert
     expect(result).toEqual(expectedTimestamp);
   });
 
-  it('should return ceiled timestamp for HOUR interval timestamp with seconds != 0', () => {
+  it('should return ceiled timestamp for HOUR interval and start timestamp with seconds != 0', () => {
     //arrange
-    const timestamp = 1713513612000; //Friday, 19 April 2024 08:00:12
+    const startTimestamp = 1713513612000; //Friday, 19 April 2024 08:00:12
     const expectedTimestamp = 1713517200000; //Friday, 19 April 2024 09:00:00
 
     //act
-    const result = ceilTimestampAccordingToQueryInterval(timestamp, 'HOUR', 0);
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'HOUR', 0);
 
     //assert
     expect(result).toEqual(expectedTimestamp);
   });
 
-  it('should return ceiled timestamp for HOUR interval timestamp with minutes != 0', () => {
+  it('should return ceiled timestamp for HOUR interval and start timestamp with minutes != 0', () => {
     //arrange
-    const timestamp = 1713514320000; //Friday, 19 April 2024 08:12:00
+    const startTimestamp = 1713514320000; //Friday, 19 April 2024 08:12:00
     const expectedTimestamp = 1713517200000; //Friday, 19 April 2024 09:00:00
 
     //act
-    const result = ceilTimestampAccordingToQueryInterval(timestamp, 'HOUR', 0);
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'HOUR', 0);
 
     //assert
     expect(result).toEqual(expectedTimestamp);
   });
 
-  it('should return correct timestamp DAY interval timestamp ', () => {
+  it('should return correct timestamp with DAY interval and start timestamp before data timestamp', () => {
     //arrange
-    const timestamp = 1713514320000; //Friday, 19 April 2024 08:12:00
+    const startTimestamp = 1713514320000; //Friday, 19 April 2024 08:12:00
     const dataTimestamp = 1713954600000; //Wednesday, 24 April 2024 10:30:00
     const expectedTimestamp = 1713522600000; //Friday, 19 April 2024 10:30:00
+
+    //act
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'DAY', dataTimestamp);
+
+    //assert
+    expect(result).toEqual(expectedTimestamp);
+  });
+
+  it('should return ceiled timestamp with DAY interval and start timestamp after data timestamp', () => {
+    //arrange
+    const startTimestamp = 1713522184000; //Friday, 19 April 2024 10:23:04
+    const dataTimestamp = 1713517200000; //Friday, 19 April 2024 09:00:00
+    const expectedTimestamp = 1713603600000; //Saturday, 20 April 2024 09:00:00
+
+    //act
+    const result = ceilTimestampAccordingToQueryInterval(startTimestamp, 'DAY', dataTimestamp);
+
+    //assert
+    expect(result).toEqual(expectedTimestamp);
+  });
+
+  it('should return ceiled timestamp with DAY interval and start timestamp after data timestamp and start timestamp being last day of a month', () => {
+    //arrange
+    const timestamp = 1714474760000; //Tuesday, 30 April 2024 10:59:20
+    const dataTimestamp = 1714467600000; //Tuesday, 30 April 2024 09:00:00
+    const expectedTimestamp = 1714554000000; //Wednesday, 1 May 2024 09:00:00
 
     //act
     const result = ceilTimestampAccordingToQueryInterval(timestamp, 'DAY', dataTimestamp);
