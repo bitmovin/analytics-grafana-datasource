@@ -12,12 +12,14 @@ import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
+import { QueryAttribute } from './types/queryAttributes';
+import { QueryAdAttribute } from './types/queryAdAttributes';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
   groupBy: string[];
   orderBy: Array<{ name: string; order: string }>;
-  dimension: string;
+  dimension: QueryAttribute | QueryAdAttribute;
   start: Date;
   end: Date;
   licenseKey: string;
@@ -76,7 +78,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
               },
             ]
           : [],
-        dimension: 'IMPRESSION_ID',
+        dimension: target.dimension,
         start: from,
         end: to,
         licenseKey: target.licenseKey,

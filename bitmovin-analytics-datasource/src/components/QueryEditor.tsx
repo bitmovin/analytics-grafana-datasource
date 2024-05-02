@@ -7,6 +7,8 @@ import { MyDataSourceOptions, MyQuery } from '../types';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggregations';
+import { SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
+import { SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -43,6 +45,11 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
 
   const onMetricChange = (item: SelectableValue) => {
     onChange({ ...query, aggregation: item.value });
+    onRunQuery();
+  };
+
+  const onDimensionChange = (item: SelectableValue) => {
+    onChange({ ...query, dimension: item.value });
     onRunQuery();
   };
 
@@ -101,6 +108,13 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             onChange={(item) => onMetricChange(item)}
             width={40}
             options={SELECTABLE_AGGREGATIONS}
+          />
+        </InlineField>
+        <InlineField label="Dimension" labelWidth={20}>
+          <Select
+            onChange={onDimensionChange}
+            width={40}
+            options={datasource.adAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
           />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
