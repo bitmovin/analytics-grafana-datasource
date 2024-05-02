@@ -85,8 +85,9 @@ export function ceilTimestampAccordingToQueryInterval(
       }
       return date.setHours(date.getHours() + 1, 0, 0, 0);
     case 'DAY':
-      // Take the hours value from the datapoint timestamps as the timestamps for the day interval depend on the timezone of the license
+      // Take the hours and minutes value from the datapoint timestamps as the timestamps for the day interval depend on the timezone of the license
       const dataHours = new Date(dataTimestamp).getHours();
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), dataHours).getTime();
+      const dataMinutes = new Date(dataTimestamp).getMinutes();
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), dataHours, dataMinutes).getTime();
   }
 }
