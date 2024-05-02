@@ -1,10 +1,12 @@
 import { DataSourceJsonData } from '@grafana/data';
 import { DataQuery } from '@grafana/schema';
 import { QueryInterval } from './utils/intervalUtils';
+import { Aggregation } from './types/aggregations';
 
 export interface MyQuery extends DataQuery {
   licenseKey: string;
   interval?: QueryInterval | 'AUTO';
+  aggregation: Aggregation;
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {};

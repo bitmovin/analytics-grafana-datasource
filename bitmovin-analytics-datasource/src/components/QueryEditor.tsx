@@ -6,6 +6,7 @@ import { DataSource } from '../datasource';
 import { MyDataSourceOptions, MyQuery } from '../types';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
+import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggregations';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -37,6 +38,11 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
 
   const onLicenseChange = (item: SelectableValue) => {
     onChange({ ...query, licenseKey: item.value });
+    onRunQuery();
+  };
+
+  const onMetricChange = (item: SelectableValue) => {
+    onChange({ ...query, aggregation: item.value });
     onRunQuery();
   };
 
@@ -87,6 +93,14 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             noOptionsMessage="No Analytics Licenses found"
             isLoading={licenseLoadingState === LoadingState.Loading}
             placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
+          />
+        </InlineField>
+        <InlineField label="Metric" labelWidth={20}>
+          <Select
+            defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
+            onChange={(item) => onMetricChange(item)}
+            width={40}
+            options={SELECTABLE_AGGREGATIONS}
           />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>

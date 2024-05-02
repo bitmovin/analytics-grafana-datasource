@@ -54,6 +54,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const to = range!.to.toDate();
 
     const promises = options.targets.map(async (target) => {
+      const urlAppendix = target.aggregation;
       const interval = target.interval
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
@@ -82,7 +83,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         interval: interval,
       };
 
-      const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
+      const response = await lastValueFrom(this.request(this.getRequestUrl() + urlAppendix, 'POST', query));
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
       const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
@@ -121,10 +122,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   getRequestUrl(): string {
     if (this.adAnalytics === true) {
-      return '/analytics/ads/queries';
+      return '/analytics/ads/queries/';
     }
 
-    return '/analytics/queries/count';
+    return '/analytics/queries/';
   }
 
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
