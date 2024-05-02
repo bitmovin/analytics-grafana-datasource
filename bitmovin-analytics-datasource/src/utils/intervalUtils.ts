@@ -72,22 +72,33 @@ export function ceilTimestampAccordingToQueryInterval(
   interval: QueryInterval,
   dataTimestamp: number
 ): number {
-  const date = new Date(startTimestamp);
+  const startDate = new Date(startTimestamp);
   switch (interval) {
     case 'MINUTE':
-      if (date.getSeconds() === 0 && date.getMilliseconds() === 0) {
+      if (startDate.getSeconds() === 0 && startDate.getMilliseconds() === 0) {
         return startTimestamp;
       }
-      return date.setMinutes(date.getMinutes() + 1, 0, 0);
+      return startDate.setMinutes(startDate.getMinutes() + 1, 0, 0);
     case 'HOUR':
-      if (date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0) {
+      if (startDate.getMinutes() === 0 && startDate.getSeconds() === 0 && startDate.getMilliseconds() === 0) {
         return startTimestamp;
       }
-      return date.setHours(date.getHours() + 1, 0, 0, 0);
+      return startDate.setHours(startDate.getHours() + 1, 0, 0, 0);
     case 'DAY':
       // Take the hours and minutes value from the datapoint timestamps as the timestamps for the day interval depend on the timezone of the license
       const dataHours = new Date(dataTimestamp).getHours();
       const dataMinutes = new Date(dataTimestamp).getMinutes();
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), dataHours, dataMinutes).getTime();
+      const startDateWithCorrectTime = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        dataHours,
+        dataMinutes
+      );
+
+      if (startDateWithCorrectTime.getTime() > startTimestamp) {
+        return startDateWithCorrectTime.getTime();
+      }
+      return new Date(startDateWithCorrectTime).setDate(startDateWithCorrectTime.getDate() + 1);
   }
 }
