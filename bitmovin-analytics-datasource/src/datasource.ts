@@ -14,12 +14,15 @@ import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTab
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
+import { Metric } from './types/metric';
+import { Aggregation } from './types/aggregations';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
   groupBy: string[];
   orderBy: Array<{ name: string; order: string }>;
-  dimension: QueryAttribute | QueryAdAttribute;
+  dimension?: QueryAttribute | QueryAdAttribute;
+  metric?: Metric;
   start: Date;
   end: Date;
   licenseKey: string;
@@ -56,7 +59,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const to = range!.to.toDate();
 
     const promises = options.targets.map(async (target) => {
-      const urlAppendix = target.aggregation;
       const interval = target.interval
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
@@ -85,7 +87,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         interval: interval,
       };
 
-      const response = await lastValueFrom(this.request(this.getRequestUrl() + urlAppendix, 'POST', query));
+      const response = await lastValueFrom(
+        this.request(this.getRequestUrl(target.metric, target.aggregation), 'POST', query)
+      );
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
       const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
@@ -122,12 +126,17 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  getRequestUrl(): string {
+  getRequestUrl(metric?: Metric, aggregation?: Aggregation): string {
+    let url = '/analytics';
     if (this.adAnalytics === true) {
-      return '/analytics/ads/queries/';
+      url += '/ads';
     }
 
-    return '/analytics/queries/';
+    if (metric !== undefined) {
+      return url + '/metrics/' + metric;
+    }
+
+    return url + '/queries/' + aggregation;
   }
 
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {

@@ -4,12 +4,14 @@ import { QueryInterval } from './utils/intervalUtils';
 import { Aggregation } from './types/aggregations';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
+import { Metric } from './types/metric';
 
 export interface MyQuery extends DataQuery {
   licenseKey: string;
   interval?: QueryInterval | 'AUTO';
-  aggregation: Aggregation;
-  dimension: QueryAttribute | QueryAdAttribute;
+  aggregation?: Aggregation;
+  metric?: Metric;
+  dimension?: QueryAttribute | QueryAdAttribute;
 }
 
 export const DEFAULT_QUERY: Partial<MyQuery> = {};
