@@ -33,7 +33,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         setLicenseLoadingState(LoadingState.Error);
         setLicenseErrorMessage(e.status + ' ' + e.statusText);
       });
-  }, []);
+  }, [datasource.apiKey, datasource.baseUrl]);
 
   const onLicenseChange = (item: SelectableValue) => {
     onChange({ ...query, licenseKey: item.value });
