@@ -1,5 +1,5 @@
 import { differenceWith, sortBy, zip } from 'lodash';
-import { intervalToMilliseconds, QueryInterval } from './intervalUtils';
+import { ceilTimestampAccordingToQueryInterval, intervalToMilliseconds, QueryInterval } from './intervalUtils';
 import { Field, FieldType } from '@grafana/data';
 import { MixedDataRow, MixedDataRowList, NumberDataRow, NumberDataRowList } from '../types';
 
@@ -27,6 +27,9 @@ export function padAndSortTimeSeries(
     throw new Error(`Query interval ${interval} is not a valid interval.`);
   }
 
+  // ceil timestamp to pad data with accurate timestamps and to ignore incomplete first datapoints
+  const ceiledTimestamp = ceilTimestampAccordingToQueryInterval(startTimestamp, interval, data[0][0] as number);
+
   let dataRows: MixedDataRow = [0];
   const zeroValueTimeSeries: MixedDataRowList = [];
 
@@ -36,7 +39,7 @@ export function padAndSortTimeSeries(
   }
 
   // Create zero value time series data for the entire interval
-  for (let timestamp = startTimestamp; timestamp <= endTimestamp; timestamp += intervalInMs) {
+  for (let timestamp = ceiledTimestamp; timestamp <= endTimestamp; timestamp += intervalInMs) {
     const row = [timestamp, ...dataRows];
     zeroValueTimeSeries.push(row);
   }
@@ -50,7 +53,14 @@ export function padAndSortTimeSeries(
   // Sort data by timestamp
   const sortedData = sortBy(paddedData, (row) => row[0]);
 
-  return sortedData;
+  // Ignore datapoints before ceiled start timestamp to only show complete datapoints and to not overflow graph to the left
+  let index = 0;
+  while (sortedData[index][0] < ceiledTimestamp) {
+    index++;
+  }
+  const trimmedData = sortedData.slice(index);
+
+  return trimmedData;
 }
 
 /**

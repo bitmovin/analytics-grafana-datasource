@@ -11,7 +11,7 @@ import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
-import { QueryInterval } from './utils/intervalUtils';
+import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
@@ -50,32 +50,38 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
    * */
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const from = new Date(range!.from.toDate().setSeconds(0, 0));
+    const from = range!.from.toDate();
     const to = range!.to.toDate();
 
-    const query: AnalyticsQuery = {
-      filters: [
-        {
-          name: 'VIDEO_STARTUPTIME',
-          operator: 'GT',
-          value: 0,
-        },
-      ],
-      groupBy: [],
-      orderBy: [
-        {
-          name: 'MINUTE',
-          order: 'DESC',
-        },
-      ],
-      dimension: 'IMPRESSION_ID',
-      start: from,
-      end: to,
-      licenseKey: '',
-      interval: 'MINUTE',
-    };
-
     const promises = options.targets.map(async (target) => {
+      const interval = target.interval
+        ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
+        : undefined;
+
+      const query: AnalyticsQuery = {
+        filters: [
+          {
+            name: 'VIDEO_STARTUPTIME',
+            operator: 'GT',
+            value: 0,
+          },
+        ],
+        groupBy: [],
+        orderBy: interval
+          ? [
+              {
+                name: interval,
+                order: 'DESC',
+              },
+            ]
+          : [],
+        dimension: 'IMPRESSION_ID',
+        start: from,
+        end: to,
+        licenseKey: target.licenseKey,
+        interval: interval,
+      };
+
       const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
