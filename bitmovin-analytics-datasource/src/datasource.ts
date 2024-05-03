@@ -81,6 +81,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             ]
           : [],
         dimension: target.dimension,
+        metric: target.metric,
         start: from,
         end: to,
         licenseKey: target.licenseKey,
@@ -132,7 +133,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       url += '/ads';
     }
 
-    if (metric !== undefined) {
+    if (metric != null) {
       return url + '/metrics/' + metric;
     }
 
