@@ -3,7 +3,7 @@ import { FieldSet, InlineField, InlineSwitch, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 
 import { DataSource } from '../datasource';
-import { MyDataSourceOptions, MyQuery } from '../types';
+import { MyDataSourceOptions, BitmovinAnalyticsDataQuery } from '../types';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 
@@ -14,7 +14,7 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, MyDataSourceOptions>;
 
 export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);

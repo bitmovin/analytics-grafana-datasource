@@ -2,12 +2,12 @@ import { DataSourceJsonData } from '@grafana/data';
 import { DataQuery } from '@grafana/schema';
 import { QueryInterval } from './utils/intervalUtils';
 
-export interface MyQuery extends DataQuery {
+export interface BitmovinAnalyticsDataQuery extends DataQuery {
   licenseKey: string;
   interval?: QueryInterval | 'AUTO';
 }
 
-export const DEFAULT_QUERY: Partial<MyQuery> = {};
+export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {};
 
 /**
  * These are options configured for each DataSource instance
