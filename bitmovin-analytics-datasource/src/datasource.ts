@@ -12,12 +12,18 @@ import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 import { MixedDataRowList, MyDataSourceOptions, BitmovinAnalyticsDataQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
+import { QueryAttribute } from './types/queryAttributes';
+import { QueryAdAttribute } from './types/queryAdAttributes';
+import { Metric } from './types/metric';
+import { Aggregation } from './types/aggregations';
+
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
   groupBy: string[];
   orderBy: Array<{ name: string; order: string }>;
-  dimension: string;
+  dimension?: QueryAttribute | QueryAdAttribute;
+  metric?: Metric;
   start: Date;
   end: Date;
   licenseKey: string;
@@ -75,14 +81,17 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
               },
             ]
           : [],
-        dimension: 'IMPRESSION_ID',
+        dimension: target.dimension,
+        metric: target.metric,
         start: from,
         end: to,
         licenseKey: target.licenseKey,
         interval: interval,
       };
 
-      const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
+      const response = await lastValueFrom(
+        this.request(this.getRequestUrl(target.metric, target.aggregation), 'POST', query)
+      );
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
       const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
@@ -119,12 +128,17 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  getRequestUrl(): string {
+  getRequestUrl(metric?: Metric, aggregation?: Aggregation): string {
+    let url = '/analytics';
     if (this.adAnalytics === true) {
-      return '/analytics/ads/queries';
+      url += '/ads';
     }
 
-    return '/analytics/queries/count';
+    if (metric != null) {
+      return url + '/metrics/' + metric;
+    }
+
+    return url + '/queries/' + aggregation;
   }
 
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
