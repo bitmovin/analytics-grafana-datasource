@@ -9,9 +9,9 @@ import {
 import { getBackendSrv } from '@grafana/runtime';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
+import { MixedDataRowList, MyDataSourceOptions, BitmovinAnalyticsDataQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
-import { QueryInterval } from './utils/intervalUtils';
+import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
@@ -24,7 +24,7 @@ type AnalyticsQuery = {
   interval?: QueryInterval;
 };
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyDataSourceOptions> {
   baseUrl: string;
   apiKey: string;
   tenantOrgId?: string;
@@ -48,34 +48,40 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
    *      - Interval is not set: All values up to the last one (not included) can be considered string values
    * - The last value of each row is always be a number.
    * */
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+  async query(options: DataQueryRequest<BitmovinAnalyticsDataQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const from = new Date(range!.from.toDate().setSeconds(0, 0));
+    const from = range!.from.toDate();
     const to = range!.to.toDate();
 
-    const query: AnalyticsQuery = {
-      filters: [
-        {
-          name: 'VIDEO_STARTUPTIME',
-          operator: 'GT',
-          value: 0,
-        },
-      ],
-      groupBy: [],
-      orderBy: [
-        {
-          name: 'MINUTE',
-          order: 'DESC',
-        },
-      ],
-      dimension: 'IMPRESSION_ID',
-      start: from,
-      end: to,
-      licenseKey: '',
-      interval: 'MINUTE',
-    };
-
     const promises = options.targets.map(async (target) => {
+      const interval = target.interval
+        ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
+        : undefined;
+
+      const query: AnalyticsQuery = {
+        filters: [
+          {
+            name: 'VIDEO_STARTUPTIME',
+            operator: 'GT',
+            value: 0,
+          },
+        ],
+        groupBy: [],
+        orderBy: interval
+          ? [
+              {
+                name: interval,
+                order: 'DESC',
+              },
+            ]
+          : [],
+        dimension: 'IMPRESSION_ID',
+        start: from,
+        end: to,
+        licenseKey: target.licenseKey,
+        interval: interval,
+      };
+
       const response = await lastValueFrom(this.request(this.getRequestUrl(), 'POST', query));
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;

@@ -1,32 +1,99 @@
-import React, { ChangeEvent } from 'react';
-import { InlineField, Input } from '@grafana/ui';
-import { QueryEditorProps } from '@grafana/data';
+import React, { ChangeEvent, useEffect, useState } from 'react';
+import { FieldSet, InlineField, InlineSwitch, Select } from '@grafana/ui';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
+
 import { DataSource } from '../datasource';
-import { MyDataSourceOptions, MyQuery } from '../types';
+import { MyDataSourceOptions, BitmovinAnalyticsDataQuery } from '../types';
+import { fetchLicenses } from '../utils/licenses';
+import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+enum LoadingState {
+  Default = 'DEFAULT',
+  Loading = 'LOADING',
+  Success = 'SUCCESS',
+  Error = 'ERROR',
+}
 
-export function QueryEditor({ query, onChange, onRunQuery }: Props) {
-  const onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...query, queryText: event.target.value });
-  };
+type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, MyDataSourceOptions>;
 
-  const onConstantChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...query, constant: parseFloat(event.target.value) });
-    // executes the query
+export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
+  const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
+  const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
+  const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
+  const [isTimeSeries, setIsTimeSeries] = useState(true);
+
+  useEffect(() => {
+    setLicenseLoadingState(LoadingState.Loading);
+    fetchLicenses(datasource.apiKey, datasource.baseUrl)
+      .then((licenses) => {
+        setSelectableLicenses(licenses);
+        setLicenseLoadingState(LoadingState.Success);
+      })
+      .catch((e) => {
+        setLicenseLoadingState(LoadingState.Error);
+        setLicenseErrorMessage(e.status + ' ' + e.statusText);
+      });
+  }, [datasource.apiKey, datasource.baseUrl]);
+
+  const onLicenseChange = (item: SelectableValue) => {
+    onChange({ ...query, licenseKey: item.value });
     onRunQuery();
   };
 
-  const { queryText, constant } = query;
+  const onFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setIsTimeSeries(event.currentTarget.checked);
+    if (event.currentTarget.checked) {
+      onChange({ ...query, interval: 'AUTO' });
+    } else {
+      onChange({ ...query, interval: undefined });
+    }
+    onRunQuery();
+  };
+
+  const onIntervalChange = (item: SelectableValue) => {
+    onChange({ ...query, interval: item.value });
+    onRunQuery();
+  };
+
+  const renderTimeSeriesOption = () => {
+    return (
+      <>
+        <InlineField label="Interval" labelWidth={20}>
+          <Select
+            defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
+            onChange={(item) => onIntervalChange(item)}
+            width={40}
+            options={SELECTABLE_QUERY_INTERVALS}
+          />
+        </InlineField>
+      </>
+    );
+  };
 
   return (
     <div className="gf-form">
-      <InlineField label="Constant">
-        <Input onChange={onConstantChange} value={constant} width={8} type="number" step="0.1" />
-      </InlineField>
-      <InlineField label="Query Text" labelWidth={16} tooltip="Not used yet">
-        <Input onChange={onQueryTextChange} value={queryText || ''} />
-      </InlineField>
+      <FieldSet>
+        <InlineField
+          label="License"
+          labelWidth={20}
+          invalid={licenseLoadingState === LoadingState.Error}
+          error={`Error when fetching Analytics Licenses: ${licenseErrorMessage}`}
+          disabled={licenseLoadingState === LoadingState.Error}
+        >
+          <Select
+            onChange={onLicenseChange}
+            width={40}
+            options={selectableLicenses}
+            noOptionsMessage="No Analytics Licenses found"
+            isLoading={licenseLoadingState === LoadingState.Loading}
+            placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
+          />
+        </InlineField>
+        <InlineField label="Format as time series" labelWidth={20}>
+          <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
+        </InlineField>
+        {isTimeSeries && renderTimeSeriesOption()}
+      </FieldSet>
     </div>
   );
 }

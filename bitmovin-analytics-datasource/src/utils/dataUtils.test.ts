@@ -7,14 +7,15 @@ import {
 import { FieldType } from '@grafana/data';
 
 describe('padAndSortTimeSeries', () => {
-  it('should return sorted and padded data for simple time series data', () => {
+  it('should return sorted and padded data for simple time series data for MINUTE interval', () => {
     //arrange
     const data = [
+      [1712919540000, 1], //Friday, 12 April 2024 10:59:00
       [1712919600000, 2], //Friday, 12 April 2024 11:00:00
       [1712919720000, 5], //Friday, 12 April 2024 11:02:00
     ];
 
-    const startTimestamp = 1712919540000; //Friday, 12 April 2024 10:59:00
+    const startTimestamp = 1712919560000; //Friday, 12 April 2024 10:59:20
     const endTimestamp = 1712919780000; //Friday, 12 April 2024 11:03:00
 
     //act
@@ -22,7 +23,6 @@ describe('padAndSortTimeSeries', () => {
 
     //assert
     expect(result).toEqual([
-      [1712919540000, 0],
       [1712919600000, 2],
       [1712919660000, 0],
       [1712919720000, 5],
@@ -30,14 +30,64 @@ describe('padAndSortTimeSeries', () => {
     ]);
   });
 
-  it('should return sorted and padded data for grouped time series data', () => {
+  it('should return sorted and padded data for simple time series data for HOUR Interval', () => {
     //arrange
     const data = [
+      [1712916000000, 1], //Friday, 12 April 2024 10:00:00
+      [1712919600000, 7], //Friday, 12 April 2024 11:00:00
+      [1712930400000, 5], //Friday, 12 April 2024 14:00:00
+      [1712934000000, 2], //Friday, 12 April 2024 15:00:00
+    ];
+
+    const startTimestamp = 1712917444000; //Friday, 12 April 2024 10:24:04
+    const endTimestamp = 1712935444000; //Friday, 12 April 2024 15:24:04
+
+    //act
+    const result = padAndSortTimeSeries(data, startTimestamp, endTimestamp, 'HOUR');
+
+    //assert
+    expect(result).toEqual([
+      [1712919600000, 7], //Friday, 12 April 2024 11:00:00
+      [1712923200000, 0], //Friday, 12 April 2024 12:00:00
+      [1712926800000, 0], //Friday, 12 April 2024 13:00:00
+      [1712930400000, 5], //Friday, 12 April 2024 14:00:00
+      [1712934000000, 2], //Friday, 12 April 2024 15:00:00
+    ]);
+  });
+
+  it('should return sorted and padded data for simple time series data for DAY interval', () => {
+    //arrange
+    const data = [
+      [1712917800000, 1], //Friday, 12 April 2024 10:30:00
+      [1713004200000, 2], //Saturday, 13 April 2024 10:30:00
+      [1713263400000, 5], //Tuesday, 16 April 2024 10:30:00
+    ];
+
+    const startTimestamp = 1712919560000; //Friday, 12 April 2024 10:59:20
+    const endTimestamp = 1713351560000; //Wednesday, 17 April 2024 10:59:20
+
+    //act
+    const result = padAndSortTimeSeries(data, startTimestamp, endTimestamp, 'DAY');
+
+    //assert
+    expect(result).toEqual([
+      [1713004200000, 2], //Saturday, 13 April 2024 10:30:00
+      [1713090600000, 0], //Sunday, 14 April 2024 10:30:00
+      [1713177000000, 0], //Monday, 15 April 2024 10:30:00
+      [1713263400000, 5], //Tuesday, 16 April 2024 10:30:00
+      [1713349800000, 0], //Wednesday, 17 April 2024 10:30:00
+    ]);
+  });
+
+  it('should return sorted and padded data for grouped time series data for MINUTE interval', () => {
+    //arrange
+    const data = [
+      [1712919540000, 'BROWSER', 'DEVICE_TYPE', 1], //Friday, 12 April 2024 10:59:00
       [1712919600000, 'BROWSER', 'DEVICE_TYPE', 2], //Friday, 12 April 2024 11:00:00
       [1712919720000, 'BROWSER', 'DEVICE_TYPE', 5], //Friday, 12 April 2024 11:02:00
     ];
 
-    const startTimestamp = 1712919540000; //Friday, 12 April 2024 10:59:00
+    const startTimestamp = 1712919560000; //Friday, 12 April 2024 10:59:20
     const endTimestamp = 1712919780000; //Friday, 12 April 2024 11:03:00
 
     //act
@@ -45,11 +95,59 @@ describe('padAndSortTimeSeries', () => {
 
     //assert
     expect(result).toEqual([
-      [1712919540000, 'BROWSER', 'DEVICE_TYPE', 0],
       [1712919600000, 'BROWSER', 'DEVICE_TYPE', 2],
       [1712919660000, 'BROWSER', 'DEVICE_TYPE', 0],
       [1712919720000, 'BROWSER', 'DEVICE_TYPE', 5],
       [1712919780000, 'BROWSER', 'DEVICE_TYPE', 0],
+    ]);
+  });
+
+  it('should return sorted and padded data for grouped time series data for HOUR interval', () => {
+    //arrange
+    const data = [
+      [1712916000000, 'BROWSER', 'DEVICE_TYPE', 1], //Friday, 12 April 2024 10:00:00
+      [1712919600000, 'BROWSER', 'DEVICE_TYPE', 7], //Friday, 12 April 2024 11:00:00
+      [1712930400000, 'BROWSER', 'DEVICE_TYPE', 5], //Friday, 12 April 2024 14:00:00
+      [1712934000000, 'BROWSER', 'DEVICE_TYPE', 2], //Friday, 12 April 2024 15:00:00
+    ];
+
+    const startTimestamp = 1712917444000; //Friday, 12 April 2024 10:24:04
+    const endTimestamp = 1712935444000; //Friday, 12 April 2024 15:24:04
+
+    //act
+    const result = padAndSortTimeSeries(data, startTimestamp, endTimestamp, 'HOUR');
+
+    //assert
+    expect(result).toEqual([
+      [1712919600000, 'BROWSER', 'DEVICE_TYPE', 7], //Friday, 12 April 2024 11:00:00
+      [1712923200000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 12:00:00
+      [1712926800000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 13:00:00
+      [1712930400000, 'BROWSER', 'DEVICE_TYPE', 5], //Friday, 12 April 2024 14:00:00
+      [1712934000000, 'BROWSER', 'DEVICE_TYPE', 2], //Friday, 12 April 2024 15:00:00
+    ]);
+  });
+
+  it('should return sorted and padded data for grouped time series data for DAY interval', () => {
+    //arrange
+    const data = [
+      [1712917800000, 'BROWSER', 'DEVICE_TYPE', 1], //Friday, 12 April 2024 10:30:00
+      [1713004200000, 'BROWSER', 'DEVICE_TYPE', 2], //Saturday, 13 April 2024 10:30:00
+      [1713263400000, 'BROWSER', 'DEVICE_TYPE', 5], //Tuesday, 16 April 2024 10:30:00
+    ];
+
+    const startTimestamp = 1712919560000; //Friday, 12 April 2024 10:59:20
+    const endTimestamp = 1713351560000; //Wednesday, 17 April 2024 10:59:20
+
+    //act
+    const result = padAndSortTimeSeries(data, startTimestamp, endTimestamp, 'DAY');
+
+    //assert
+    expect(result).toEqual([
+      [1713004200000, 'BROWSER', 'DEVICE_TYPE', 2], //Saturday, 13 April 2024 10:30:00
+      [1713090600000, 'BROWSER', 'DEVICE_TYPE', 0], //Sunday, 14 April 2024 10:30:00
+      [1713177000000, 'BROWSER', 'DEVICE_TYPE', 0], //Monday, 15 April 2024 10:30:00
+      [1713263400000, 'BROWSER', 'DEVICE_TYPE', 5], //Tuesday, 16 April 2024 10:30:00
+      [1713349800000, 'BROWSER', 'DEVICE_TYPE', 0], //Wednesday, 17 April 2024 10:30:00
     ]);
   });
 
