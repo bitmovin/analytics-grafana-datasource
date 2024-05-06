@@ -3,12 +3,12 @@ import { FieldSet, InlineField, InlineSwitch, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 
 import { DataSource } from '../datasource';
-import { MyDataSourceOptions, MyQuery } from '../types';
+import { MyDataSourceOptions, BitmovinAnalyticsDataQuery } from '../types';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggregations';
-import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
-import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
+import {QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES} from '../types/queryAdAttributes';
+import {QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES} from '../types/queryAttributes';
 import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 
@@ -19,7 +19,7 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, MyDataSourceOptions>;
 
 export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
@@ -62,10 +62,10 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
-  const onGroupByChange = (newGroupBys: Array<QueryAdAttribute> | Array<QueryAttribute>) => {
-    onChange({ ...query, groupBy: newGroupBys });
-    onRunQuery();
-  };
+    const onGroupByChange = (newGroupBys: Array<QueryAdAttribute> | Array<QueryAttribute>) => {
+        onChange({ ...query, groupBy: newGroupBys });
+        onRunQuery();
+    };
 
   const onFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
@@ -89,7 +89,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           <Select
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
             onChange={(item) => onIntervalChange(item)}
-            width={30}
+            width={40}
             options={SELECTABLE_QUERY_INTERVALS}
           />
         </InlineField>
@@ -109,7 +109,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         >
           <Select
             onChange={onLicenseChange}
-            width={30}
+            width={40}
             options={selectableLicenses}
             noOptionsMessage="No Analytics Licenses found"
             isLoading={licenseLoadingState === LoadingState.Loading}
@@ -121,7 +121,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             <Select
               defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
               onChange={(item) => onAggregationChange(item)}
-              width={30}
+              width={40}
               options={SELECTABLE_AGGREGATIONS}
             />
           </InlineField>
@@ -129,7 +129,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         <InlineField label="Dimension" labelWidth={20}>
           <Select
             onChange={onDimensionChange}
-            width={30}
+            width={40}
             options={
               datasource.adAnalytics
                 ? SELECTABLE_QUERY_AD_ATTRIBUTES
@@ -137,9 +137,9 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             }
           />
         </InlineField>
-        <InlineField label="Group By" labelWidth={20}>
-          <GroupByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onGroupByChange} />
-        </InlineField>
+          <InlineField label="Group By" labelWidth={20}>
+              <GroupByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onGroupByChange} />
+          </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>

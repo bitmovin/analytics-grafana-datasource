@@ -9,13 +9,14 @@ import {
 import { getBackendSrv } from '@grafana/runtime';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-import { MixedDataRowList, MyDataSourceOptions, MyQuery, NumberDataRowList } from './types';
+import { MixedDataRowList, MyDataSourceOptions, BitmovinAnalyticsDataQuery, NumberDataRowList } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
+
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
@@ -29,7 +30,7 @@ type AnalyticsQuery = {
   interval?: QueryInterval;
 };
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyDataSourceOptions> {
   baseUrl: string;
   apiKey: string;
   tenantOrgId?: string;
@@ -53,7 +54,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
    *      - Interval is not set: All values up to the last one (not included) can be considered string values
    * - The last value of each row is always be a number.
    * */
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+  async query(options: DataQueryRequest<BitmovinAnalyticsDataQuery>): Promise<DataQueryResponse> {
     const { range } = options;
     const from = range!.from.toDate();
     const to = range!.to.toDate();
