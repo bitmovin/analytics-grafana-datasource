@@ -6,7 +6,7 @@ import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { Metric } from './types/metric';
 
-export interface MyQuery extends DataQuery {
+export interface BitmovinAnalyticsDataQuery extends DataQuery {
   licenseKey: string;
   interval?: QueryInterval | 'AUTO';
   aggregation?: Aggregation;
@@ -14,7 +14,7 @@ export interface MyQuery extends DataQuery {
   dimension?: QueryAttribute | QueryAdAttribute;
 }
 
-export const DEFAULT_QUERY: Partial<MyQuery> = {};
+export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {};
 
 /**
  * These are options configured for each DataSource instance

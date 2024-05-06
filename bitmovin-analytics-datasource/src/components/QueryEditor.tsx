@@ -3,7 +3,7 @@ import { FieldSet, InlineField, InlineSwitch, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 
 import { DataSource } from '../datasource';
-import { MyDataSourceOptions, MyQuery } from '../types';
+import { MyDataSourceOptions, BitmovinAnalyticsDataQuery } from '../types';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggregations';
@@ -18,7 +18,26 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, MyDataSourceOptions>;
+
+export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
+  const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
+  const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
+  const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
+  const [isTimeSeries, setIsTimeSeries] = useState(true);
+
+  useEffect(() => {
+    setLicenseLoadingState(LoadingState.Loading);
+    fetchLicenses(datasource.apiKey, datasource.baseUrl)
+      .then((licenses) => {
+        setSelectableLicenses(licenses);
+        setLicenseLoadingState(LoadingState.Success);
+      })
+      .catch((e) => {
+        setLicenseLoadingState(LoadingState.Error);
+        setLicenseErrorMessage(e.status + ' ' + e.statusText);
+      });
+  }, [datasource.apiKey, datasource.baseUrl]);
 
 export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
