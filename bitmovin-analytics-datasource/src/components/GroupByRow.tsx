@@ -8,7 +8,7 @@ import { difference } from 'lodash';
 
 type Props = {
   readonly isAdAnalytics: boolean;
-  readonly onChange: (newGroupBys: Array<QueryAdAttribute> | Array<QueryAttribute>) => void;
+  readonly onChange: (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => void;
 };
 
 export function GroupByRow(props: Props) {
@@ -31,7 +31,7 @@ export function GroupByRow(props: Props) {
     setSelectedGroupBys(newSelectedGroupBys);
 
     const groupBys = newSelectedGroupBys.map((groupBy) => groupBy.value);
-    props.onChange(groupBys as Array<QueryAttribute> | Array<QueryAdAttribute>);
+    props.onChange(groupBys as QueryAttribute[] | QueryAdAttribute[]);
   };
 
   const onSelectedGroupByChange = (
@@ -43,7 +43,7 @@ export function GroupByRow(props: Props) {
     setSelectedGroupBys(newSelectedGroupBys);
 
     const groupBys = newSelectedGroupBys.map((groupBy) => groupBy.value);
-    props.onChange(groupBys as Array<QueryAttribute> | Array<QueryAdAttribute>);
+    props.onChange(groupBys as QueryAttribute[] | QueryAdAttribute[]);
   };
 
   const addGroupByInput = () => {
@@ -55,6 +55,7 @@ export function GroupByRow(props: Props) {
     <Stack>
       {selectedGroupBys?.map((item, index) => (
         <GroupByInput
+          key={index}
           groupBy={item}
           onChange={(newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) =>
             onSelectedGroupByChange(index, newValue)
