@@ -7,6 +7,9 @@ import { MyDataSourceOptions, MyQuery } from '../types';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggregations';
+import { SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
+import { SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
+import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -22,6 +25,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(true);
+  const [isDimensionMetricSelected, setIsDimensionMetricSelected] = useState(false);
 
   useEffect(() => {
     setLicenseLoadingState(LoadingState.Loading);
@@ -41,8 +45,19 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
-  const onMetricChange = (item: SelectableValue) => {
-    onChange({ ...query, aggregation: item.value });
+  const onAggregationChange = (item: SelectableValue) => {
+    onChange({ ...query, aggregation: item.value, metric: undefined });
+    onRunQuery();
+  };
+
+  const onDimensionChange = (item: SelectableValue) => {
+    if (isMetric(item.value)) {
+      setIsDimensionMetricSelected(true);
+      onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
+    } else {
+      setIsDimensionMetricSelected(false);
+      onChange({ ...query, dimension: item.value });
+    }
     onRunQuery();
   };
 
@@ -95,12 +110,25 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
           />
         </InlineField>
-        <InlineField label="Metric" labelWidth={20}>
+        {!isDimensionMetricSelected && (
+          <InlineField label="Metric" labelWidth={20}>
+            <Select
+              defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
+              onChange={(item) => onAggregationChange(item)}
+              width={40}
+              options={SELECTABLE_AGGREGATIONS}
+            />
+          </InlineField>
+        )}
+        <InlineField label="Dimension" labelWidth={20}>
           <Select
-            defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
-            onChange={(item) => onMetricChange(item)}
+            onChange={onDimensionChange}
             width={40}
-            options={SELECTABLE_AGGREGATIONS}
+            options={
+              datasource.adAnalytics
+                ? SELECTABLE_QUERY_AD_ATTRIBUTES
+                : SELECTABLE_QUERY_ATTRIBUTES.concat(SELECTABLE_METRICS)
+            }
           />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
