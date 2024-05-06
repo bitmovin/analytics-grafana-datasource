@@ -25,25 +25,6 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(true);
-
-  useEffect(() => {
-    setLicenseLoadingState(LoadingState.Loading);
-    fetchLicenses(datasource.apiKey, datasource.baseUrl)
-      .then((licenses) => {
-        setSelectableLicenses(licenses);
-        setLicenseLoadingState(LoadingState.Success);
-      })
-      .catch((e) => {
-        setLicenseLoadingState(LoadingState.Error);
-        setLicenseErrorMessage(e.status + ' ' + e.statusText);
-      });
-  }, [datasource.apiKey, datasource.baseUrl]);
-
-export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
-  const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
-  const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
-  const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
-  const [isTimeSeries, setIsTimeSeries] = useState(true);
   const [isDimensionMetricSelected, setIsDimensionMetricSelected] = useState(false);
 
   useEffect(() => {
