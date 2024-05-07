@@ -5,20 +5,21 @@ import { HorizontalGroup, IconButton, Select } from '@grafana/ui';
 import { QueryAttribute } from '../types/queryAttributes';
 import { QueryAdAttribute } from '../types/queryAdAttributes';
 
-type Props = {
-  groupBy: SelectableValue<QueryAttribute | QueryAdAttribute>;
-  selectableGroupBys: Array<SelectableValue<QueryAttribute | QueryAdAttribute>>;
-  onDelete: () => void;
-  onChange: (newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) => void;
-  isFirst: boolean;
-  isLast: boolean;
-  onReorderGroupBy: (direction: REORDER_DIRECTION) => void;
-};
-
 export enum REORDER_DIRECTION {
   UP,
   DOWN,
 }
+
+type Props = {
+  readonly groupBy: SelectableValue<QueryAttribute | QueryAdAttribute>;
+  readonly selectableGroupBys: Array<SelectableValue<QueryAttribute | QueryAdAttribute>>;
+  readonly onDelete: () => void;
+  readonly onChange: (newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) => void;
+  readonly isFirst: boolean;
+  readonly isLast: boolean;
+  readonly onReorderGroupBy: (direction: REORDER_DIRECTION) => void;
+};
+
 export function GroupByInput(props: Props) {
   return (
     <HorizontalGroup>
