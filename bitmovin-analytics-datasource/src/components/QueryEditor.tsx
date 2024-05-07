@@ -11,6 +11,8 @@ import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/query
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
+import { OrderByRow } from './OrderByRow';
+import { QueryOrderBy } from '../types/queryOrderBy';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -64,6 +66,11 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
 
   const onGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
     onChange({ ...query, groupBy: newGroupBys });
+    onRunQuery();
+  };
+
+  const onOrderByChange = (newOrderBys: QueryOrderBy[]) => {
+    onChange({ ...query, orderBy: newOrderBys });
     onRunQuery();
   };
 
@@ -139,6 +146,9 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
           <GroupByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onGroupByChange} />
+        </InlineField>
+        <InlineField label="Order By" labelWidth={20}>
+          <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
