@@ -9,15 +9,15 @@ import { REORDER_DIRECTION } from './GroupByInput';
 
 type Props = {
   readonly isAdAnalytics: boolean;
-  readonly attribute: QueryAttribute | QueryAdAttribute | '';
-  readonly selectableGroupByAttributes: Array<SelectableValue<QueryAttribute | QueryAdAttribute>>;
-  readonly onAttributeChange: (newValue: QueryAttribute | QueryAdAttribute) => void;
+  readonly attribute: SelectableValue<QueryAttribute | QueryAdAttribute>;
+  readonly selectableOrderByAttributes: Array<SelectableValue<QueryAttribute | QueryAdAttribute>>;
+  readonly onAttributeChange: (newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) => void;
   readonly sortOrder: QuerySortOrder;
   readonly onSortOrderChange: (newValue: QuerySortOrder) => void;
   readonly onDelete: () => void;
   readonly isFirst: boolean;
   readonly isLast: boolean;
-  readonly onReorderGroupBy: (direction: REORDER_DIRECTION) => void;
+  readonly onReorderOrderBy: (direction: REORDER_DIRECTION) => void;
 };
 
 const sortOrderOption: SelectableValue<QuerySortOrder>[] = [
@@ -30,8 +30,8 @@ export function OrderByInput(props: Props) {
     <HorizontalGroup spacing="xs">
       <Select
         value={props.attribute}
-        onChange={(value) => props.onAttributeChange(value.value as QueryAttribute | QueryAdAttribute)}
-        options={props.selectableGroupByAttributes}
+        onChange={(value) => props.onAttributeChange(value)}
+        options={props.selectableOrderByAttributes}
         width={30}
       />
       <RadioButtonGroup
@@ -41,13 +41,13 @@ export function OrderByInput(props: Props) {
       />
       <IconButton
         tooltip="Move down"
-        onClick={() => props.onReorderGroupBy(REORDER_DIRECTION.DOWN)}
+        onClick={() => props.onReorderOrderBy(REORDER_DIRECTION.DOWN)}
         name="arrow-down"
         disabled={props.isLast}
       />
       <IconButton
         tooltip="Move up"
-        onClick={() => props.onReorderGroupBy(REORDER_DIRECTION.UP)}
+        onClick={() => props.onReorderOrderBy(REORDER_DIRECTION.UP)}
         name="arrow-up"
         disabled={props.isFirst}
       />

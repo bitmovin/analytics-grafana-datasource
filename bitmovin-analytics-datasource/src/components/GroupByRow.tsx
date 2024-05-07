@@ -61,7 +61,7 @@ export function GroupByRow(props: Props) {
   };
 
   const addGroupByInput = () => {
-    setSelectedGroupBys((prevState) => [...prevState, { name: '', label: '' }]);
+    setSelectedGroupBys((prevState) => [...prevState, {}]);
   };
 
   return (

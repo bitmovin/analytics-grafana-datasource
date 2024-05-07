@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Box, IconButton, VerticalGroup } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
-import { cloneDeep, differenceWith } from 'lodash';
+import { difference } from 'lodash';
 
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
-import { QueryOrderBy, QuerySortOrder, SelectableQueryOrderBy } from '../types/queryOrderBy';
+import { QueryOrderBy, QuerySortOrder } from '../types/queryOrderBy';
 import { OrderByInput } from './OrderByInput';
 import { REORDER_DIRECTION } from './GroupByInput';
 
@@ -15,87 +15,104 @@ type Props = {
 };
 
 export function OrderByRow(props: Props) {
-  const [orderBys, setOrderBys] = useState<SelectableQueryOrderBy[]>([]);
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Array<SelectableValue<QueryAdAttribute | QueryAttribute>>
+  >([]);
+  const [selectedSortOrders, setSelectedSortOrders] = useState<QuerySortOrder[]>([]);
 
   const mapOrderBysToSelectableValue = (): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
     if (props.isAdAnalytics) {
-      const orderByAdAttributes = orderBys.map((orderBy) => orderBy.name as QueryAdAttribute);
-      return differenceWith(
-        SELECTABLE_QUERY_AD_ATTRIBUTES,
-        orderByAdAttributes,
-        (selectableAttribute, orderByAdAttribute) => selectableAttribute.value === orderByAdAttribute
-      );
+      return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedAttributes);
     } else {
-      const orderByAttributes = orderBys.map((orderBy) => orderBy.name as QueryAdAttribute);
-      return differenceWith(
-        SELECTABLE_QUERY_ATTRIBUTES,
-        orderByAttributes,
-        (selectableAttribute, orderByAttribute) => selectableAttribute.value === orderByAttribute
-      );
+      return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedAttributes);
     }
   };
 
-  const deleteOrderByInput = (index: number) => {
-    const newOrderBys = [...orderBys];
-    newOrderBys.splice(index, 1);
-
-    setOrderBys(newOrderBys);
-    props.onChange(newOrderBys as QueryOrderBy[]);
+  const mapSelectedValuesToQueryOrderBy = (
+    selectedAttributes: Array<SelectableValue<QueryAttribute | QueryAdAttribute>>,
+    selectedSortOrders: QuerySortOrder[]
+  ): QueryOrderBy[] => {
+    const queryOrderBys: QueryOrderBy[] = [];
+    for (let i = 0; i < selectedAttributes.length; i++) {
+      queryOrderBys.push({
+        name: selectedAttributes[i].value!,
+        order: selectedSortOrders[i],
+      });
+    }
+    return queryOrderBys;
   };
 
-  const onAttributesChange = (index: number, newAttribute: QueryAttribute | QueryAdAttribute) => {
-    const newOrderBys = [...orderBys];
-    const newValue = { name: newAttribute, order: newOrderBys[index].order } as QueryOrderBy;
-    newOrderBys.splice(index, 1, newValue);
-    setOrderBys(newOrderBys);
-    props.onChange(newOrderBys as QueryOrderBy[]);
+  const deleteOrderByInput = (index: number) => {
+    const newSelectedAttributes = [...selectedAttributes];
+    newSelectedAttributes.splice(index, 1);
+
+    const newSelectedSortOrders = [...selectedSortOrders];
+    newSelectedSortOrders.splice(index, 1);
+
+    setSelectedAttributes(newSelectedAttributes);
+    setSelectedSortOrders(newSelectedSortOrders);
+    props.onChange(mapSelectedValuesToQueryOrderBy(newSelectedAttributes, newSelectedSortOrders));
+  };
+
+  const onAttributesChange = (index: number, newAttribute: SelectableValue<QueryAttribute | QueryAdAttribute>) => {
+    const newSelectedAttributes = [...selectedAttributes];
+    newSelectedAttributes.splice(index, 1, newAttribute);
+    setSelectedAttributes(newSelectedAttributes);
+
+    props.onChange(mapSelectedValuesToQueryOrderBy(newSelectedAttributes, selectedSortOrders));
   };
 
   const onSortOrdersChange = (index: number, newSortOrder: QuerySortOrder) => {
-    const newOrderBys = [...orderBys];
-    const newValue = { name: newOrderBys[index].name, order: newSortOrder } as QueryOrderBy;
-    newOrderBys.splice(index, 1, newValue);
-    setOrderBys(newOrderBys);
-    props.onChange(newOrderBys as QueryOrderBy[]);
+    const newSelectedSortOrders = [...selectedSortOrders];
+    newSelectedSortOrders.splice(index, 1, newSortOrder);
+    setSelectedSortOrders(newSelectedSortOrders);
+
+    props.onChange(mapSelectedValuesToQueryOrderBy(selectedAttributes, newSelectedSortOrders));
   };
 
   const reorderOrderBy = (direction: REORDER_DIRECTION, index: number) => {
-    const clonedOrderbys = cloneDeep(orderBys);
-    const orderByToMove = clonedOrderbys[index];
-    const orderBysWithoutOrderByToMove = clonedOrderbys.slice(0, index).concat(clonedOrderbys.slice(index + 1));
     const newIndex = direction === REORDER_DIRECTION.UP ? index - 1 : index + 1;
 
-    const newOrderBys = orderBysWithoutOrderByToMove
-      .slice(0, newIndex)
-      .concat(orderByToMove)
-      .concat(orderBysWithoutOrderByToMove.slice(newIndex));
+    const newSelectedAttributes = [...selectedAttributes];
+    const attributeToMove = newSelectedAttributes[index];
+    newSelectedAttributes.splice(index, 1);
+    newSelectedAttributes.splice(newIndex, 0, attributeToMove);
 
-    //TODOMY why is this not triggering a rerender?
-    setOrderBys(newOrderBys);
-    props.onChange(newOrderBys as QueryOrderBy[]);
+    const newSelectedSortOrders = [...selectedSortOrders];
+    const sortOrderToMove = newSelectedSortOrders[index];
+    newSelectedSortOrders.splice(index, 1);
+    newSelectedSortOrders.splice(newIndex, 0, sortOrderToMove);
+
+    setSelectedAttributes(newSelectedAttributes);
+    setSelectedSortOrders(newSelectedSortOrders);
+
+    props.onChange(mapSelectedValuesToQueryOrderBy(newSelectedAttributes, newSelectedSortOrders));
   };
   const addOrderByInput = () => {
-    setOrderBys((prevState) => [...prevState, { name: '', order: 'ASC' }]);
+    setSelectedAttributes((prevState) => [...prevState, {}]);
+    setSelectedSortOrders((prevState) => [...prevState, 'ASC']);
   };
 
   return (
     <VerticalGroup>
-      {orderBys.map((item, index, orderBys) => (
+      {selectedAttributes.map((attribute, index, array) => (
         <OrderByInput
           isAdAnalytics={props.isAdAnalytics}
-          selectableGroupByAttributes={mapOrderBysToSelectableValue()}
-          attribute={item.name}
-          onAttributeChange={(newValue: QueryAttribute | QueryAdAttribute) => onAttributesChange(index, newValue)}
-          sortOrder={item.order}
+          selectableOrderByAttributes={mapOrderBysToSelectableValue()}
+          attribute={attribute}
+          onAttributeChange={(newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) =>
+            onAttributesChange(index, newValue)
+          }
+          sortOrder={selectedSortOrders[index]}
           onSortOrderChange={(newValue: QuerySortOrder) => onSortOrdersChange(index, newValue)}
           onDelete={() => deleteOrderByInput(index)}
           isFirst={index === 0}
-          isLast={index === orderBys.length - 1}
-          onReorderGroupBy={(direction: REORDER_DIRECTION) => reorderOrderBy(direction, index)}
+          isLast={index === array.length - 1}
+          onReorderOrderBy={(direction: REORDER_DIRECTION) => reorderOrderBy(direction, index)}
         />
       ))}
 
-      <Box paddingTop={orderBys.length === 0 ? 0.5 : 0}>
+      <Box paddingTop={selectedAttributes.length === 0 ? 0.5 : 0}>
         <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addOrderByInput()} size="xl" />
       </Box>
     </VerticalGroup>

@@ -7,8 +7,3 @@ export type QueryOrderBy = {
   name: QueryAttribute | QueryAdAttribute;
   order: QuerySortOrder;
 };
-
-export type SelectableQueryOrderBy = {
-  name: QueryAttribute | QueryAdAttribute | '';
-  order: QuerySortOrder;
-};
