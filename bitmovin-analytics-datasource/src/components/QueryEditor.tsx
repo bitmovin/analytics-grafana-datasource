@@ -89,7 +89,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           <Select
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
             onChange={(item) => onIntervalChange(item)}
-            width={40}
+            width={30}
             options={SELECTABLE_QUERY_INTERVALS}
           />
         </InlineField>
@@ -109,7 +109,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         >
           <Select
             onChange={onLicenseChange}
-            width={40}
+            width={30}
             options={selectableLicenses}
             noOptionsMessage="No Analytics Licenses found"
             isLoading={licenseLoadingState === LoadingState.Loading}
@@ -121,7 +121,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             <Select
               defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
               onChange={(item) => onAggregationChange(item)}
-              width={40}
+              width={30}
               options={SELECTABLE_AGGREGATIONS}
             />
           </InlineField>
@@ -129,7 +129,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         <InlineField label="Dimension" labelWidth={20}>
           <Select
             onChange={onDimensionChange}
-            width={40}
+            width={30}
             options={
               datasource.adAnalytics
                 ? SELECTABLE_QUERY_AD_ATTRIBUTES
