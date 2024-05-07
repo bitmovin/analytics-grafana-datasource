@@ -97,6 +97,7 @@ export function OrderByRow(props: Props) {
     <VerticalGroup>
       {selectedAttributes.map((attribute, index, array) => (
         <OrderByInput
+          key={index}
           isAdAnalytics={props.isAdAnalytics}
           selectableOrderByAttributes={mapOrderBysToSelectableValue()}
           attribute={attribute}

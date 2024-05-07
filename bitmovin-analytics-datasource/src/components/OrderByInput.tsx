@@ -20,7 +20,7 @@ type Props = {
   readonly onReorderOrderBy: (direction: REORDER_DIRECTION) => void;
 };
 
-const sortOrderOption: SelectableValue<QuerySortOrder>[] = [
+const sortOrderOption: Array<SelectableValue<QuerySortOrder>> = [
   { value: 'ASC', description: 'Sort by ascending', icon: 'sort-amount-up' },
   { value: 'DESC', description: 'Sort by descending', icon: 'sort-amount-down' },
 ];
