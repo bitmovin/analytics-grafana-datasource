@@ -12,6 +12,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   aggregation?: Aggregation;
   metric?: Metric;
   dimension?: QueryAttribute | QueryAdAttribute;
+  groupBy: QueryAttribute[] | QueryAdAttribute[];
 }
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {};

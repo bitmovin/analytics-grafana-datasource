@@ -20,7 +20,7 @@ import { Aggregation } from './types/aggregations';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
-  groupBy: string[];
+  groupBy: QueryAttribute[] | QueryAdAttribute[];
   orderBy: Array<{ name: string; order: string }>;
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;
@@ -72,7 +72,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
             value: 0,
           },
         ],
-        groupBy: [],
+        groupBy: target.groupBy,
         orderBy: interval
           ? [
               {
