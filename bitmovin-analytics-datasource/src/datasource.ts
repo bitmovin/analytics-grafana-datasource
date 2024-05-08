@@ -9,34 +9,25 @@ import {
 import { getBackendSrv } from '@grafana/runtime';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-import { MixedDataRowList, MyDataSourceOptions, BitmovinAnalyticsDataQuery, NumberDataRowList } from './types';
+import {
+  MixedDataRowList,
+  BitmovinDataSourceOptions,
+  BitmovinAnalyticsDataQuery,
+  NumberDataRowList,
+  BitmovinAnalyticsRequestQuery,
+} from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
-import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
-import { QueryAttribute } from './types/queryAttributes';
-import { QueryAdAttribute } from './types/queryAdAttributes';
+import { calculateQueryInterval } from './utils/intervalUtils';
 import { Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
-import { QueryOrderBy } from './types/queryOrderBy';
 
-type AnalyticsQuery = {
-  filters: Array<{ name: string; operator: string; value: number }>;
-  groupBy: QueryAttribute[] | QueryAdAttribute[];
-  orderBy: QueryOrderBy[];
-  dimension?: QueryAttribute | QueryAdAttribute;
-  metric?: Metric;
-  start: Date;
-  end: Date;
-  licenseKey: string;
-  interval?: QueryInterval;
-};
-
-export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions> {
   baseUrl: string;
   apiKey: string;
   tenantOrgId?: string;
   adAnalytics?: boolean;
 
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+  constructor(instanceSettings: DataSourceInstanceSettings<BitmovinDataSourceOptions>) {
     super(instanceSettings);
 
     this.apiKey = instanceSettings.jsonData.apiKey;
@@ -64,14 +55,8 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
 
-      const query: AnalyticsQuery = {
-        filters: [
-          {
-            name: 'VIDEO_STARTUPTIME',
-            operator: 'GT',
-            value: 0,
-          },
-        ],
+      const query: BitmovinAnalyticsRequestQuery = {
+        filters: target.filters,
         groupBy: target.groupBy,
         orderBy: target.orderBy,
         dimension: target.dimension,
