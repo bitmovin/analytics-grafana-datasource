@@ -61,12 +61,12 @@ export function GroupByRow(props: Props) {
   };
 
   const addGroupByInput = () => {
-    setSelectedGroupBys((prevState) => [...prevState, { name: '', label: '' }]);
+    setSelectedGroupBys((prevState) => [...prevState, {}]);
   };
 
   return (
     <VerticalGroup>
-      {selectedGroupBys?.map((item, index, groupBys) => (
+      {selectedGroupBys.map((item, index, groupBys) => (
         <GroupByInput
           key={index}
           groupBy={item}
@@ -81,7 +81,7 @@ export function GroupByRow(props: Props) {
         />
       ))}
       <Box paddingTop={selectedGroupBys.length === 0 ? 0.5 : 0}>
-        <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addGroupByInput()} size="xxl" />
+        <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addGroupByInput()} size="xl" />
       </Box>
     </VerticalGroup>
   );

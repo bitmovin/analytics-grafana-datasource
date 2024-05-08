@@ -16,12 +16,12 @@ import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
-
+import { QueryOrderBy } from './types/queryOrderBy';
 
 type AnalyticsQuery = {
   filters: Array<{ name: string; operator: string; value: number }>;
   groupBy: QueryAttribute[] | QueryAdAttribute[];
-  orderBy: Array<{ name: string; order: string }>;
+  orderBy: QueryOrderBy[];
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;
   start: Date;
@@ -73,14 +73,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
           },
         ],
         groupBy: target.groupBy,
-        orderBy: interval
-          ? [
-              {
-                name: interval,
-                order: 'DESC',
-              },
-            ]
-          : [],
+        orderBy: target.orderBy,
         dimension: target.dimension,
         metric: target.metric,
         start: from,

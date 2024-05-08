@@ -5,6 +5,7 @@ import { Aggregation } from './types/aggregations';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { Metric } from './types/metric';
+import { QueryOrderBy } from './types/queryOrderBy';
 
 export interface BitmovinAnalyticsDataQuery extends DataQuery {
   licenseKey: string;
@@ -13,6 +14,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   metric?: Metric;
   dimension?: QueryAttribute | QueryAdAttribute;
   groupBy: QueryAttribute[] | QueryAdAttribute[];
+  orderBy: QueryOrderBy[];
 }
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {};
