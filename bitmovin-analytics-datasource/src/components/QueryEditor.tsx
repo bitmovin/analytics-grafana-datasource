@@ -13,6 +13,8 @@ import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 import { OrderByRow } from './OrderByRow';
 import { QueryOrderBy } from '../types/queryOrderBy';
+import { QueryFilter } from '../types/queryFilter';
+import { FilterRow } from './FilterRow';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -71,6 +73,11 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
 
   const onOrderByChange = (newOrderBys: QueryOrderBy[]) => {
     onChange({ ...query, orderBy: newOrderBys });
+    onRunQuery();
+  };
+
+  const onFilterChange = (newFilters: QueryFilter[]) => {
+    onChange({ ...query, filters: newFilters });
     onRunQuery();
   };
 
@@ -149,6 +156,9 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
           <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
+        </InlineField>
+        <InlineField label="Filter" labelWidth={20}>
+          <FilterRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onFilterChange} />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
