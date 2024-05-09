@@ -16,7 +16,7 @@ export enum QUERY_FILTER_OPERATORS {
 
 export type QueryFilterOperator = keyof typeof QUERY_FILTER_OPERATORS;
 
-export const SELECTABLE_QUERY_FILTER_OPERATORS: SelectableValue<QueryFilterOperator>[] = [
+export const SELECTABLE_QUERY_FILTER_OPERATORS: Array<SelectableValue<QueryFilterOperator>> = [
   { value: QUERY_FILTER_OPERATORS.GT, label: QUERY_FILTER_OPERATORS.GT },
   { value: QUERY_FILTER_OPERATORS.GTE, label: QUERY_FILTER_OPERATORS.GTE },
   { value: QUERY_FILTER_OPERATORS.LT, label: QUERY_FILTER_OPERATORS.LT },

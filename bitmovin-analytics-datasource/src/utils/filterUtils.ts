@@ -48,7 +48,7 @@ export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute)
 };
 
 const parseValueForInFilter = (rawValue: string) => {
-  const value: Array<string> = JSON.parse(rawValue);
+  const value: string[] = JSON.parse(rawValue);
   if (!Array.isArray(value)) {
     throw new Error();
   }
