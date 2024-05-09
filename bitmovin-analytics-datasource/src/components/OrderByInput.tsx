@@ -52,7 +52,7 @@ export function OrderByInput(props: Props) {
         disabled={props.isFirst}
       />
       <IconButton
-        tooltip="Delete Group By"
+        tooltip="Delete Order By"
         name="trash-alt"
         onClick={() => props.onDelete()}
         size="lg"

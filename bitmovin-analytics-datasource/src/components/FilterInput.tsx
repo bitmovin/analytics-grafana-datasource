@@ -62,7 +62,7 @@ export function FilterInput(props: Props) {
         disabled={props.isFirst}
       />
       <IconButton
-        tooltip="Delete Group By"
+        tooltip="Delete Filter"
         name="trash-alt"
         onClick={() => props.onDelete()}
         size="lg"
