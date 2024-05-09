@@ -82,7 +82,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
   };
 
   const onLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const limit = parseInt(event.target.value);
+    const limit = parseInt(event.target.value, 10);
     onChange({ ...query, limit: isNaN(limit) ? undefined : limit });
     onRunQuery();
   };
