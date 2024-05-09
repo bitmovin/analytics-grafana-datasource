@@ -51,7 +51,6 @@ export function FilterInput(props: Props) {
           type="text"
           onChange={(value) => props.onValueChange(value.currentTarget.value)}
           width={30}
-          placeholder="Enter Filter value"
         />
       </Tooltip>
       <IconButton

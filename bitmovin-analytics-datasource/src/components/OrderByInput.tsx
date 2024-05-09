@@ -6,6 +6,7 @@ import { QueryAttribute } from '../types/queryAttributes';
 import { QueryAdAttribute } from '../types/queryAdAttributes';
 import { QuerySortOrder } from '../types/queryOrderBy';
 import { REORDER_DIRECTION } from './GroupByInput';
+import { isEmpty } from 'lodash';
 
 type Props = {
   readonly isAdAnalytics: boolean;
@@ -29,7 +30,7 @@ export function OrderByInput(props: Props) {
   return (
     <HorizontalGroup spacing="xs">
       <Select
-        value={props.attribute}
+        value={isEmpty(props.attribute) ? undefined : props.attribute}
         onChange={(value) => props.onAttributeChange(value)}
         options={props.selectableOrderByAttributes}
         width={30}
