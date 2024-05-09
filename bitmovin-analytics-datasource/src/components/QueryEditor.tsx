@@ -151,14 +151,14 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
             }
           />
         </InlineField>
+        <InlineField label="Filter" labelWidth={20}>
+          <FilterRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onFilterChange} />
+        </InlineField>
         <InlineField label="Group By" labelWidth={20}>
           <GroupByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onGroupByChange} />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
           <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
-        </InlineField>
-        <InlineField label="Filter" labelWidth={20}>
-          <FilterRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onFilterChange} />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>

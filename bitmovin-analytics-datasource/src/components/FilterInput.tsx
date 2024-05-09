@@ -21,7 +21,6 @@ type Props = {
 };
 
 export function FilterInput(props: Props) {
-  //TODOMY implement headers of the 'table'
   return (
     <HorizontalGroup spacing="xs">
       <Select

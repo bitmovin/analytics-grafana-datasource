@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { difference } from 'lodash';
 import { SelectableValue } from '@grafana/data';
-import { Box, IconButton, VerticalGroup } from '@grafana/ui';
+import { Box, HorizontalGroup, IconButton, InlineLabel, VerticalGroup } from '@grafana/ui';
 
 import { QueryFilter, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
@@ -151,6 +151,19 @@ export function FilterRow(props: Props) {
 
   return (
     <VerticalGroup>
+      {selectedAttributes.length !== 0 && (
+        <HorizontalGroup spacing={'none'}>
+          <InlineLabel width={30} tooltip="">
+            Dimension
+          </InlineLabel>
+          <InlineLabel width={15} tooltip="">
+            Operator
+          </InlineLabel>
+          <InlineLabel width={30} tooltip="">
+            Value
+          </InlineLabel>
+        </HorizontalGroup>
+      )}
       {selectedAttributes.map((attribute, index, array) => (
         <FilterInput
           key={index}
