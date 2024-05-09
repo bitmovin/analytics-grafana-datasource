@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { FieldSet, InlineField, InlineSwitch, Select } from '@grafana/ui';
+import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 
 import { DataSource } from '../datasource';
@@ -81,6 +81,12 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
+  const onLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const limit = parseInt(event.target.value);
+    onChange({ ...query, limit: isNaN(limit) ? undefined : limit });
+    onRunQuery();
+  };
+
   const onFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
     if (event.currentTarget.checked) {
@@ -159,6 +165,9 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
           <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
+        </InlineField>
+        <InlineField label="Limit" labelWidth={20}>
+          <Input type="number" onBlur={onLimitChange} width={30} placeholder="No limit" />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>

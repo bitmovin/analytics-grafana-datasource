@@ -19,6 +19,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   dimension?: QueryAttribute | QueryAdAttribute;
   groupBy: QueryAttribute[] | QueryAdAttribute[];
   orderBy: QueryOrderBy[];
+  limit?: number;
   filters: QueryFilter[];
 }
 
@@ -43,6 +44,7 @@ export type BitmovinAnalyticsRequestQuery = {
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;
   interval?: QueryInterval;
+  limit? : number;
 };
 
 export type MixedDataRow = Array<string | number>;

@@ -65,6 +65,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
         end: to,
         licenseKey: target.licenseKey,
         interval: interval,
+        limit: target.limit,
       };
 
       const response = await lastValueFrom(
