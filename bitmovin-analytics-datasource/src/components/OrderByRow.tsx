@@ -114,7 +114,7 @@ export function OrderByRow(props: Props) {
       ))}
 
       <Box paddingTop={selectedAttributes.length === 0 ? 0.5 : 0}>
-        <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addOrderByInput()} size="xl" />
+        <IconButton name="plus-square" tooltip="Add Order By" onClick={() => addOrderByInput()} size="xl" />
       </Box>
     </VerticalGroup>
   );

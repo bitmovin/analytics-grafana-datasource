@@ -183,7 +183,7 @@ export function FilterRow(props: Props) {
       ))}
 
       <Box paddingTop={selectedAttributes.length === 0 ? 0.5 : 0}>
-        <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addFilterInput()} size="xl" />
+        <IconButton name="plus-square" tooltip="Add Filter" onClick={() => addFilterInput()} size="xl" />
       </Box>
     </VerticalGroup>
   );
