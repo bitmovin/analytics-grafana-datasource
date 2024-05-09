@@ -20,14 +20,43 @@ export function FilterRow(props: Props) {
     Array<SelectableValue<QueryAdAttribute | QueryAttribute>>
   >([]);
   const [selectedOperators, setSelectedOperators] = useState<Array<SelectableValue<QueryFilterOperator>>>([]);
-  const [values, setValues] = useState<QueryFilterValue[]>([]);
+  const [rawFilterValues, setRawFilterValues] = useState<string[]>([]);
+  const [convertedQueryFilterValues, setConvertedQueryFilterValues] = useState<QueryFilterValue[]>([]);
   const [parsingValueErrors, setParsingValueErrors] = useState<string[]>([]);
 
   const addFilterInput = () => {
     setSelectedAttributes((prevState) => [...prevState, {}]);
     setSelectedOperators((prevState) => [...prevState, {}]);
-    setValues((prevState) => [...prevState, '']);
+    setRawFilterValues((prevState) => [...prevState, '']);
+    setConvertedQueryFilterValues((prevState) => [...prevState, '']);
     setParsingValueErrors((prevState) => [...prevState, '']);
+  };
+
+  const onAddFilter = (index: number) => {
+    try {
+      const convertedValue = convertFilterValueToProperType(
+        rawFilterValues[index],
+        selectedAttributes[index].value!,
+        selectedAttributes[index].label!,
+        selectedOperators[index].value!,
+        props.isAdAnalytics
+      );
+
+      const newConvertedQueryFilterValues = [...convertedQueryFilterValues];
+      newConvertedQueryFilterValues.splice(index, 1, convertedValue);
+      setConvertedQueryFilterValues(newConvertedQueryFilterValues);
+
+      const newParsingValueErrors = [...parsingValueErrors];
+      newParsingValueErrors.splice(index, 1, '');
+      setParsingValueErrors(newParsingValueErrors);
+
+      props.onChange(mapFiltersToQueryFilters(selectedAttributes, selectedOperators, newConvertedQueryFilterValues));
+    } catch (e: any) {
+      const errorMessage = e.message;
+      const newParsingValueErrors = [...parsingValueErrors];
+      newParsingValueErrors.splice(index, 1, errorMessage);
+      setParsingValueErrors(newParsingValueErrors);
+    }
   };
 
   const deleteFilterInput = (index: number) => {
@@ -37,17 +66,21 @@ export function FilterRow(props: Props) {
     const newSelectedOperators = [...selectedOperators];
     newSelectedOperators.splice(index, 1);
 
-    const newValues = [...values];
+    const newValues = [...rawFilterValues];
     newValues.splice(index, 1);
+
+    const newConvertedQueryFilterValues = [...convertedQueryFilterValues];
+    newConvertedQueryFilterValues.splice(index, 1);
 
     const newParsingValueErrors = [...parsingValueErrors];
     newParsingValueErrors.splice(index, 1);
 
     setSelectedAttributes(newSelectedAttributes);
     setSelectedOperators(newSelectedOperators);
-    setValues(newValues);
+    setRawFilterValues(newValues);
+    setConvertedQueryFilterValues(newConvertedQueryFilterValues);
     setParsingValueErrors(newParsingValueErrors);
-    //TODOMY before calling this I need to make sure that the filter is actually complete and all the values are set...
+
     props.onChange(mapFiltersToQueryFilters(newSelectedAttributes, newSelectedOperators, newValues));
   };
 
@@ -55,48 +88,18 @@ export function FilterRow(props: Props) {
     const newSelectedAttributes = [...selectedAttributes];
     newSelectedAttributes.splice(index, 1, newAttribute);
     setSelectedAttributes(newSelectedAttributes);
-
-    props.onChange(mapFiltersToQueryFilters(newSelectedAttributes, selectedOperators, values));
   };
 
   const onOperatorsChange = (index: number, newOperator: SelectableValue<QueryFilterOperator>) => {
     const newSelectedOperators = [...selectedOperators];
     newSelectedOperators.splice(index, 1, newOperator);
     setSelectedOperators(newSelectedOperators);
-
-    //TODOMY here I also need to check the value and ,aybe throw an error
-
-    //TODOMY difference between checking if value is valid and actually parsing it ?
-
-    props.onChange(mapFiltersToQueryFilters(selectedAttributes, newSelectedOperators, values));
   };
 
   const onValuesChange = (index: number, newValue: string) => {
-    try {
-      const convertedValue = convertFilterValueToProperType(
-        newValue,
-        selectedAttributes[index].value!,
-        selectedOperators[index].value!,
-        props.isAdAnalytics
-      );
-      console.log(convertedValue, convertedValue);
-
-      const newValues = [...values];
-      newValues.splice(index, 1, convertedValue);
-      console.log(newValues);
-      setValues(newValues);
-
-      const newParsingValueErrors = [...parsingValueErrors];
-      newParsingValueErrors.splice(index, 1, '');
-      setParsingValueErrors(newParsingValueErrors);
-
-      props.onChange(mapFiltersToQueryFilters(selectedAttributes, selectedOperators, newValues));
-    } catch (e: any) {
-      const errorMessage = e.message;
-      const newParsingValueErrors = [...parsingValueErrors];
-      newParsingValueErrors.splice(index, 1, errorMessage);
-      setParsingValueErrors(newParsingValueErrors);
-    }
+    const newRawValues = [...rawFilterValues];
+    newRawValues.splice(index, 1, newValue);
+    setRawFilterValues(newRawValues);
   };
 
   const mapFilterAttributesToSelectableValue = (): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
@@ -120,7 +123,6 @@ export function FilterRow(props: Props) {
         value: values[i],
       });
     }
-    console.log(queryFilters);
     return queryFilters;
   };
 
@@ -137,16 +139,28 @@ export function FilterRow(props: Props) {
     newSelectedOperators.splice(index, 1);
     newSelectedOperators.splice(newIndex, 0, operatorToMove);
 
-    const newValues = [...values];
-    const valueToMove = newValues[index];
-    newValues.splice(index, 1);
-    newValues.splice(newIndex, 0, valueToMove);
+    const newRawFilterValues = [...rawFilterValues];
+    const rawFilterValueToMove = newRawFilterValues[index];
+    newRawFilterValues.splice(index, 1);
+    newRawFilterValues.splice(newIndex, 0, rawFilterValueToMove);
+
+    const newConvertedFilterValues = [...convertedQueryFilterValues];
+    const convertedFilterValueToMove = newConvertedFilterValues[index];
+    newConvertedFilterValues.splice(index, 1);
+    newConvertedFilterValues.splice(newIndex, 0, convertedFilterValueToMove);
+
+    const newParsingValueErrors = [...parsingValueErrors];
+    const parsingErrorToMove = newParsingValueErrors[index];
+    newParsingValueErrors.splice(index, 1);
+    newParsingValueErrors.splice(newIndex, 0, parsingErrorToMove);
 
     setSelectedAttributes(newSelectedAttributes);
     setSelectedOperators(newSelectedOperators);
-    setValues(newValues);
+    setRawFilterValues(newRawFilterValues);
+    setConvertedQueryFilterValues(newConvertedFilterValues);
+    setParsingValueErrors(newParsingValueErrors);
 
-    props.onChange(mapFiltersToQueryFilters(newSelectedAttributes, newSelectedOperators, newValues));
+    props.onChange(mapFiltersToQueryFilters(newSelectedAttributes, newSelectedOperators, newConvertedFilterValues));
   };
 
   return (
@@ -169,12 +183,16 @@ export function FilterRow(props: Props) {
           key={index}
           isAdAnalytics={props.isAdAnalytics}
           selectableFilterAttributes={mapFilterAttributesToSelectableValue()}
+          attribute={attribute}
           onAttributeChange={(newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) =>
             onAttributesChange(index, newValue)
           }
+          operator={selectedOperators[index]}
           onOperatorChange={(newValue: SelectableValue<QueryFilterOperator>) => onOperatorsChange(index, newValue)}
+          value={rawFilterValues[index]}
           onValueChange={(newValue: string) => onValuesChange(index, newValue)}
           onDelete={() => deleteFilterInput(index)}
+          onAddFilter={() => onAddFilter(index)}
           isFirst={index === 0}
           isLast={index === array.length - 1}
           onReorderFilter={(direction: REORDER_DIRECTION) => reorderFilter(direction, index)}

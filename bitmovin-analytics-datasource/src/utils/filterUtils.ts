@@ -50,12 +50,12 @@ export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute)
 const parseValueForInFilter = (rawValue: string) => {
   const value: Array<string> = JSON.parse(rawValue);
   if (!Array.isArray(value)) {
-    throw Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).');
+    throw new Error();
   }
   return value;
 };
 
-const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute) => {
+const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute, filterAttributeLabel: string) => {
   switch (filterAttribute) {
     case QUERY_AD_ATTRIBUTES.IS_LINEAR:
       return rawValue === 'true';
@@ -82,7 +82,7 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
     case QUERY_AD_ATTRIBUTES.VIDEO_WINDOW_WIDTH: {
       const parsedValue = parseInt(rawValue, 10);
       if (isNaN(parsedValue)) {
-        throw Error(`Couldn't parse filter for ${filterAttribute}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
       }
       return parsedValue;
     }
@@ -93,7 +93,7 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
     case QUERY_AD_ATTRIBUTES.SKIP_PERCENTAGE: {
       const parsedValue = parseFloat(rawValue);
       if (isNaN(parsedValue)) {
-        throw Error(`Couldn't parse filter for ${filterAttribute}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
       }
       return parsedValue;
     }
@@ -103,7 +103,7 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
   }
 };
 
-const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
+const convertFilter = (rawValue: string, filterAttribute: QueryAttribute, filterAttributeLabel: string) => {
   switch (filterAttribute) {
     case QUERY_ATTRIBUTES.IS_CASTING:
     case QUERY_ATTRIBUTES.IS_LIVE:
@@ -139,7 +139,7 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
     case QUERY_ATTRIBUTES.VIEWTIME: {
       const parsedValue = parseInt(rawValue, 10);
       if (isNaN(parsedValue)) {
-        throw Error(`Couldn't parse filter for ${filterAttribute}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
       }
       return parsedValue;
     }
@@ -148,8 +148,7 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
     case QUERY_ATTRIBUTES.REBUFFER_PERCENTAGE: {
       const parsedValue = parseFloat(rawValue);
       if (isNaN(parsedValue)) {
-        //TODOMY formatting of filterAttribute is not working, it is taking the value and not the label
-        throw Error(`Couldn't parse filter for ${filterAttribute}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
       }
       return parsedValue;
     }
@@ -162,23 +161,27 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
 export const convertFilterValueToProperType = (
   rawValue: string,
   filterAttribute: QueryAttribute | QueryAdAttribute,
+  filterAttributeLabel: string,
   filterOperator: QueryFilterOperator,
   isAdAnalytics: boolean
 ): QueryFilterValue => {
-  //TODOMY check if the filters are actually being parsed correctly or if it is retruning NaN
-  //TODOMY check if empty the attributes
   //TODOMY tests?
-  //TODOMY difference between throw new and throw
   if (rawValue === '' && isNullFilter(filterAttribute)) {
     return null;
   }
 
   if (filterOperator === QUERY_FILTER_OPERATORS.IN) {
-    return parseValueForInFilter(rawValue);
+    try {
+      return parseValueForInFilter(rawValue);
+    } catch (e) {
+      throw new Error(
+        'Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).'
+      );
+    }
   }
 
   if (isAdAnalytics) {
-    return convertFilterForAds(rawValue, filterAttribute as QueryAdAttribute);
+    return convertFilterForAds(rawValue, filterAttribute as QueryAdAttribute, filterAttributeLabel);
   }
-  return convertFilter(rawValue, filterAttribute as QueryAttribute);
+  return convertFilter(rawValue, filterAttribute as QueryAttribute, filterAttributeLabel);
 };
