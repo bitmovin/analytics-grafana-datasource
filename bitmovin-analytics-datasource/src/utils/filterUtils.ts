@@ -165,7 +165,6 @@ export const convertFilterValueToProperType = (
   filterOperator: QueryFilterOperator,
   isAdAnalytics: boolean
 ): QueryFilterValue => {
-  //TODOMY tests?
   if (rawValue === '' && isNullFilter(filterAttribute)) {
     return null;
   }
