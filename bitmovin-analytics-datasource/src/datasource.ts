@@ -20,6 +20,7 @@ import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTab
 import { calculateQueryInterval } from './utils/intervalUtils';
 import { Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
+import { filter } from 'lodash';
 
 export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions> {
   baseUrl: string;
@@ -50,7 +51,10 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
     const from = range!.from.toDate();
     const to = range!.to.toDate();
 
-    const promises = options.targets.map(async (target) => {
+    //filter disabled queries
+    const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
+
+    const promises = enabledQueries.map(async (target) => {
       const interval = target.interval
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
@@ -100,6 +104,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
       }
 
       return createDataFrame({
+        name: target.aliasBy,
         fields: fields,
       });
     });

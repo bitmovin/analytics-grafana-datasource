@@ -102,6 +102,11 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
+  const onAliasByChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onChange({ ...query, aliasBy: event.target.value });
+    onRunQuery();
+  };
+
   const renderTimeSeriesOption = () => {
     return (
       <>
@@ -173,6 +178,9 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
+        <InlineField label="Alias By" labelWidth={20}>
+          <Input placeholder="Naming pattern" onBlur={onAliasByChange} />
+        </InlineField>
       </FieldSet>
     </div>
   );

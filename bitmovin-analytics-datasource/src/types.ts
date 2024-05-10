@@ -21,6 +21,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   orderBy: QueryOrderBy[];
   limit?: number;
   filters: QueryFilter[];
+  aliasBy?: string;
 }
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {};
