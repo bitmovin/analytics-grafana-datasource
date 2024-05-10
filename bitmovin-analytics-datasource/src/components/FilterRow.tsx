@@ -81,7 +81,9 @@ export function FilterRow(props: Props) {
     setConvertedQueryFilterValues(newConvertedQueryFilterValues);
     setParsingValueErrors(newParsingValueErrors);
 
-    props.onChange(mapFiltersToQueryFilters(newSelectedAttributes, newSelectedOperators, newValues));
+    props.onChange(
+      mapFiltersToQueryFilters(newSelectedAttributes, newSelectedOperators, newConvertedQueryFilterValues)
+    );
   };
 
   const onAttributesChange = (index: number, newAttribute: SelectableValue<QueryAttribute | QueryAdAttribute>) => {
