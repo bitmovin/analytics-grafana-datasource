@@ -6,7 +6,6 @@ import { Box, HorizontalGroup, IconButton, InlineLabel, VerticalGroup } from '@g
 import { QueryFilter, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
-import { REORDER_DIRECTION } from './GroupByInput';
 import { FilterInput } from './FilterInput';
 import { convertFilterValueToProperType } from '../utils/filterUtils';
 
@@ -128,43 +127,6 @@ export function FilterRow(props: Props) {
     return queryFilters;
   };
 
-  const reorderFilter = (direction: REORDER_DIRECTION, index: number) => {
-    const newIndex = direction === REORDER_DIRECTION.UP ? index - 1 : index + 1;
-
-    const newSelectedAttributes = [...selectedAttributes];
-    const attributeToMove = newSelectedAttributes[index];
-    newSelectedAttributes.splice(index, 1);
-    newSelectedAttributes.splice(newIndex, 0, attributeToMove);
-
-    const newSelectedOperators = [...selectedOperators];
-    const operatorToMove = newSelectedOperators[index];
-    newSelectedOperators.splice(index, 1);
-    newSelectedOperators.splice(newIndex, 0, operatorToMove);
-
-    const newRawFilterValues = [...rawFilterValues];
-    const rawFilterValueToMove = newRawFilterValues[index];
-    newRawFilterValues.splice(index, 1);
-    newRawFilterValues.splice(newIndex, 0, rawFilterValueToMove);
-
-    const newConvertedFilterValues = [...convertedQueryFilterValues];
-    const convertedFilterValueToMove = newConvertedFilterValues[index];
-    newConvertedFilterValues.splice(index, 1);
-    newConvertedFilterValues.splice(newIndex, 0, convertedFilterValueToMove);
-
-    const newParsingValueErrors = [...parsingValueErrors];
-    const parsingErrorToMove = newParsingValueErrors[index];
-    newParsingValueErrors.splice(index, 1);
-    newParsingValueErrors.splice(newIndex, 0, parsingErrorToMove);
-
-    setSelectedAttributes(newSelectedAttributes);
-    setSelectedOperators(newSelectedOperators);
-    setRawFilterValues(newRawFilterValues);
-    setConvertedQueryFilterValues(newConvertedFilterValues);
-    setParsingValueErrors(newParsingValueErrors);
-
-    props.onChange(mapFiltersToQueryFilters(newSelectedAttributes, newSelectedOperators, newConvertedFilterValues));
-  };
-
   return (
     <VerticalGroup>
       {selectedAttributes.length !== 0 && (
@@ -180,7 +142,7 @@ export function FilterRow(props: Props) {
           </InlineLabel>
         </HorizontalGroup>
       )}
-      {selectedAttributes.map((attribute, index, array) => (
+      {selectedAttributes.map((attribute, index) => (
         <FilterInput
           key={index}
           isAdAnalytics={props.isAdAnalytics}
@@ -195,9 +157,6 @@ export function FilterRow(props: Props) {
           onValueChange={(newValue: string) => onValuesChange(index, newValue)}
           onDelete={() => deleteFilterInput(index)}
           onAddFilter={() => onAddFilter(index)}
-          isFirst={index === 0}
-          isLast={index === array.length - 1}
-          onReorderFilter={(direction: REORDER_DIRECTION) => reorderFilter(direction, index)}
           parsingValueError={parsingValueErrors[index] === '' ? undefined : parsingValueErrors[index]}
         />
       ))}

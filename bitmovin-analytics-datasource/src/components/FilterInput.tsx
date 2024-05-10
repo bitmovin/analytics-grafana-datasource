@@ -4,7 +4,6 @@ import { HorizontalGroup, IconButton, Input, Select, Tooltip } from '@grafana/ui
 
 import { QueryAttribute } from '../types/queryAttributes';
 import { QueryAdAttribute } from '../types/queryAdAttributes';
-import { REORDER_DIRECTION } from './GroupByInput';
 import { QueryFilterOperator, SELECTABLE_QUERY_FILTER_OPERATORS } from '../types/queryFilter';
 import { isEmpty } from 'lodash';
 
@@ -19,9 +18,6 @@ type Props = {
   readonly onValueChange: (newValue: string) => void;
   readonly onDelete: () => void;
   readonly onAddFilter: () => void;
-  readonly isFirst: boolean;
-  readonly isLast: boolean;
-  readonly onReorderFilter: (direction: REORDER_DIRECTION) => void;
   readonly parsingValueError?: string;
 };
 
@@ -60,18 +56,6 @@ export function FilterInput(props: Props) {
         size="xl"
         variant="primary"
         disabled={isEmpty(props.attribute) || isEmpty(props.operator)}
-      />
-      <IconButton
-        tooltip="Move down"
-        onClick={() => props.onReorderFilter(REORDER_DIRECTION.DOWN)}
-        name="arrow-down"
-        disabled={props.isLast}
-      />
-      <IconButton
-        tooltip="Move up"
-        onClick={() => props.onReorderFilter(REORDER_DIRECTION.UP)}
-        name="arrow-up"
-        disabled={props.isFirst}
       />
       <IconButton
         tooltip="Delete Filter"
