@@ -44,7 +44,7 @@ export type BitmovinAnalyticsRequestQuery = {
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;
   interval?: QueryInterval;
-  limit? : number;
+  limit?: number;
 };
 
 export type MixedDataRow = Array<string | number>;
