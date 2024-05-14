@@ -45,17 +45,17 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
       });
   }, [datasource.apiKey, datasource.baseUrl]);
 
-  const onLicenseChange = (item: SelectableValue) => {
+  const handleLicenseChange = (item: SelectableValue) => {
     onChange({ ...query, licenseKey: item.value });
     onRunQuery();
   };
 
-  const onAggregationChange = (item: SelectableValue) => {
+  const handleAggregationChange = (item: SelectableValue) => {
     onChange({ ...query, aggregation: item.value, metric: undefined });
     onRunQuery();
   };
 
-  const onDimensionChange = (item: SelectableValue) => {
+  const handleDimensionChange = (item: SelectableValue) => {
     if (isMetric(item.value)) {
       setIsDimensionMetricSelected(true);
       onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
@@ -66,28 +66,28 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
-  const onGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
+  const handleGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
     onChange({ ...query, groupBy: newGroupBys });
     onRunQuery();
   };
 
-  const onOrderByChange = (newOrderBys: QueryOrderBy[]) => {
+  const handleOrderByChange = (newOrderBys: QueryOrderBy[]) => {
     onChange({ ...query, orderBy: newOrderBys });
     onRunQuery();
   };
 
-  const onFilterChange = (newFilters: QueryFilter[]) => {
+  const handleFilterChange = (newFilters: QueryFilter[]) => {
     onChange({ ...query, filters: newFilters });
     onRunQuery();
   };
 
-  const onLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleLimitBlur = (event: ChangeEvent<HTMLInputElement>) => {
     const limit = parseInt(event.target.value, 10);
     onChange({ ...query, limit: isNaN(limit) ? undefined : limit });
     onRunQuery();
   };
 
-  const onFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
     if (event.currentTarget.checked) {
       onChange({ ...query, interval: 'AUTO' });
@@ -97,12 +97,12 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
     onRunQuery();
   };
 
-  const onIntervalChange = (item: SelectableValue) => {
+  const handleIntervalChange = (item: SelectableValue) => {
     onChange({ ...query, interval: item.value });
     onRunQuery();
   };
 
-  const onAliasByChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAliasByBlur = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...query, aliasBy: event.target.value });
     onRunQuery();
   };
@@ -113,7 +113,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         <InlineField label="Interval" labelWidth={20}>
           <Select
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
-            onChange={(item) => onIntervalChange(item)}
+            onChange={(item) => handleIntervalChange(item)}
             width={30}
             options={SELECTABLE_QUERY_INTERVALS}
           />
@@ -133,7 +133,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           disabled={licenseLoadingState === LoadingState.Error}
         >
           <Select
-            onChange={onLicenseChange}
+            onChange={handleLicenseChange}
             width={30}
             options={selectableLicenses}
             noOptionsMessage="No Analytics Licenses found"
@@ -145,7 +145,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           <InlineField label="Metric" labelWidth={20}>
             <Select
               defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
-              onChange={(item) => onAggregationChange(item)}
+              onChange={(item) => handleAggregationChange(item)}
               width={30}
               options={SELECTABLE_AGGREGATIONS}
             />
@@ -153,7 +153,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         )}
         <InlineField label="Dimension" labelWidth={20}>
           <Select
-            onChange={onDimensionChange}
+            onChange={handleDimensionChange}
             width={30}
             options={
               datasource.adAnalytics
@@ -163,23 +163,23 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           />
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
-          <FilterRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onFilterChange} />
+          <FilterRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={handleFilterChange} />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
-          <GroupByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onGroupByChange} />
+          <GroupByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={handleGroupByChange} />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
-          <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
+          <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={handleOrderByChange} />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
-          <Input type="number" onBlur={onLimitChange} width={30} placeholder="No limit" />
+          <Input type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
-          <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
+          <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input placeholder="Naming pattern" onBlur={onAliasByChange} />
+          <Input placeholder="Naming pattern" onBlur={handleAliasByBlur} />
         </InlineField>
       </FieldSet>
     </div>
