@@ -19,10 +19,18 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   dimension?: QueryAttribute | QueryAdAttribute;
   groupBy: QueryAttribute[] | QueryAdAttribute[];
   orderBy: QueryOrderBy[];
+  limit?: number;
   filters: QueryFilter[];
+  aliasBy?: string;
 }
 
-export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {};
+export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
+  licenseKey: '',
+  interval: 'AUTO',
+  orderBy: [],
+  groupBy: [],
+  filters: [],
+};
 
 /**
  * These are options configured for each DataSource instance
@@ -43,6 +51,7 @@ export type BitmovinAnalyticsRequestQuery = {
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;
   interval?: QueryInterval;
+  limit?: number;
 };
 
 export type MixedDataRow = Array<string | number>;
