@@ -24,7 +24,13 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   aliasBy?: string;
 }
 
-export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {};
+export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
+  licenseKey: '',
+  interval: 'AUTO',
+  orderBy: [],
+  groupBy: [],
+  filters: [],
+};
 
 /**
  * These are options configured for each DataSource instance

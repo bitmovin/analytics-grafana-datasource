@@ -11,5 +11,3 @@ export const SELECTABLE_AGGREGATIONS: Array<{ value: Aggregation; label: string 
   { value: 'variance', label: 'Variance' },
   { value: 'median', label: 'Median' },
 ];
-
-export const DEFAULT_SELECTABLE_AGGREGATION = SELECTABLE_AGGREGATIONS[0];

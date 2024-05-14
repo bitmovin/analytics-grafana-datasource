@@ -1,12 +1,13 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { defaults } from 'lodash';
 
 import { DataSource } from '../datasource';
-import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery } from '../types';
+import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from '../types';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
-import { DEFAULT_SELECTABLE_AGGREGATION, SELECTABLE_AGGREGATIONS } from '../types/aggregations';
+import { SELECTABLE_AGGREGATIONS } from '../types/aggregations';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { isMetric, SELECTABLE_METRICS } from '../types/metric';
@@ -25,7 +26,7 @@ enum LoadingState {
 
 type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions>;
 
-export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) {
+export function QueryEditor(props: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
@@ -34,7 +35,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
 
   useEffect(() => {
     setLicenseLoadingState(LoadingState.Loading);
-    fetchLicenses(datasource.apiKey, datasource.baseUrl)
+    fetchLicenses(props.datasource.apiKey, props.datasource.baseUrl)
       .then((licenses) => {
         setSelectableLicenses(licenses);
         setLicenseLoadingState(LoadingState.Success);
@@ -43,68 +44,70 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
         setLicenseLoadingState(LoadingState.Error);
         setLicenseErrorMessage(e.status + ' ' + e.statusText);
       });
-  }, [datasource.apiKey, datasource.baseUrl]);
+  }, [props.datasource.apiKey, props.datasource.baseUrl]);
+
+  const query = defaults(props.query, DEFAULT_QUERY);
 
   const handleLicenseChange = (item: SelectableValue) => {
-    onChange({ ...query, licenseKey: item.value });
-    onRunQuery();
+    props.onChange({ ...query, licenseKey: item.value });
+    props.onRunQuery();
   };
 
   const handleAggregationChange = (item: SelectableValue) => {
-    onChange({ ...query, aggregation: item.value, metric: undefined });
-    onRunQuery();
+    props.onChange({ ...query, aggregation: item.value, metric: undefined });
+    props.onRunQuery();
   };
 
   const handleDimensionChange = (item: SelectableValue) => {
     if (isMetric(item.value)) {
       setIsDimensionMetricSelected(true);
-      onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
+      props.onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
     } else {
       setIsDimensionMetricSelected(false);
-      onChange({ ...query, dimension: item.value });
+      props.onChange({ ...query, dimension: item.value });
     }
-    onRunQuery();
+    props.onRunQuery();
   };
 
   const handleGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
-    onChange({ ...query, groupBy: newGroupBys });
-    onRunQuery();
+    props.onChange({ ...query, groupBy: newGroupBys });
+    props.onRunQuery();
   };
 
   const handleOrderByChange = (newOrderBys: QueryOrderBy[]) => {
-    onChange({ ...query, orderBy: newOrderBys });
-    onRunQuery();
+    props.onChange({ ...query, orderBy: newOrderBys });
+    props.onRunQuery();
   };
 
   const handleFilterChange = (newFilters: QueryFilter[]) => {
-    onChange({ ...query, filters: newFilters });
-    onRunQuery();
+    props.onChange({ ...query, filters: newFilters });
+    props.onRunQuery();
   };
 
   const handleLimitBlur = (event: ChangeEvent<HTMLInputElement>) => {
     const limit = parseInt(event.target.value, 10);
-    onChange({ ...query, limit: isNaN(limit) ? undefined : limit });
-    onRunQuery();
+    props.onChange({ ...query, limit: isNaN(limit) ? undefined : limit });
+    props.onRunQuery();
   };
 
   const handleFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
     if (event.currentTarget.checked) {
-      onChange({ ...query, interval: 'AUTO' });
+      props.onChange({ ...query, interval: 'AUTO' });
     } else {
-      onChange({ ...query, interval: undefined });
+      props.onChange({ ...query, interval: undefined });
     }
-    onRunQuery();
+    props.onRunQuery();
   };
 
   const handleIntervalChange = (item: SelectableValue) => {
-    onChange({ ...query, interval: item.value });
-    onRunQuery();
+    props.onChange({ ...query, interval: item.value });
+    props.onRunQuery();
   };
 
   const handleAliasByBlur = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...query, aliasBy: event.target.value });
-    onRunQuery();
+    props.onChange({ ...query, aliasBy: event.target.value });
+    props.onRunQuery();
   };
 
   const renderTimeSeriesOption = () => {
@@ -131,6 +134,7 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           invalid={licenseLoadingState === LoadingState.Error}
           error={`Error when fetching Analytics Licenses: ${licenseErrorMessage}`}
           disabled={licenseLoadingState === LoadingState.Error}
+          required
         >
           <Select
             onChange={handleLicenseChange}
@@ -142,34 +146,29 @@ export function QueryEditor({ query, onChange, onRunQuery, datasource }: Props) 
           />
         </InlineField>
         {!isDimensionMetricSelected && (
-          <InlineField label="Metric" labelWidth={20}>
-            <Select
-              defaultValue={DEFAULT_SELECTABLE_AGGREGATION}
-              onChange={(item) => handleAggregationChange(item)}
-              width={30}
-              options={SELECTABLE_AGGREGATIONS}
-            />
+          <InlineField label="Metric" labelWidth={20} required>
+            <Select onChange={(item) => handleAggregationChange(item)} width={30} options={SELECTABLE_AGGREGATIONS} />
           </InlineField>
         )}
-        <InlineField label="Dimension" labelWidth={20}>
+        <InlineField label="Dimension" labelWidth={20} required>
           <Select
             onChange={handleDimensionChange}
             width={30}
             options={
-              datasource.adAnalytics
+              props.datasource.adAnalytics
                 ? SELECTABLE_QUERY_AD_ATTRIBUTES
                 : SELECTABLE_QUERY_ATTRIBUTES.concat(SELECTABLE_METRICS)
             }
           />
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
-          <FilterRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={handleFilterChange} />
+          <FilterRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleFilterChange} />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
-          <GroupByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={handleGroupByChange} />
+          <GroupByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleGroupByChange} />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
-          <OrderByRow isAdAnalytics={datasource.adAnalytics ? true : false} onChange={handleOrderByChange} />
+          <OrderByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleOrderByChange} />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
           <Input type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />

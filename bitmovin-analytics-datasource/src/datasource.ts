@@ -1,4 +1,5 @@
 import {
+  CoreApp,
   createDataFrame,
   DataQueryRequest,
   DataQueryResponse,
@@ -15,6 +16,7 @@ import {
   BitmovinAnalyticsDataQuery,
   NumberDataRowList,
   BitmovinAnalyticsRequestQuery,
+  DEFAULT_QUERY,
 } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 import { calculateQueryInterval } from './utils/intervalUtils';
@@ -35,6 +37,10 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
     this.tenantOrgId = instanceSettings.jsonData.tenantOrgId;
     this.adAnalytics = instanceSettings.jsonData.adAnalytics;
     this.baseUrl = instanceSettings.url!;
+  }
+
+  getDefaultQuery(_: CoreApp): Partial<BitmovinAnalyticsDataQuery> {
+    return DEFAULT_QUERY;
   }
 
   /**
