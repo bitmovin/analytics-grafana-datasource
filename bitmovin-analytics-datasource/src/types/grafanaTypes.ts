@@ -1,12 +1,12 @@
 import { DataSourceJsonData } from '@grafana/data';
 import { DataQuery } from '@grafana/schema';
-import { QueryInterval } from './utils/intervalUtils';
-import { Aggregation } from './types/aggregations';
-import { QueryAttribute } from './types/queryAttributes';
-import { QueryAdAttribute } from './types/queryAdAttributes';
-import { Metric } from './types/metric';
-import { QueryOrderBy } from './types/queryOrderBy';
-import { QueryFilter } from './types/queryFilter';
+import { QueryInterval } from '../utils/intervalUtils';
+import { Aggregation } from './aggregations';
+import { QueryAttribute } from './queryAttributes';
+import { QueryAdAttribute } from './queryAdAttributes';
+import { Metric } from './metric';
+import { QueryOrderBy } from './queryOrderBy';
+import { QueryFilter } from './queryFilter';
 
 /**
  * These are the options configurable via the QueryEditor
@@ -40,22 +40,3 @@ export interface BitmovinDataSourceOptions extends DataSourceJsonData {
   tenantOrgId?: string;
   adAnalytics?: boolean;
 }
-
-export type BitmovinAnalyticsRequestQuery = {
-  licenseKey: string;
-  start: Date;
-  end: Date;
-  filters: QueryFilter[];
-  groupBy: QueryAttribute[] | QueryAdAttribute[];
-  orderBy: QueryOrderBy[];
-  dimension?: QueryAttribute | QueryAdAttribute;
-  metric?: Metric;
-  interval?: QueryInterval;
-  limit?: number;
-};
-
-export type MixedDataRow = Array<string | number>;
-export type MixedDataRowList = MixedDataRow[];
-
-export type NumberDataRow = number[];
-export type NumberDataRowList = NumberDataRow[];

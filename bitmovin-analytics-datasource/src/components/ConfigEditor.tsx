@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect } from 'react';
 import { DataSourceHttpSettings, FieldSet, InlineField, InlineSwitch, Input } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { BitmovinDataSourceOptions } from '../types';
+import { BitmovinDataSourceOptions } from '../types/grafanaTypes';
 
 interface Props extends DataSourcePluginOptionsEditorProps<BitmovinDataSourceOptions> {}
 

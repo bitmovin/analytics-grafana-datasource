@@ -8,21 +8,37 @@ import {
   Field,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
+import { filter } from 'lodash';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
+import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from './types/grafanaTypes';
 import {
   MixedDataRowList,
-  BitmovinDataSourceOptions,
-  BitmovinAnalyticsDataQuery,
   NumberDataRowList,
-  BitmovinAnalyticsRequestQuery,
-  DEFAULT_QUERY,
-} from './types';
-import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
-import { calculateQueryInterval } from './utils/intervalUtils';
+  transformGroupedTimeSeriesData,
+  transformSimpleTimeSeries,
+  transformTableData,
+} from './utils/dataUtils';
+import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
 import { Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
-import { filter } from 'lodash';
+import { QueryFilter } from './types/queryFilter';
+import { QueryAttribute } from './types/queryAttributes';
+import { QueryAdAttribute } from './types/queryAdAttributes';
+import { QueryOrderBy } from './types/queryOrderBy';
+
+type BitmovinAnalyticsRequestQuery = {
+  licenseKey: string;
+  start: Date;
+  end: Date;
+  filters: QueryFilter[];
+  groupBy: QueryAttribute[] | QueryAdAttribute[];
+  orderBy: QueryOrderBy[];
+  dimension?: QueryAttribute | QueryAdAttribute;
+  metric?: Metric;
+  interval?: QueryInterval;
+  limit?: number;
+};
 
 export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions> {
   baseUrl: string;

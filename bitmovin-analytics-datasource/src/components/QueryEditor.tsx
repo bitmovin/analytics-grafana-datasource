@@ -4,7 +4,7 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
 
 import { DataSource } from '../datasource';
-import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from '../types';
+import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from '../types/grafanaTypes';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { SELECTABLE_AGGREGATIONS } from '../types/aggregations';
