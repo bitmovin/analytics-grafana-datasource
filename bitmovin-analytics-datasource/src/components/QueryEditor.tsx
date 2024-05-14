@@ -48,17 +48,17 @@ export function QueryEditor(props: Props) {
 
   const query = defaults(props.query, DEFAULT_QUERY);
 
-  const onLicenseChange = (item: SelectableValue) => {
+  const handleLicenseChange = (item: SelectableValue) => {
     props.onChange({ ...query, licenseKey: item.value });
     props.onRunQuery();
   };
 
-  const onAggregationChange = (item: SelectableValue) => {
+  const handleAggregationChange = (item: SelectableValue) => {
     props.onChange({ ...query, aggregation: item.value, metric: undefined });
     props.onRunQuery();
   };
 
-  const onDimensionChange = (item: SelectableValue) => {
+  const handleDimensionChange = (item: SelectableValue) => {
     if (isMetric(item.value)) {
       setIsDimensionMetricSelected(true);
       props.onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
@@ -69,28 +69,28 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
-  const onGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
+  const handleGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
     props.onChange({ ...query, groupBy: newGroupBys });
     props.onRunQuery();
   };
 
-  const onOrderByChange = (newOrderBys: QueryOrderBy[]) => {
+  const handleOrderByChange = (newOrderBys: QueryOrderBy[]) => {
     props.onChange({ ...query, orderBy: newOrderBys });
     props.onRunQuery();
   };
 
-  const onFilterChange = (newFilters: QueryFilter[]) => {
+  const handleFilterChange = (newFilters: QueryFilter[]) => {
     props.onChange({ ...query, filters: newFilters });
     props.onRunQuery();
   };
 
-  const onLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleLimitBlur = (event: ChangeEvent<HTMLInputElement>) => {
     const limit = parseInt(event.target.value, 10);
     props.onChange({ ...query, limit: isNaN(limit) ? undefined : limit });
     props.onRunQuery();
   };
 
-  const onFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
     if (event.currentTarget.checked) {
       props.onChange({ ...query, interval: 'AUTO' });
@@ -100,12 +100,12 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
-  const onIntervalChange = (item: SelectableValue) => {
+  const handleIntervalChange = (item: SelectableValue) => {
     props.onChange({ ...query, interval: item.value });
     props.onRunQuery();
   };
 
-  const onAliasByChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAliasByBlur = (event: ChangeEvent<HTMLInputElement>) => {
     props.onChange({ ...query, aliasBy: event.target.value });
     props.onRunQuery();
   };
@@ -116,7 +116,7 @@ export function QueryEditor(props: Props) {
         <InlineField label="Interval" labelWidth={20}>
           <Select
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
-            onChange={(item) => onIntervalChange(item)}
+            onChange={(item) => handleIntervalChange(item)}
             width={30}
             options={SELECTABLE_QUERY_INTERVALS}
           />
@@ -137,7 +137,7 @@ export function QueryEditor(props: Props) {
           required
         >
           <Select
-            onChange={onLicenseChange}
+            onChange={handleLicenseChange}
             width={30}
             options={selectableLicenses}
             noOptionsMessage="No Analytics Licenses found"
@@ -147,12 +147,12 @@ export function QueryEditor(props: Props) {
         </InlineField>
         {!isDimensionMetricSelected && (
           <InlineField label="Metric" labelWidth={20} required>
-            <Select onChange={(item) => onAggregationChange(item)} width={30} options={SELECTABLE_AGGREGATIONS} />
+            <Select onChange={(item) => handleAggregationChange(item)} width={30} options={SELECTABLE_AGGREGATIONS} />
           </InlineField>
         )}
         <InlineField label="Dimension" labelWidth={20} required>
           <Select
-            onChange={onDimensionChange}
+            onChange={handleDimensionChange}
             width={30}
             options={
               props.datasource.adAnalytics
@@ -162,23 +162,23 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
-          <FilterRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={onFilterChange} />
+          <FilterRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleFilterChange} />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
-          <GroupByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={onGroupByChange} />
+          <GroupByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleGroupByChange} />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
-          <OrderByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={onOrderByChange} />
+          <OrderByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleOrderByChange} />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
-          <Input type="number" onBlur={onLimitChange} width={30} placeholder="No limit" />
+          <Input type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
-          <InlineSwitch value={isTimeSeries} onChange={onFormatAsTimeSeriesChange}></InlineSwitch>
+          <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input placeholder="Naming pattern" onBlur={onAliasByChange} />
+          <Input placeholder="Naming pattern" onBlur={handleAliasByBlur} />
         </InlineField>
       </FieldSet>
     </div>
