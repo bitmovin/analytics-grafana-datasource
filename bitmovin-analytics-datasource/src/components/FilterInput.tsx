@@ -51,13 +51,7 @@ export function FilterInput(props: Props) {
         variant="primary"
         disabled={props.addFilterDisabled}
       />
-      <IconButton
-        tooltip="Delete Filter"
-        name="trash-alt"
-        onClick={() => props.onDelete()}
-        size="lg"
-        variant="destructive"
-      />
+      <IconButton tooltip="Delete Filter" name="trash-alt" onClick={props.onDelete} size="lg" variant="destructive" />
     </HorizontalGroup>
   );
 }

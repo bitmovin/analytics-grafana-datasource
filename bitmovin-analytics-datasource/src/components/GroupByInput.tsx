@@ -42,13 +42,7 @@ export function GroupByInput(props: Props) {
         name="arrow-up"
         disabled={props.isFirst}
       />
-      <IconButton
-        tooltip="Delete Group By"
-        name="trash-alt"
-        onClick={() => props.onDelete()}
-        size="lg"
-        variant="destructive"
-      />
+      <IconButton tooltip="Delete Group By" name="trash-alt" onClick={props.onDelete} size="lg" variant="destructive" />
     </HorizontalGroup>
   );
 }
