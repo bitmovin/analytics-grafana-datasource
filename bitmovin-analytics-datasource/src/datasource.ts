@@ -1,4 +1,5 @@
 import {
+  CoreApp,
   createDataFrame,
   DataQueryRequest,
   DataQueryResponse,
@@ -15,11 +16,13 @@ import {
   BitmovinAnalyticsDataQuery,
   NumberDataRowList,
   BitmovinAnalyticsRequestQuery,
+  DEFAULT_QUERY,
 } from './types';
 import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
 import { calculateQueryInterval } from './utils/intervalUtils';
 import { Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
+import { filter } from 'lodash';
 
 export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions> {
   baseUrl: string;
@@ -36,6 +39,10 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
     this.baseUrl = instanceSettings.url!;
   }
 
+  getDefaultQuery(_: CoreApp): Partial<BitmovinAnalyticsDataQuery> {
+    return DEFAULT_QUERY;
+  }
+
   /**
    * The Bitmovin API Response follows these rules:
    * - If the interval property is provided in the request query, time series data is returned and the first value of each row is a timestamp in milliseconds.
@@ -50,7 +57,10 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
     const from = range!.from.toDate();
     const to = range!.to.toDate();
 
-    const promises = options.targets.map(async (target) => {
+    //filter disabled queries
+    const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
+
+    const promises = enabledQueries.map(async (target) => {
       const interval = target.interval
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
@@ -100,6 +110,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
       }
 
       return createDataFrame({
+        name: target.aliasBy,
         fields: fields,
       });
     });
