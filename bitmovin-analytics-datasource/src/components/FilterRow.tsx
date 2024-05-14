@@ -9,11 +9,6 @@ import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttri
 import { FilterInput } from './FilterInput';
 import { convertFilterValueToProperType } from '../utils/filterUtils';
 
-type Props = {
-  readonly isAdAnalytics: boolean;
-  readonly onChange: (newFilters: QueryFilter[]) => void;
-};
-
 type Filter = {
   selectedAttribute: SelectableValue<QueryAdAttribute | QueryAttribute>;
   selectedOperator: SelectableValue<QueryFilterOperator>;
@@ -22,27 +17,35 @@ type Filter = {
   parsingValueError: string;
 };
 
+const mapFilterAttributesToSelectableValue = (
+  filters: Filter[],
+  isAdAnalytics: boolean
+): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
+  const selectedAttributes = filters.map((filter) => filter.selectedAttribute);
+  if (isAdAnalytics) {
+    return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedAttributes);
+  } else {
+    return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedAttributes);
+  }
+};
+
+const mapFiltersToQueryFilters = (filters: Filter[]): QueryFilter[] => {
+  return filters.map((filter) => {
+    return {
+      name: filter.selectedAttribute.value!,
+      operator: filter.selectedOperator.value!,
+      value: filter.convertedFilterValue,
+    } as QueryFilter;
+  });
+};
+
+type Props = {
+  readonly isAdAnalytics: boolean;
+  readonly onChange: (newFilters: QueryFilter[]) => void;
+};
+
 export function FilterRow(props: Props) {
   const [filters, setFilters] = useState<Filter[]>([]);
-
-  const mapFilterAttributesToSelectableValue = (): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
-    const selectedAttributes = filters.map((filter) => filter.selectedAttribute);
-    if (props.isAdAnalytics) {
-      return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedAttributes);
-    } else {
-      return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedAttributes);
-    }
-  };
-
-  const mapFiltersToQueryFilters = (filters: Filter[]): QueryFilter[] => {
-    return filters.map((filter) => {
-      return {
-        name: filter.selectedAttribute.value!,
-        operator: filter.selectedOperator.value!,
-        value: filter.convertedFilterValue,
-      } as QueryFilter;
-    });
-  };
 
   const addFilterInput = () => {
     setFilters((prevState) => [
@@ -76,14 +79,16 @@ export function FilterRow(props: Props) {
       setFilters(newFilters);
 
       props.onChange(mapFiltersToQueryFilters(newFilters));
-    } catch (e: any) {
-      const errorMessage = e.message;
-      const newFilter = { ...filter, parsingValueError: errorMessage } as Filter;
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        const errorMessage = e.message;
+        const newFilter = { ...filter, parsingValueError: errorMessage } as Filter;
 
-      const newFilters = [...filters];
-      newFilters.splice(index, 1, newFilter);
+        const newFilters = [...filters];
+        newFilters.splice(index, 1, newFilter);
 
-      setFilters(newFilters);
+        setFilters(newFilters);
+      }
     }
   };
 
@@ -138,11 +143,11 @@ export function FilterRow(props: Props) {
           </InlineLabel>
         </HorizontalGroup>
       )}
-      {filters.map((filter, index) => (
+      {filters.map((filter, index, filtersArray) => (
         <FilterInput
           key={index}
           isAdAnalytics={props.isAdAnalytics}
-          selectableFilterAttributes={mapFilterAttributesToSelectableValue()}
+          selectableFilterAttributes={mapFilterAttributesToSelectableValue(filtersArray, props.isAdAnalytics)}
           onAttributeChange={(newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) =>
             onAttributesChange(index, newValue)
           }
@@ -151,7 +156,7 @@ export function FilterRow(props: Props) {
           onDelete={() => deleteFilterInput(index)}
           addFilterDisabled={isEmpty(filter.selectedAttribute) || isEmpty(filter.selectedOperator)}
           onAddFilter={() => onAddFilter(index)}
-          parsingValueError={filter.parsingValueError === '' ? undefined : filter.parsingValueError}
+          parsingValueError={isEmpty(filter.parsingValueError) ? undefined : filter.parsingValueError}
         />
       ))}
 

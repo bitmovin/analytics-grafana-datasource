@@ -15,7 +15,7 @@ type Props = {
   readonly onDelete: () => void;
   readonly addFilterDisabled: boolean;
   readonly onAddFilter: () => void;
-  readonly parsingValueError?: string;
+  readonly parsingValueError: string | undefined;
 };
 
 export function FilterInput(props: Props) {

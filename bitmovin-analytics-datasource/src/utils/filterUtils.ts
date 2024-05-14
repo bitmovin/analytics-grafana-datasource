@@ -1,8 +1,10 @@
+import { isEmpty } from 'lodash';
+
 import { QUERY_AD_ATTRIBUTES, QueryAdAttribute } from '../types/queryAdAttributes';
 import { QUERY_FILTER_OPERATORS, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
 import { QUERY_ATTRIBUTES, QueryAttribute } from '../types/queryAttributes';
 
-export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
+const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
   switch (filterAttribute) {
     case QUERY_ATTRIBUTES.CDN_PROVIDER:
     case QUERY_ATTRIBUTES.CUSTOM_DATA_1:
@@ -158,6 +160,16 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute, filter
   }
 };
 
+/**
+ * Transforms the string filter Value from the UI to the appropriate type for our API.
+ *
+ * @param {string} rawValue The raw string value from the Filter Input.
+ * @param {QueryAttribute | QueryAdAttribute} filterAttribute The filter attribute.
+ * @param {string} filterAttributeLabel The filter attribute label.
+ * @param {QueryFilterOperator} filterOperator The filter operator.
+ * @param {boolean} isAdAnalytics If Ad Analytics are queried.
+ * @returns {QueryFilterValue} The correctly converted Filter Value.
+ * */
 export const convertFilterValueToProperType = (
   rawValue: string,
   filterAttribute: QueryAttribute | QueryAdAttribute,
@@ -165,7 +177,7 @@ export const convertFilterValueToProperType = (
   filterOperator: QueryFilterOperator,
   isAdAnalytics: boolean
 ): QueryFilterValue => {
-  if (rawValue === '' && isNullFilter(filterAttribute)) {
+  if (isEmpty(rawValue) && isNullFilter(filterAttribute)) {
     return null;
   }
 
