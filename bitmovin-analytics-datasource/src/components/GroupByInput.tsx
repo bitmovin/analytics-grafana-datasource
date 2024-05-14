@@ -4,6 +4,7 @@ import { HorizontalGroup, IconButton, Select } from '@grafana/ui';
 
 import { QueryAttribute } from '../types/queryAttributes';
 import { QueryAdAttribute } from '../types/queryAdAttributes';
+import { isEmpty } from 'lodash';
 
 export enum REORDER_DIRECTION {
   UP,
@@ -23,7 +24,12 @@ type Props = {
 export function GroupByInput(props: Props) {
   return (
     <HorizontalGroup>
-      <Select value={props.groupBy} onChange={props.onChange} options={props.selectableGroupBys} width={30} />
+      <Select
+        value={isEmpty(props.groupBy) ? undefined : props.groupBy}
+        onChange={props.onChange}
+        options={props.selectableGroupBys}
+        width={30}
+      />
       <IconButton
         tooltip="Move down"
         onClick={() => props.onReorderGroupBy(REORDER_DIRECTION.DOWN)}
@@ -36,13 +42,7 @@ export function GroupByInput(props: Props) {
         name="arrow-up"
         disabled={props.isFirst}
       />
-      <IconButton
-        tooltip="Delete Group By"
-        name="trash-alt"
-        onClick={() => props.onDelete()}
-        size="lg"
-        variant="destructive"
-      />
+      <IconButton tooltip="Delete Group By" name="trash-alt" onClick={props.onDelete} size="lg" variant="destructive" />
     </HorizontalGroup>
   );
 }

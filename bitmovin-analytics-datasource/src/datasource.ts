@@ -1,4 +1,5 @@
 import {
+  CoreApp,
   createDataFrame,
   DataQueryRequest,
   DataQueryResponse,
@@ -7,42 +8,55 @@ import {
   Field,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
+import { filter } from 'lodash';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-import { MixedDataRowList, MyDataSourceOptions, BitmovinAnalyticsDataQuery, NumberDataRowList } from './types';
-import { transformGroupedTimeSeriesData, transformSimpleTimeSeries, transformTableData } from './utils/dataUtils';
+import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from './types/grafanaTypes';
+import {
+  MixedDataRowList,
+  NumberDataRowList,
+  transformGroupedTimeSeriesData,
+  transformSimpleTimeSeries,
+  transformTableData,
+} from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
-import { QueryAttribute } from './types/queryAttributes';
-import { QueryAdAttribute } from './types/queryAdAttributes';
 import { Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
+import { QueryFilter } from './types/queryFilter';
+import { QueryAttribute } from './types/queryAttributes';
+import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
 
-type AnalyticsQuery = {
-  filters: Array<{ name: string; operator: string; value: number }>;
+type BitmovinAnalyticsRequestQuery = {
+  licenseKey: string;
+  start: Date;
+  end: Date;
+  filters: QueryFilter[];
   groupBy: QueryAttribute[] | QueryAdAttribute[];
   orderBy: QueryOrderBy[];
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;
-  start: Date;
-  end: Date;
-  licenseKey: string;
   interval?: QueryInterval;
+  limit?: number;
 };
 
-export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions> {
   baseUrl: string;
   apiKey: string;
   tenantOrgId?: string;
   adAnalytics?: boolean;
 
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+  constructor(instanceSettings: DataSourceInstanceSettings<BitmovinDataSourceOptions>) {
     super(instanceSettings);
 
     this.apiKey = instanceSettings.jsonData.apiKey;
     this.tenantOrgId = instanceSettings.jsonData.tenantOrgId;
     this.adAnalytics = instanceSettings.jsonData.adAnalytics;
     this.baseUrl = instanceSettings.url!;
+  }
+
+  getDefaultQuery(_: CoreApp): Partial<BitmovinAnalyticsDataQuery> {
+    return DEFAULT_QUERY;
   }
 
   /**
@@ -59,19 +73,16 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
     const from = range!.from.toDate();
     const to = range!.to.toDate();
 
-    const promises = options.targets.map(async (target) => {
+    //filter disabled queries
+    const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
+
+    const promises = enabledQueries.map(async (target) => {
       const interval = target.interval
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
 
-      const query: AnalyticsQuery = {
-        filters: [
-          {
-            name: 'VIDEO_STARTUPTIME',
-            operator: 'GT',
-            value: 0,
-          },
-        ],
+      const query: BitmovinAnalyticsRequestQuery = {
+        filters: target.filters,
         groupBy: target.groupBy,
         orderBy: target.orderBy,
         dimension: target.dimension,
@@ -80,6 +91,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
         end: to,
         licenseKey: target.licenseKey,
         interval: interval,
+        limit: target.limit,
       };
 
       const response = await lastValueFrom(
@@ -114,6 +126,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, MyData
       }
 
       return createDataFrame({
+        name: target.aliasBy,
         fields: fields,
       });
     });

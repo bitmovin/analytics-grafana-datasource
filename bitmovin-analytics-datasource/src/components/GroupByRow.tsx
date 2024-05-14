@@ -7,6 +7,17 @@ import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/query
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { GroupByInput, REORDER_DIRECTION } from './GroupByInput';
 
+const mapGroupBysToSelectableValue = (
+  selectedGroupBys: Array<SelectableValue<QueryAdAttribute | QueryAttribute>>,
+  isAdAnalytics: boolean
+): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
+  if (isAdAnalytics) {
+    return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedGroupBys);
+  } else {
+    return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedGroupBys);
+  }
+};
+
 type Props = {
   readonly isAdAnalytics: boolean;
   readonly onChange: (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => void;
@@ -16,14 +27,6 @@ export function GroupByRow(props: Props) {
   const [selectedGroupBys, setSelectedGroupBys] = useState<Array<SelectableValue<QueryAdAttribute | QueryAttribute>>>(
     []
   );
-
-  const mapGroupBysToSelectableValue = (): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
-    if (props.isAdAnalytics) {
-      return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedGroupBys);
-    } else {
-      return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedGroupBys);
-    }
-  };
 
   const deleteGroupByInput = (index: number) => {
     const newSelectedGroupBys = [...selectedGroupBys];
@@ -66,17 +69,17 @@ export function GroupByRow(props: Props) {
 
   return (
     <VerticalGroup>
-      {selectedGroupBys.map((item, index, groupBys) => (
+      {selectedGroupBys.map((item, index, selectedGroupBysArray) => (
         <GroupByInput
           key={index}
           groupBy={item}
           onChange={(newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) =>
             onSelectedGroupByChange(index, newValue)
           }
-          selectableGroupBys={mapGroupBysToSelectableValue()}
+          selectableGroupBys={mapGroupBysToSelectableValue(selectedGroupBysArray, props.isAdAnalytics)}
           onDelete={() => deleteGroupByInput(index)}
           isFirst={index === 0}
-          isLast={index === groupBys.length - 1}
+          isLast={index === selectedGroupBysArray.length - 1}
           onReorderGroupBy={(direction: REORDER_DIRECTION) => reorderGroupBy(direction, index)}
         />
       ))}

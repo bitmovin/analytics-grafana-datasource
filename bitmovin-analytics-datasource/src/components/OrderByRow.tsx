@@ -9,6 +9,17 @@ import { QueryOrderBy, QuerySortOrder } from '../types/queryOrderBy';
 import { OrderByInput } from './OrderByInput';
 import { REORDER_DIRECTION } from './GroupByInput';
 
+const mapOrderBysToSelectableValue = (
+  selectedAttributes: Array<SelectableValue<QueryAdAttribute | QueryAttribute>>,
+  isAdAnalytics: boolean
+): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
+  if (isAdAnalytics) {
+    return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedAttributes);
+  } else {
+    return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedAttributes);
+  }
+};
+
 type Props = {
   readonly isAdAnalytics: boolean;
   readonly onChange: (newOrderBy: QueryOrderBy[]) => void;
@@ -19,14 +30,6 @@ export function OrderByRow(props: Props) {
     Array<SelectableValue<QueryAdAttribute | QueryAttribute>>
   >([]);
   const [selectedSortOrders, setSelectedSortOrders] = useState<QuerySortOrder[]>([]);
-
-  const mapOrderBysToSelectableValue = (): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
-    if (props.isAdAnalytics) {
-      return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedAttributes);
-    } else {
-      return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedAttributes);
-    }
-  };
 
   const mapSelectedValuesToQueryOrderBy = (
     selectedAttributes: Array<SelectableValue<QueryAttribute | QueryAdAttribute>>,
@@ -95,11 +98,11 @@ export function OrderByRow(props: Props) {
 
   return (
     <VerticalGroup>
-      {selectedAttributes.map((attribute, index, array) => (
+      {selectedAttributes.map((attribute, index, selectedAttributesArray) => (
         <OrderByInput
           key={index}
           isAdAnalytics={props.isAdAnalytics}
-          selectableOrderByAttributes={mapOrderBysToSelectableValue()}
+          selectableOrderByAttributes={mapOrderBysToSelectableValue(selectedAttributesArray, props.isAdAnalytics)}
           attribute={attribute}
           onAttributeChange={(newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) =>
             onAttributesChange(index, newValue)
@@ -108,13 +111,13 @@ export function OrderByRow(props: Props) {
           onSortOrderChange={(newValue: QuerySortOrder) => onSortOrdersChange(index, newValue)}
           onDelete={() => deleteOrderByInput(index)}
           isFirst={index === 0}
-          isLast={index === array.length - 1}
+          isLast={index === selectedAttributesArray.length - 1}
           onReorderOrderBy={(direction: REORDER_DIRECTION) => reorderOrderBy(direction, index)}
         />
       ))}
 
       <Box paddingTop={selectedAttributes.length === 0 ? 0.5 : 0}>
-        <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addOrderByInput()} size="xl" />
+        <IconButton name="plus-square" tooltip="Add Order By" onClick={() => addOrderByInput()} size="xl" />
       </Box>
     </VerticalGroup>
   );

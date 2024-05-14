@@ -6,6 +6,7 @@ import { QueryAttribute } from '../types/queryAttributes';
 import { QueryAdAttribute } from '../types/queryAdAttributes';
 import { QuerySortOrder } from '../types/queryOrderBy';
 import { REORDER_DIRECTION } from './GroupByInput';
+import { isEmpty } from 'lodash';
 
 type Props = {
   readonly isAdAnalytics: boolean;
@@ -29,7 +30,7 @@ export function OrderByInput(props: Props) {
   return (
     <HorizontalGroup spacing="xs">
       <Select
-        value={props.attribute}
+        value={isEmpty(props.attribute) ? undefined : props.attribute}
         onChange={(value) => props.onAttributeChange(value)}
         options={props.selectableOrderByAttributes}
         width={30}
@@ -51,13 +52,7 @@ export function OrderByInput(props: Props) {
         name="arrow-up"
         disabled={props.isFirst}
       />
-      <IconButton
-        tooltip="Delete Group By"
-        name="trash-alt"
-        onClick={() => props.onDelete()}
-        size="lg"
-        variant="destructive"
-      />
+      <IconButton tooltip="Delete Order By" name="trash-alt" onClick={props.onDelete} size="lg" variant="destructive" />
     </HorizontalGroup>
   );
 }

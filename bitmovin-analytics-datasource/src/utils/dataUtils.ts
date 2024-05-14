@@ -1,7 +1,12 @@
 import { differenceWith, sortBy, zip } from 'lodash';
 import { ceilTimestampAccordingToQueryInterval, intervalToMilliseconds, QueryInterval } from './intervalUtils';
 import { Field, FieldType } from '@grafana/data';
-import { MixedDataRow, MixedDataRowList, NumberDataRow, NumberDataRowList } from '../types';
+
+export type MixedDataRow = Array<string | number>;
+export type MixedDataRowList = MixedDataRow[];
+
+export type NumberDataRow = number[];
+export type NumberDataRowList = NumberDataRow[];
 
 /**
  * Adds padding to a given time series to fill in any missing timestamps for a given interval.
