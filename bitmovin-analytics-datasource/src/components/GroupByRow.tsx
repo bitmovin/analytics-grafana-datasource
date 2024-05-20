@@ -1,89 +1,95 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SelectableValue } from '@grafana/data';
 import { Box, IconButton, VerticalGroup } from '@grafana/ui';
-import { difference } from 'lodash';
+import { differenceWith } from 'lodash';
 
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { GroupByInput, REORDER_DIRECTION } from './GroupByInput';
 
-const mapGroupBysToSelectableValue = (
-  selectedGroupBys: Array<SelectableValue<QueryAdAttribute | QueryAttribute>>,
+const getSelectableGroupByOptions = (
+  selectedGroupBys: Array<QueryAttribute | QueryAdAttribute>,
   isAdAnalytics: boolean
 ): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> => {
   if (isAdAnalytics) {
-    return difference(SELECTABLE_QUERY_AD_ATTRIBUTES, selectedGroupBys);
+    return differenceWith(
+      SELECTABLE_QUERY_AD_ATTRIBUTES,
+      selectedGroupBys,
+      (selectableValue, selectedValue) => selectableValue.value === selectedValue
+    );
   } else {
-    return difference(SELECTABLE_QUERY_ATTRIBUTES, selectedGroupBys);
+    return differenceWith(
+      SELECTABLE_QUERY_ATTRIBUTES,
+      selectedGroupBys,
+      (selectableValue, selectedValue) => selectableValue.value === selectedValue
+    );
+  }
+};
+
+const mapGroupByToSelectableValue = (
+  selectedGroupBy: QueryAttribute | QueryAdAttribute,
+  isAdAnalytics: boolean
+): SelectableValue<QueryAttribute | QueryAdAttribute> => {
+  if (isAdAnalytics) {
+    return SELECTABLE_QUERY_AD_ATTRIBUTES.filter((selectableValue) => selectableValue.value === selectedGroupBy);
+  } else {
+    return SELECTABLE_QUERY_ATTRIBUTES.filter((selectableValue) => selectableValue.value === selectedGroupBy);
   }
 };
 
 type Props = {
   readonly isAdAnalytics: boolean;
-  readonly onChange: (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => void;
+  readonly onChange: (newGroupBys: Array<QueryAttribute | QueryAdAttribute>) => void;
+  readonly groupBys: Array<QueryAttribute | QueryAdAttribute>;
 };
 
 export function GroupByRow(props: Props) {
-  const [selectedGroupBys, setSelectedGroupBys] = useState<Array<SelectableValue<QueryAdAttribute | QueryAttribute>>>(
-    []
-  );
-
   const deleteGroupByInput = (index: number) => {
-    const newSelectedGroupBys = [...selectedGroupBys];
+    const newSelectedGroupBys = [...props.groupBys];
     newSelectedGroupBys.splice(index, 1);
 
-    setSelectedGroupBys(newSelectedGroupBys);
-
-    const groupBys = newSelectedGroupBys.map((groupBy) => groupBy.value);
-    props.onChange(groupBys as QueryAttribute[] | QueryAdAttribute[]);
+    props.onChange(newSelectedGroupBys);
   };
 
-  const onSelectedGroupByChange = (
-    index: number,
-    newSelectedGroupBy: SelectableValue<QueryAttribute | QueryAdAttribute>
-  ) => {
-    const newSelectedGroupBys = [...selectedGroupBys];
+  const onSelectedGroupByChange = (index: number, newSelectedGroupBy: QueryAttribute | QueryAdAttribute) => {
+    const newSelectedGroupBys = [...props.groupBys];
     newSelectedGroupBys.splice(index, 1, newSelectedGroupBy);
-    setSelectedGroupBys(newSelectedGroupBys);
 
-    const groupBys = newSelectedGroupBys.map((groupBy) => groupBy.value);
-    props.onChange(groupBys as QueryAttribute[] | QueryAdAttribute[]);
+    props.onChange(newSelectedGroupBys);
   };
 
   const reorderGroupBy = (direction: REORDER_DIRECTION, index: number) => {
-    const newSelectedGroupBys = [...selectedGroupBys];
+    const newSelectedGroupBys = [...props.groupBys];
     const groupByToMove = newSelectedGroupBys[index];
     newSelectedGroupBys.splice(index, 1);
 
     const newIndex = direction === REORDER_DIRECTION.UP ? index - 1 : index + 1;
     newSelectedGroupBys.splice(newIndex, 0, groupByToMove);
-    setSelectedGroupBys(newSelectedGroupBys);
 
-    const groupBys = newSelectedGroupBys.map((groupBy) => groupBy.value);
-    props.onChange(groupBys as QueryAttribute[] | QueryAdAttribute[]);
+    props.onChange(newSelectedGroupBys);
   };
 
   const addGroupByInput = () => {
-    setSelectedGroupBys((prevState) => [...prevState, {}]);
+    const newDefaultSelectedValue = getSelectableGroupByOptions(props.groupBys, props.isAdAnalytics)[0].value!;
+    //TODOMY decide on whats the best approach here with the new selected Value, it shouldn't run when adding a new default value, or should it?
+    props.onChange([...props.groupBys, newDefaultSelectedValue]);
   };
 
   return (
     <VerticalGroup>
-      {selectedGroupBys.map((item, index, selectedGroupBysArray) => (
+      {props.groupBys.map((item, index, selectedGroupBysArray) => (
         <GroupByInput
           key={index}
-          groupBy={item}
-          onChange={(newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) =>
-            onSelectedGroupByChange(index, newValue)
-          }
-          selectableGroupBys={mapGroupBysToSelectableValue(selectedGroupBysArray, props.isAdAnalytics)}
+          groupBy={mapGroupByToSelectableValue(item, props.isAdAnalytics)}
+          onChange={(newValue: QueryAdAttribute | QueryAttribute) => onSelectedGroupByChange(index, newValue)}
+          selectableGroupBys={getSelectableGroupByOptions(selectedGroupBysArray, props.isAdAnalytics)}
           onDelete={() => deleteGroupByInput(index)}
           isFirst={index === 0}
           isLast={index === selectedGroupBysArray.length - 1}
           onReorderGroupBy={(direction: REORDER_DIRECTION) => reorderGroupBy(direction, index)}
         />
       ))}
-      <Box paddingTop={selectedGroupBys.length === 0 ? 0.5 : 0}>
+      <Box paddingTop={props.groupBys.length === 0 ? 0.5 : 0}>
         <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addGroupByInput()} size="xl" />
       </Box>
     </VerticalGroup>

@@ -165,7 +165,11 @@ export function QueryEditor(props: Props) {
           <FilterRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleFilterChange} />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
-          <GroupByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleGroupByChange} />
+          <GroupByRow
+            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            onChange={handleGroupByChange}
+            groupBys={query.groupBy}
+          />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
           <OrderByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleOrderByChange} />
