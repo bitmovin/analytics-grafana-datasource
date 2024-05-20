@@ -172,7 +172,11 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
-          <OrderByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleOrderByChange} />
+          <OrderByRow
+            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            onChange={handleOrderByChange}
+            orderBys={query.orderBy}
+          />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
           <Input type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
