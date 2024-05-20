@@ -4,6 +4,16 @@ import { QUERY_AD_ATTRIBUTES, QueryAdAttribute } from '../types/queryAdAttribute
 import { QUERY_FILTER_OPERATORS, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
 import { QUERY_ATTRIBUTES, QueryAttribute } from '../types/queryAttributes';
 
+export const mapFilterValueToRawFilterValue = (filterValue: QueryFilterValue) => {
+  if (filterValue == null) {
+    return '';
+  } else if (Array.isArray(filterValue)) {
+    return JSON.stringify(filterValue);
+  } else {
+    return filterValue.toString();
+  }
+};
+
 const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
   switch (filterAttribute) {
     case QUERY_ATTRIBUTES.CDN_PROVIDER:

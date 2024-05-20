@@ -13,9 +13,10 @@ import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttri
 import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 import { OrderByRow } from './OrderByRow';
-import { QueryOrderBy } from '../types/queryOrderBy';
-import { QueryFilter } from '../types/queryFilter';
+import type { QueryOrderBy } from '../types/queryOrderBy';
+import type { QueryFilter, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
 import { FilterRow } from './FilterRow';
+import { mapFilterValueToRawFilterValue } from '../utils/filterUtils';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -23,6 +24,14 @@ enum LoadingState {
   Success = 'SUCCESS',
   Error = 'ERROR',
 }
+
+export type FilterRowData = {
+  attribute: QueryAdAttribute | QueryAttribute;
+  operator: QueryFilterOperator;
+  rawFilterValue: string;
+  convertedFilterValue: QueryFilterValue;
+  parsingValueError: string;
+};
 
 type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions>;
 
@@ -32,6 +41,7 @@ export function QueryEditor(props: Props) {
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(true);
   const [isDimensionMetricSelected, setIsDimensionMetricSelected] = useState(false);
+  const [filterRows, setFilterRows] = useState<FilterRowData[]>([]);
 
   useEffect(() => {
     setLicenseLoadingState(LoadingState.Loading);
@@ -44,7 +54,18 @@ export function QueryEditor(props: Props) {
         setLicenseLoadingState(LoadingState.Error);
         setLicenseErrorMessage(e.status + ' ' + e.statusText);
       });
-  }, [props.datasource.apiKey, props.datasource.baseUrl]);
+
+    const filterRows = props.query.filters.map((filter) => {
+      return {
+        attribute: filter.name,
+        operator: filter.operator,
+        rawFilterValue: mapFilterValueToRawFilterValue(filter.value),
+        convertedFilterValue: filter.value,
+        parsingValueError: '',
+      } as FilterRowData;
+    });
+    setFilterRows(filterRows);
+  }, [props.datasource.apiKey, props.datasource.baseUrl, props.query.filters]);
 
   const query = defaults(props.query, DEFAULT_QUERY);
 
@@ -77,6 +98,10 @@ export function QueryEditor(props: Props) {
   const handleOrderByChange = (newOrderBys: QueryOrderBy[]) => {
     props.onChange({ ...query, orderBy: newOrderBys });
     props.onRunQuery();
+  };
+
+  const handleFilterRowChange = (newFilters: FilterRowData[]) => {
+    setFilterRows(newFilters);
   };
 
   const handleFilterChange = (newFilters: QueryFilter[]) => {
@@ -162,7 +187,12 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
-          <FilterRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleFilterChange} />
+          <FilterRow
+            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            onChange={handleFilterChange}
+            onFilterRowChange={handleFilterRowChange}
+            filters={filterRows}
+          />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
           <GroupByRow
