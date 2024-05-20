@@ -90,7 +90,7 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
-  const handleGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
+  const handleGroupByChange = (newGroupBys: Array<QueryAttribute | QueryAdAttribute>) => {
     props.onChange({ ...query, groupBy: newGroupBys });
     props.onRunQuery();
   };
