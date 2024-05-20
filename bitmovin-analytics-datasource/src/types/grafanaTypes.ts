@@ -26,7 +26,6 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
   licenseKey: '',
-  interval: 'AUTO',
   orderBy: [],
   groupBy: [],
   filters: [],

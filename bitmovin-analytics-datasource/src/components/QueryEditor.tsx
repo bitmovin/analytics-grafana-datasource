@@ -39,7 +39,7 @@ export function QueryEditor(props: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
-  const [isTimeSeries, setIsTimeSeries] = useState(true);
+  const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
   const [isDimensionMetricSelected, setIsDimensionMetricSelected] = useState(false);
   const [filterRows, setFilterRows] = useState<FilterRowData[]>([]);
 
