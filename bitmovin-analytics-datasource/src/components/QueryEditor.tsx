@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import type { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
 
 import { DataSource } from '../datasource';
@@ -162,6 +162,7 @@ export function QueryEditor(props: Props) {
           required
         >
           <Select
+            value={query.licenseKey}
             onChange={handleLicenseChange}
             width={30}
             options={selectableLicenses}
@@ -172,11 +173,17 @@ export function QueryEditor(props: Props) {
         </InlineField>
         {!isDimensionMetricSelected && (
           <InlineField label="Metric" labelWidth={20} required>
-            <Select onChange={(item) => handleAggregationChange(item)} width={30} options={SELECTABLE_AGGREGATIONS} />
+            <Select
+              value={query.aggregation}
+              onChange={(item) => handleAggregationChange(item)}
+              width={30}
+              options={SELECTABLE_AGGREGATIONS}
+            />
           </InlineField>
         )}
         <InlineField label="Dimension" labelWidth={20} required>
           <Select
+            value={query.dimension}
             onChange={handleDimensionChange}
             width={30}
             options={
@@ -209,14 +216,14 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
-          <Input type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
+          <Input value={query.limit} type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input placeholder="Naming pattern" onBlur={handleAliasByBlur} />
+          <Input value={query.aliasBy} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
         </InlineField>
       </FieldSet>
     </div>
