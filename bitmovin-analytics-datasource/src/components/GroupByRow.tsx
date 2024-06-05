@@ -71,7 +71,6 @@ export function GroupByRow(props: Props) {
 
   const addGroupByInput = () => {
     const newDefaultSelectedValue = getSelectableGroupByOptions(props.groupBys, props.isAdAnalytics)[0].value!;
-    //TODOMY decide on whats the best approach here with the new selected Value, it shouldn't run when adding a new default value, or should it?
     props.onChange([...props.groupBys, newDefaultSelectedValue]);
   };
 

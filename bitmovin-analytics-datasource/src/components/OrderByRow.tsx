@@ -9,7 +9,6 @@ import type { QueryOrderBy, QuerySortOrder } from '../types/queryOrderBy';
 import { OrderByInput } from './OrderByInput';
 import { REORDER_DIRECTION } from './GroupByInput';
 
-//TODOMY should the selectable not be only available from the Group By attributes?
 const getSelectableOrderByOptions = (
   selectedOrderBys: QueryOrderBy[],
   isAdAnalytics: boolean
@@ -84,7 +83,6 @@ export function OrderByRow(props: Props) {
 
   const addOrderByInput = () => {
     const newDefaultSelectedValue = getSelectableOrderByOptions(props.orderBys, props.isAdAnalytics)[0].value!;
-    //TODOMY decide on whats the best approach here with the new selected Value, it shouldn't run when adding a new default value, or should it?
     props.onChange([...props.orderBys, { name: newDefaultSelectedValue, order: 'ASC' }]);
   };
 
