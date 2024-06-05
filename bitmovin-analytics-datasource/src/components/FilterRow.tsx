@@ -41,7 +41,7 @@ const mapFilterRowsToQueryFilters = (filters: FilterRowData[]): QueryFilter[] =>
 
 type Props = {
   readonly isAdAnalytics: boolean;
-  readonly onChange: (newFilters: QueryFilter[]) => void;
+  readonly onQueryFilterChange: (newFilters: QueryFilter[]) => void;
   readonly onFilterRowChange: (newFilters: FilterRowData[]) => void;
   readonly filters: FilterRowData[];
 };
@@ -77,7 +77,7 @@ export function FilterRow(props: Props) {
 
       props.onFilterRowChange(newFilters);
 
-      props.onChange(mapFilterRowsToQueryFilters(newFilters));
+      props.onQueryFilterChange(mapFilterRowsToQueryFilters(newFilters));
     } catch (e: unknown) {
       if (e instanceof Error) {
         const errorMessage = e.message;
@@ -97,7 +97,7 @@ export function FilterRow(props: Props) {
 
     props.onFilterRowChange(newFilters);
 
-    props.onChange(mapFilterRowsToQueryFilters(newFilters));
+    props.onQueryFilterChange(mapFilterRowsToQueryFilters(newFilters));
   };
 
   const onAttributesChange = (index: number, newAttribute: SelectableValue<QueryAttribute | QueryAdAttribute>) => {

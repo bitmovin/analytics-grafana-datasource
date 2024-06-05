@@ -104,7 +104,7 @@ export function QueryEditor(props: Props) {
     setFilterRows(newFilters);
   };
 
-  const handleFilterChange = (newFilters: QueryFilter[]) => {
+  const handleQueryFilterChange = (newFilters: QueryFilter[]) => {
     props.onChange({ ...query, filters: newFilters });
     props.onRunQuery();
   };
@@ -196,7 +196,7 @@ export function QueryEditor(props: Props) {
         <InlineField label="Filter" labelWidth={20}>
           <FilterRow
             isAdAnalytics={props.datasource.adAnalytics ? true : false}
-            onChange={handleFilterChange}
+            onQueryFilterChange={handleQueryFilterChange}
             onFilterRowChange={handleFilterRowChange}
             filters={filterRows}
           />
