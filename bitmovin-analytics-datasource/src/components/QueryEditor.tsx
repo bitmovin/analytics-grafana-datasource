@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
 import type { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
@@ -40,8 +40,10 @@ export function QueryEditor(props: Props) {
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
-  const [isDimensionMetricSelected, setIsDimensionMetricSelected] = useState(false);
   const [filterRows, setFilterRows] = useState<FilterRowData[]>([]);
+  const isDimensionMetricSelected = useMemo(() => {
+    return props.query.metric != undefined;
+  }, [props.query.metric]);
 
   useEffect(() => {
     setLicenseLoadingState(LoadingState.Loading);
@@ -54,7 +56,9 @@ export function QueryEditor(props: Props) {
         setLicenseLoadingState(LoadingState.Error);
         setLicenseErrorMessage(e.status + ' ' + e.statusText);
       });
+  }, [props.datasource.apiKey, props.datasource.baseUrl]);
 
+  useEffect(() => {
     const filterRows = props.query.filters.map((filter) => {
       return {
         attribute: filter.name,
@@ -65,7 +69,7 @@ export function QueryEditor(props: Props) {
       } as FilterRowData;
     });
     setFilterRows(filterRows);
-  }, [props.datasource.apiKey, props.datasource.baseUrl, props.query.filters]);
+  }, [props.query.filters]);
 
   const query = defaults(props.query, DEFAULT_QUERY);
 
@@ -81,11 +85,9 @@ export function QueryEditor(props: Props) {
 
   const handleDimensionChange = (item: SelectableValue) => {
     if (isMetric(item.value)) {
-      setIsDimensionMetricSelected(true);
       props.onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
     } else {
-      setIsDimensionMetricSelected(false);
-      props.onChange({ ...query, dimension: item.value });
+      props.onChange({ ...query, dimension: item.value, metric: undefined });
     }
     props.onRunQuery();
   };
@@ -183,7 +185,7 @@ export function QueryEditor(props: Props) {
         )}
         <InlineField label="Dimension" labelWidth={20} required>
           <Select
-            value={query.dimension}
+            value={query.dimension || query.metric}
             onChange={handleDimensionChange}
             width={30}
             options={
