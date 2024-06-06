@@ -42,7 +42,7 @@ export function QueryEditor(props: Props) {
   const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
   const [filterRows, setFilterRows] = useState<FilterRowData[]>([]);
   const isDimensionMetricSelected = useMemo(() => {
-    return props.query.metric != undefined;
+    return props.query.metric !== undefined;
   }, [props.query.metric]);
 
   useEffect(() => {
