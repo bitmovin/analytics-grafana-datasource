@@ -14,9 +14,7 @@ Configure the datasource:
 | API Key      | Your API key                                             |
 | Ad Analytics | If checked, the datasource is switched to query ads data |
 
-[//]: # (TODOMY check whether the Tenant Org Id is still relevenat...)
-
-Optionally add your `Tenant Org Id` which you can also get from [bitmovin dashboard](https://dashboard.bitmovin.com).
+Optionally add your `Tenant Org Id` which you can also get from the [bitmovin dashboard](https://dashboard.bitmovin.com).
 
 ## Time Series Graph
 
@@ -48,7 +46,6 @@ Configure the metric as described in [Time Series Graph](#time-series-graph) but
 
 ## Example
 
-[//]: # (TODOMY implement the example_dashboard.)
 See the [example_dashboard.json](example_dashboard.json) for a demo. Configure the datasource with your Api Key and select the a license key in each panel.
 
 ## Support
