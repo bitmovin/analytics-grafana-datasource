@@ -4,6 +4,8 @@ Plugin that allows you to connect Bitmovin Analytics solution into your Grafana 
 
 ## Setup
 
+### Add the datasource
+
 Add the plugin and acquire your Bitmovin Analytics API key from the [bitmovin dashboard](https://dashboard.bitmovin.com/account).
 
 Configure the datasource:
@@ -15,6 +17,10 @@ Configure the datasource:
 | Ad Analytics | If checked, the datasource is switched to query ads data |
 
 Optionally add your `Tenant Org Id` which you can also get from the [bitmovin dashboard](https://dashboard.bitmovin.com).
+
+### Add example dashboard
+
+See the [example_dashboard.json](example_dashboard.json) for a demo. Configure the datasource with your Api Key and select a license key in each panel.
 
 ## Time Series Graph
 
@@ -43,10 +49,6 @@ To compare e.g. impressions per browser, we provide the `Group By` attribute to 
 ## Tables
 
 Configure the metric as described in [Time Series Graph](#time-series-graph) but uncheck the `Format as time series` option and add a `Group By` dimension. It is recommended to add a limit (e.g. 10).
-
-## Example
-
-See the [example_dashboard.json](example_dashboard.json) for a demo. Configure the datasource with your Api Key and select the a license key in each panel.
 
 ## Support
 
