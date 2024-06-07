@@ -4,7 +4,12 @@ import { QUERY_AD_ATTRIBUTES, QueryAdAttribute } from '../types/queryAdAttribute
 import { QUERY_FILTER_OPERATORS, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
 import { QUERY_ATTRIBUTES, QueryAttribute } from '../types/queryAttributes';
 
-export const mapFilterValueToRawFilterValue = (filterValue: QueryFilterValue) => {
+/**
+ * Convert QueryFilter value to string to correctly display the value in the Input Element.
+ * @param {QueryFilterValue} filterValue the filter value with the from our API expected correct type
+ * @return {string} the rawFilterValue as a string
+ * */
+export const mapQueryFilterValueToRawFilterValue = (filterValue: QueryFilterValue): string => {
   if (filterValue == null) {
     return '';
   } else if (Array.isArray(filterValue)) {
