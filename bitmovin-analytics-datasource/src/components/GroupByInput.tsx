@@ -15,7 +15,7 @@ type Props = {
   readonly groupBy: SelectableValue<QueryAttribute | QueryAdAttribute>;
   readonly selectableGroupBys: Array<SelectableValue<QueryAttribute | QueryAdAttribute>>;
   readonly onDelete: () => void;
-  readonly onChange: (newValue: SelectableValue<QueryAdAttribute | QueryAttribute>) => void;
+  readonly onChange: (newValue: QueryAdAttribute | QueryAttribute) => void;
   readonly isFirst: boolean;
   readonly isLast: boolean;
   readonly onReorderGroupBy: (direction: REORDER_DIRECTION) => void;
@@ -26,7 +26,7 @@ export function GroupByInput(props: Props) {
     <HorizontalGroup>
       <Select
         value={isEmpty(props.groupBy) ? undefined : props.groupBy}
-        onChange={props.onChange}
+        onChange={(selectableValue) => props.onChange(selectableValue.value!)}
         options={props.selectableGroupBys}
         width={30}
       />

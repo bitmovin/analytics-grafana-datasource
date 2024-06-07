@@ -32,7 +32,7 @@ type BitmovinAnalyticsRequestQuery = {
   start: Date;
   end: Date;
   filters: QueryFilter[];
-  groupBy: QueryAttribute[] | QueryAdAttribute[];
+  groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;

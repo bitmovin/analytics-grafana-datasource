@@ -17,7 +17,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   aggregation?: Aggregation;
   metric?: Metric;
   dimension?: QueryAttribute | QueryAdAttribute;
-  groupBy: QueryAttribute[] | QueryAdAttribute[];
+  groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   limit?: number;
   filters: QueryFilter[];
@@ -26,7 +26,6 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
   licenseKey: '',
-  interval: 'AUTO',
   orderBy: [],
   groupBy: [],
   filters: [],

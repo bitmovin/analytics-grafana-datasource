@@ -1,6 +1,6 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import type { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
 
 import { DataSource } from '../datasource';
@@ -13,8 +13,8 @@ import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttri
 import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 import { OrderByRow } from './OrderByRow';
-import { QueryOrderBy } from '../types/queryOrderBy';
-import { QueryFilter } from '../types/queryFilter';
+import type { QueryOrderBy } from '../types/queryOrderBy';
+import type { QueryFilter } from '../types/queryFilter';
 import { FilterRow } from './FilterRow';
 
 enum LoadingState {
@@ -30,9 +30,12 @@ export function QueryEditor(props: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
-  const [isTimeSeries, setIsTimeSeries] = useState(true);
-  const [isDimensionMetricSelected, setIsDimensionMetricSelected] = useState(false);
+  const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
+  const isDimensionMetricSelected = useMemo(() => {
+    return props.query.metric !== undefined;
+  }, [props.query.metric]);
 
+  /** Fetch Licenses */
   useEffect(() => {
     setLicenseLoadingState(LoadingState.Loading);
     fetchLicenses(props.datasource.apiKey, props.datasource.baseUrl)
@@ -60,16 +63,14 @@ export function QueryEditor(props: Props) {
 
   const handleDimensionChange = (item: SelectableValue) => {
     if (isMetric(item.value)) {
-      setIsDimensionMetricSelected(true);
       props.onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
     } else {
-      setIsDimensionMetricSelected(false);
-      props.onChange({ ...query, dimension: item.value });
+      props.onChange({ ...query, dimension: item.value, metric: undefined });
     }
     props.onRunQuery();
   };
 
-  const handleGroupByChange = (newGroupBys: QueryAdAttribute[] | QueryAttribute[]) => {
+  const handleGroupByChange = (newGroupBys: Array<QueryAttribute | QueryAdAttribute>) => {
     props.onChange({ ...query, groupBy: newGroupBys });
     props.onRunQuery();
   };
@@ -79,7 +80,7 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
-  const handleFilterChange = (newFilters: QueryFilter[]) => {
+  const handleQueryFilterChange = (newFilters: QueryFilter[]) => {
     props.onChange({ ...query, filters: newFilters });
     props.onRunQuery();
   };
@@ -137,6 +138,7 @@ export function QueryEditor(props: Props) {
           required
         >
           <Select
+            value={query.licenseKey}
             onChange={handleLicenseChange}
             width={30}
             options={selectableLicenses}
@@ -147,11 +149,17 @@ export function QueryEditor(props: Props) {
         </InlineField>
         {!isDimensionMetricSelected && (
           <InlineField label="Metric" labelWidth={20} required>
-            <Select onChange={(item) => handleAggregationChange(item)} width={30} options={SELECTABLE_AGGREGATIONS} />
+            <Select
+              value={query.aggregation}
+              onChange={(item) => handleAggregationChange(item)}
+              width={30}
+              options={SELECTABLE_AGGREGATIONS}
+            />
           </InlineField>
         )}
         <InlineField label="Dimension" labelWidth={20} required>
           <Select
+            value={query.dimension || query.metric}
             onChange={handleDimensionChange}
             width={30}
             options={
@@ -162,23 +170,35 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
-          <FilterRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleFilterChange} />
+          <FilterRow
+            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            onQueryFilterChange={handleQueryFilterChange}
+            filters={props.query.filters}
+          />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
-          <GroupByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleGroupByChange} />
+          <GroupByRow
+            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            onChange={handleGroupByChange}
+            groupBys={query.groupBy}
+          />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
-          <OrderByRow isAdAnalytics={props.datasource.adAnalytics ? true : false} onChange={handleOrderByChange} />
+          <OrderByRow
+            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            onChange={handleOrderByChange}
+            orderBys={query.orderBy}
+          />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
-          <Input type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
+          <Input value={query.limit} type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input placeholder="Naming pattern" onBlur={handleAliasByBlur} />
+          <Input value={query.aliasBy} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
         </InlineField>
       </FieldSet>
     </div>

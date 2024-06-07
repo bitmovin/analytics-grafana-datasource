@@ -1,4 +1,4 @@
-import { convertFilterValueToProperType } from './filterUtils';
+import { convertFilterValueToProperType, mapQueryFilterValueToRawFilterValue } from './filterUtils';
 import { QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { QUERY_FILTER_OPERATORS } from '../types/queryFilter';
 import { QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
@@ -175,5 +175,55 @@ describe('convertFilterValueToProperType', () => {
         false
       )
     ).toThrow(new Error(`Couldn't parse filter for Error Percentage, please provide data as a number`));
+  });
+});
+
+describe('mapQueryFilterValueToRawFilterValue', () => {
+  it('should return empty string for null filter value', () => {
+    //arrange && act
+    const result = mapQueryFilterValueToRawFilterValue(null);
+
+    //assert
+    expect(result).toEqual('');
+  });
+
+  it('should return boolean as string', () => {
+    //arrange && act
+    const result = mapQueryFilterValueToRawFilterValue(true);
+
+    //assert
+    expect(result).toEqual('true');
+  });
+
+  it('should return integer as string', () => {
+    //arrange && act
+    const result = mapQueryFilterValueToRawFilterValue(23);
+
+    //assert
+    expect(result).toEqual('23');
+  });
+
+  it('should return float as string', () => {
+    //arrange && act
+    const result = mapQueryFilterValueToRawFilterValue(23.5);
+
+    //assert
+    expect(result).toEqual('23.5');
+  });
+
+  it('should return string as string', () => {
+    //arrange && act
+    const result = mapQueryFilterValueToRawFilterValue('de');
+
+    //assert
+    expect(result).toEqual('de');
+  });
+
+  it('should return string array as string', () => {
+    //arrange && act
+    const result = mapQueryFilterValueToRawFilterValue(['Firefox', 'Opera']);
+
+    //assert
+    expect(result).toEqual('["Firefox","Opera"]');
   });
 });
