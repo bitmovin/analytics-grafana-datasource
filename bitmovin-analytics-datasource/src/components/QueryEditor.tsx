@@ -31,9 +31,9 @@ export function QueryEditor(props: Props) {
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
-  const isDimensionMetricSelected = useMemo(() => {
-    return props.query.metric !== undefined;
-  }, [props.query.metric]);
+  const isMetricSelected = useMemo(() => {
+    return props.query.dimension ? isMetric(props.query.dimension) : false;
+  }, [props.query.dimension]);
 
   /** Fetch Licenses */
   useEffect(() => {
@@ -52,21 +52,17 @@ export function QueryEditor(props: Props) {
   const query = defaults(props.query, DEFAULT_QUERY);
 
   const handleLicenseChange = (item: SelectableValue) => {
-    props.onChange({ ...query, licenseKey: item.value });
+    props.onChange({ ...query, license: item.value });
     props.onRunQuery();
   };
 
   const handleAggregationChange = (item: SelectableValue) => {
-    props.onChange({ ...query, aggregation: item.value, metric: undefined });
+    props.onChange({ ...query, metric: item.value });
     props.onRunQuery();
   };
 
   const handleDimensionChange = (item: SelectableValue) => {
-    if (isMetric(item.value)) {
-      props.onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
-    } else {
-      props.onChange({ ...query, dimension: item.value, metric: undefined });
-    }
+    props.onChange({ ...query, dimension: item.value });
     props.onRunQuery();
   };
 
@@ -81,7 +77,7 @@ export function QueryEditor(props: Props) {
   };
 
   const handleQueryFilterChange = (newFilters: QueryFilter[]) => {
-    props.onChange({ ...query, filters: newFilters });
+    props.onChange({ ...query, filter: newFilters });
     props.onRunQuery();
   };
 
@@ -107,7 +103,7 @@ export function QueryEditor(props: Props) {
   };
 
   const handleAliasByBlur = (event: ChangeEvent<HTMLInputElement>) => {
-    props.onChange({ ...query, aliasBy: event.target.value });
+    props.onChange({ ...query, alias: event.target.value });
     props.onRunQuery();
   };
 
@@ -138,7 +134,7 @@ export function QueryEditor(props: Props) {
           required
         >
           <Select
-            value={query.licenseKey}
+            value={query.license}
             onChange={handleLicenseChange}
             width={30}
             options={selectableLicenses}
@@ -147,10 +143,10 @@ export function QueryEditor(props: Props) {
             placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
           />
         </InlineField>
-        {!isDimensionMetricSelected && (
+        {!isMetricSelected && (
           <InlineField label="Metric" labelWidth={20} required>
             <Select
-              value={query.aggregation}
+              value={query.metric}
               onChange={(item) => handleAggregationChange(item)}
               width={30}
               options={SELECTABLE_AGGREGATIONS}
@@ -159,7 +155,7 @@ export function QueryEditor(props: Props) {
         )}
         <InlineField label="Dimension" labelWidth={20} required>
           <Select
-            value={query.dimension || query.metric}
+            value={query.dimension}
             onChange={handleDimensionChange}
             width={30}
             options={
@@ -173,7 +169,7 @@ export function QueryEditor(props: Props) {
           <FilterRow
             isAdAnalytics={props.datasource.adAnalytics ? true : false}
             onQueryFilterChange={handleQueryFilterChange}
-            filters={props.query.filters}
+            filters={props.query.filter}
           />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
@@ -198,7 +194,7 @@ export function QueryEditor(props: Props) {
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input defaultValue={query.aliasBy} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
+          <Input defaultValue={query.alias} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
         </InlineField>
       </FieldSet>
     </div>

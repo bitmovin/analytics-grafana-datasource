@@ -1,9 +1,9 @@
 import { SelectableValue } from '@grafana/data';
 
 export enum METRICS {
-  AVG_CONCURRENTVIEWERS = 'avg-concurrentviewers',
-  MAX_CONCURRENTVIEWERS = 'max-concurrentviewers',
-  AVG_DROPPED_FRAMES = 'avg-dropped-frames',
+  AVG_CONCURRENTVIEWERS = 'AVG_CONCURRENTVIEWERS',
+  MAX_CONCURRENTVIEWERS = 'MAX_CONCURRENTVIEWERS',
+  AVG_DROPPED_FRAMES = 'AVG_DROPPED_FRAMES',
 }
 
 export type Metric = (typeof METRICS)[keyof typeof METRICS];

@@ -12,23 +12,22 @@ import { QueryFilter } from './queryFilter';
  * These are the options configurable via the QueryEditor
  * */
 export interface BitmovinAnalyticsDataQuery extends DataQuery {
-  licenseKey: string;
+  license: string;
   interval?: QueryInterval | 'AUTO';
-  aggregation?: Aggregation;
-  metric?: Metric;
-  dimension?: QueryAttribute | QueryAdAttribute;
+  metric?: Aggregation;
+  dimension?: QueryAttribute | QueryAdAttribute | Metric;
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   limit?: number;
-  filters: QueryFilter[];
-  aliasBy?: string;
+  filter: QueryFilter[];
+  alias?: string;
 }
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
-  licenseKey: '',
+  license: '',
   orderBy: [],
   groupBy: [],
-  filters: [],
+  filter: [],
 };
 
 /**

@@ -20,7 +20,7 @@ import {
   transformTableData,
 } from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
-import { Metric } from './types/metric';
+import { isMetric, Metric } from './types/metric';
 import { Aggregation } from './types/aggregations';
 import { QueryFilter } from './types/queryFilter';
 import { QueryAttribute } from './types/queryAttributes';
@@ -81,21 +81,32 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
 
+      let dimensionMetric: Metric | undefined = undefined;
+      let dimension: QueryAttribute | QueryAdAttribute | undefined = undefined;
+
+      if (target.dimension) {
+        if (isMetric(target.dimension)) {
+          dimensionMetric = target.dimension as Metric;
+        } else {
+          dimension = target.dimension as QueryAttribute | QueryAdAttribute;
+        }
+      }
+
       const query: BitmovinAnalyticsRequestQuery = {
-        filters: target.filters,
+        filters: target.filter,
         groupBy: target.groupBy,
         orderBy: target.orderBy,
-        dimension: target.dimension,
-        metric: target.metric,
+        dimension: dimension,
+        metric: dimensionMetric,
         start: from,
         end: to,
-        licenseKey: target.licenseKey,
+        licenseKey: target.license,
         interval: interval,
         limit: target.limit,
       };
 
       const response = await lastValueFrom(
-        this.request(this.getRequestUrl(target.metric, target.aggregation), 'POST', query)
+        this.request(this.getRequestUrl(query.metric, target.metric), 'POST', query)
       );
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
@@ -126,7 +137,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
       }
 
       return createDataFrame({
-        name: target.aliasBy,
+        name: target.alias,
         fields: fields,
       });
     });
