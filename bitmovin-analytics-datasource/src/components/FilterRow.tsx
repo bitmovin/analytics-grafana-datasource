@@ -1,14 +1,21 @@
-import React from 'react';
-import { differenceWith, isEmpty } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { differenceWith } from 'lodash';
 import { SelectableValue } from '@grafana/data';
 import { Box, HorizontalGroup, IconButton, InlineLabel, VerticalGroup } from '@grafana/ui';
 
-import { QueryFilter, QueryFilterOperator } from '../types/queryFilter';
+import { QueryFilter, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { FilterInput } from './FilterInput';
-import { convertFilterValueToProperType } from '../utils/filterUtils';
-import type { FilterRowData } from './QueryEditor';
+import { convertFilterValueToProperType, mapQueryFilterValueToRawFilterValue } from '../utils/filterUtils';
+
+export type FilterRowData = {
+  attribute: QueryAdAttribute | QueryAttribute | undefined;
+  operator: QueryFilterOperator | undefined;
+  rawFilterValue: string;
+  convertedFilterValue: QueryFilterValue;
+  parsingValueError: string;
+};
 
 const mapFilterAttributesToSelectableValue = (
   filters: FilterRowData[],
@@ -32,104 +39,119 @@ const mapFilterAttributesToSelectableValue = (
 const mapFilterRowsToQueryFilters = (filters: FilterRowData[]): QueryFilter[] => {
   return filters.map((filter) => {
     return {
-      name: filter.attribute,
-      operator: filter.operator,
+      name: filter.attribute!,
+      operator: filter.operator!,
       value: filter.convertedFilterValue,
-    } as QueryFilter;
+    };
   });
 };
 
 type Props = {
   readonly isAdAnalytics: boolean;
   readonly onQueryFilterChange: (newFilters: QueryFilter[]) => void;
-  readonly onFilterRowChange: (newFilters: FilterRowData[]) => void;
-  readonly filters: FilterRowData[];
+  readonly filters: QueryFilter[];
 };
 
 export function FilterRow(props: Props) {
+  const [filterInputs, setFilterInputs] = useState<FilterRowData[]>([]);
+
+  /** Map QueryFilters to FilterRowData */
+  useEffect(() => {
+    const filterRows = props.filters.map((filter) => {
+      return {
+        attribute: filter.name,
+        operator: filter.operator,
+        rawFilterValue: mapQueryFilterValueToRawFilterValue(filter.value),
+        convertedFilterValue: filter.value,
+        parsingValueError: '',
+      };
+    });
+    setFilterInputs(filterRows);
+  }, [props.filters]);
+
   const addFilterInput = () => {
-    const newFilters = [...props.filters];
-    newFilters.push({
-      attribute: {},
-      operator: {},
+    const newFilterInputs = [...filterInputs];
+    newFilterInputs.push({
+      attribute: undefined,
+      operator: undefined,
       rawFilterValue: '',
       convertedFilterValue: '',
       parsingValueError: '',
-    } as FilterRowData);
-    props.onFilterRowChange(newFilters);
+    });
+    setFilterInputs(newFilterInputs);
   };
 
-  const onAddFilter = (index: number) => {
-    const filter = props.filters[index];
+  const onSaveFilter = (index: number) => {
+    const filter = filterInputs[index];
     try {
       const convertedValue = convertFilterValueToProperType(
         filter.rawFilterValue,
-        filter.attribute,
-        filter.attribute,
-        filter.operator,
+        filter.attribute!,
+        filter.attribute!,
+        filter.operator!,
         props.isAdAnalytics
       );
 
-      const newFilter = { ...filter, convertedFilterValue: convertedValue, parsingValueError: '' } as FilterRowData;
+      const newFilter: FilterRowData = { ...filter, convertedFilterValue: convertedValue, parsingValueError: '' };
 
-      const newFilters = [...props.filters];
+      const newFilters = [...filterInputs];
       newFilters.splice(index, 1, newFilter);
 
-      props.onFilterRowChange(newFilters);
+      setFilterInputs(filterInputs);
 
       props.onQueryFilterChange(mapFilterRowsToQueryFilters(newFilters));
     } catch (e: unknown) {
       if (e instanceof Error) {
         const errorMessage = e.message;
-        const newFilter = { ...filter, parsingValueError: errorMessage } as FilterRowData;
+        const newFilter: FilterRowData = { ...filter, parsingValueError: errorMessage };
 
-        const newFilters = [...props.filters];
+        const newFilters = [...filterInputs];
         newFilters.splice(index, 1, newFilter);
 
-        props.onFilterRowChange(newFilters);
+        setFilterInputs(newFilters);
       }
     }
   };
 
   const deleteFilterInput = (index: number) => {
-    const newFilters = [...props.filters];
+    const newFilters = [...filterInputs];
     newFilters.splice(index, 1);
 
-    props.onFilterRowChange(newFilters);
+    setFilterInputs(newFilters);
 
     props.onQueryFilterChange(mapFilterRowsToQueryFilters(newFilters));
   };
 
   const onAttributesChange = (index: number, newAttribute: SelectableValue<QueryAttribute | QueryAdAttribute>) => {
-    const filter = props.filters[index];
-    const newFilter = { ...filter, attribute: newAttribute.value } as FilterRowData;
-    const newFilters = [...props.filters];
+    const filter = filterInputs[index];
+    const newFilter: FilterRowData = { ...filter, attribute: newAttribute.value! };
+    const newFilters = [...filterInputs];
     newFilters.splice(index, 1, newFilter);
 
-    props.onFilterRowChange(newFilters);
+    setFilterInputs(newFilters);
   };
 
   const onOperatorsChange = (index: number, newOperator: SelectableValue<QueryFilterOperator>) => {
-    const filter = props.filters[index];
-    const newFilter = { ...filter, operator: newOperator.value } as FilterRowData;
-    const newFilters = [...props.filters];
+    const filter = filterInputs[index];
+    const newFilter: FilterRowData = { ...filter, operator: newOperator.value! };
+    const newFilters = [...filterInputs];
     newFilters.splice(index, 1, newFilter);
 
-    props.onFilterRowChange(newFilters);
+    setFilterInputs(newFilters);
   };
 
   const onValuesChange = (index: number, newValue: string) => {
-    const filter = props.filters[index];
-    const newFilter = { ...filter, rawFilterValue: newValue };
-    const newFilters = [...props.filters];
+    const filter = filterInputs[index];
+    const newFilter: FilterRowData = { ...filter, rawFilterValue: newValue };
+    const newFilters = [...filterInputs];
     newFilters.splice(index, 1, newFilter);
 
-    props.onFilterRowChange(newFilters);
+    setFilterInputs(newFilters);
   };
 
   return (
     <VerticalGroup>
-      {props.filters.length !== 0 && (
+      {filterInputs.length > 0 && (
         <HorizontalGroup spacing={'none'}>
           <InlineLabel width={30} tooltip="">
             Dimension
@@ -142,7 +164,7 @@ export function FilterRow(props: Props) {
           </InlineLabel>
         </HorizontalGroup>
       )}
-      {props.filters.map((filter, index, filtersArray) => (
+      {filterInputs.map((filter, index, filtersArray) => (
         <FilterInput
           key={index}
           isAdAnalytics={props.isAdAnalytics}
@@ -154,12 +176,11 @@ export function FilterRow(props: Props) {
           onOperatorChange={(newValue: SelectableValue<QueryFilterOperator>) => onOperatorsChange(index, newValue)}
           onValueChange={(newValue: string) => onValuesChange(index, newValue)}
           onDelete={() => deleteFilterInput(index)}
-          addFilterDisabled={isEmpty(filter.attribute) || isEmpty(filter.operator)}
-          onAddFilter={() => onAddFilter(index)}
+          onSaveFilter={() => onSaveFilter(index)}
         />
       ))}
 
-      <Box paddingTop={props.filters.length === 0 ? 0.5 : 0}>
+      <Box paddingTop={filterInputs.length === 0 ? 0.5 : 0}>
         <IconButton name="plus-square" tooltip="Add Filter" onClick={() => addFilterInput()} size="xl" />
       </Box>
     </VerticalGroup>

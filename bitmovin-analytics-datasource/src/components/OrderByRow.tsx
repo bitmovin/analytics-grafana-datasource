@@ -55,7 +55,7 @@ export function OrderByRow(props: Props) {
 
   const onAttributesChange = (index: number, newAttribute: SelectableValue<QueryAttribute | QueryAdAttribute>) => {
     const newOrderBys = [...props.orderBys];
-    const newOrderBy = { name: newAttribute.value, order: newOrderBys[index].order } as QueryOrderBy;
+    const newOrderBy: QueryOrderBy = { name: newAttribute.value!, order: newOrderBys[index].order };
 
     newOrderBys.splice(index, 1, newOrderBy);
 
@@ -64,7 +64,7 @@ export function OrderByRow(props: Props) {
 
   const onSortOrdersChange = (index: number, newSortOrder: QuerySortOrder) => {
     const newOrderBys = [...props.orderBys];
-    const newOrderBy = { name: newOrderBys[index].name, order: newSortOrder } as QueryOrderBy;
+    const newOrderBy: QueryOrderBy = { name: newOrderBys[index].name, order: newSortOrder };
 
     newOrderBys.splice(index, 1, newOrderBy);
 

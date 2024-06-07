@@ -14,9 +14,8 @@ import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 import { OrderByRow } from './OrderByRow';
 import type { QueryOrderBy } from '../types/queryOrderBy';
-import type { QueryFilter, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
+import type { QueryFilter } from '../types/queryFilter';
 import { FilterRow } from './FilterRow';
-import { mapFilterValueToRawFilterValue } from '../utils/filterUtils';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -25,14 +24,6 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-export type FilterRowData = {
-  attribute: QueryAdAttribute | QueryAttribute;
-  operator: QueryFilterOperator;
-  rawFilterValue: string;
-  convertedFilterValue: QueryFilterValue;
-  parsingValueError: string;
-};
-
 type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions>;
 
 export function QueryEditor(props: Props) {
@@ -40,11 +31,11 @@ export function QueryEditor(props: Props) {
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
-  const [filterRows, setFilterRows] = useState<FilterRowData[]>([]);
   const isDimensionMetricSelected = useMemo(() => {
     return props.query.metric !== undefined;
   }, [props.query.metric]);
 
+  /** Fetch Licenses */
   useEffect(() => {
     setLicenseLoadingState(LoadingState.Loading);
     fetchLicenses(props.datasource.apiKey, props.datasource.baseUrl)
@@ -57,19 +48,6 @@ export function QueryEditor(props: Props) {
         setLicenseErrorMessage(e.status + ' ' + e.statusText);
       });
   }, [props.datasource.apiKey, props.datasource.baseUrl]);
-
-  useEffect(() => {
-    const filterRows = props.query.filters.map((filter) => {
-      return {
-        attribute: filter.name,
-        operator: filter.operator,
-        rawFilterValue: mapFilterValueToRawFilterValue(filter.value),
-        convertedFilterValue: filter.value,
-        parsingValueError: '',
-      } as FilterRowData;
-    });
-    setFilterRows(filterRows);
-  }, [props.query.filters]);
 
   const query = defaults(props.query, DEFAULT_QUERY);
 
@@ -100,10 +78,6 @@ export function QueryEditor(props: Props) {
   const handleOrderByChange = (newOrderBys: QueryOrderBy[]) => {
     props.onChange({ ...query, orderBy: newOrderBys });
     props.onRunQuery();
-  };
-
-  const handleFilterRowChange = (newFilters: FilterRowData[]) => {
-    setFilterRows(newFilters);
   };
 
   const handleQueryFilterChange = (newFilters: QueryFilter[]) => {
@@ -199,8 +173,7 @@ export function QueryEditor(props: Props) {
           <FilterRow
             isAdAnalytics={props.datasource.adAnalytics ? true : false}
             onQueryFilterChange={handleQueryFilterChange}
-            onFilterRowChange={handleFilterRowChange}
-            filters={filterRows}
+            filters={props.query.filters}
           />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>

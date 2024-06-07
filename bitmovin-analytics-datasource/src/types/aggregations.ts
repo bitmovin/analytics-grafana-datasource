@@ -1,4 +1,4 @@
-import { SelectableValue } from '@grafana/data';
+import type { SelectableValue } from '@grafana/data';
 
 export type Aggregation = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'stddev' | 'percentile' | 'variance' | 'median';
 

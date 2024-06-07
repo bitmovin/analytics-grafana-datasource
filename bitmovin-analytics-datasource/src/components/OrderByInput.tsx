@@ -31,7 +31,7 @@ export function OrderByInput(props: Props) {
     <HorizontalGroup spacing="xs">
       <Select
         value={isEmpty(props.attribute) ? undefined : props.attribute}
-        onChange={(value) => props.onAttributeChange(value)}
+        onChange={(selectableValue) => props.onAttributeChange(selectableValue)}
         options={props.selectableOrderByAttributes}
         width={30}
       />
