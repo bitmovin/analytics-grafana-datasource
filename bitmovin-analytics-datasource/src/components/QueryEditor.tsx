@@ -191,14 +191,14 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
-          <Input value={query.limit} type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
+          <Input defaultValue={query.limit} type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input value={query.aliasBy} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
+          <Input defaultValue={query.aliasBy} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
         </InlineField>
       </FieldSet>
     </div>
