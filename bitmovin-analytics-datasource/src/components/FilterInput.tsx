@@ -48,8 +48,8 @@ export function FilterInput(props: Props) {
         width={30}
       />
       <Select
-        value={mapOperatorToSelectableOperator(props.filter.operator)}
-        onChange={(value) => props.onOperatorChange(value)}
+        value={props.filter.operator ? mapOperatorToSelectableOperator(props.filter.operator) : undefined}
+        onChange={(selectableValue) => props.onOperatorChange(selectableValue)}
         options={SELECTABLE_QUERY_FILTER_OPERATORS}
         width={15}
       />
@@ -62,7 +62,7 @@ export function FilterInput(props: Props) {
           value={props.filter.rawFilterValue}
           invalid={!isEmpty(props.filter.parsingValueError)}
           type="text"
-          onChange={(value) => props.onValueChange(value.currentTarget.value)}
+          onChange={(input) => props.onValueChange(input.currentTarget.value)}
           width={30}
         />
       </Tooltip>

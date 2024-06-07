@@ -26,7 +26,7 @@ export function GroupByInput(props: Props) {
     <HorizontalGroup>
       <Select
         value={isEmpty(props.groupBy) ? undefined : props.groupBy}
-        onChange={(value) => props.onChange(value.value!)}
+        onChange={(selectableValue) => props.onChange(selectableValue.value!)}
         options={props.selectableGroupBys}
         width={30}
       />
