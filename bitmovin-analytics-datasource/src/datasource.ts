@@ -6,6 +6,7 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   Field,
+  QueryResultMetaNotice,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { filter } from 'lodash';
@@ -99,6 +100,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
       );
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
+      const dataRowCount: number = response.data.data.result.rowCount;
       const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
 
       const fields: Array<Partial<Field>> = [];
@@ -125,9 +127,20 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
         }
       }
 
+      let metaNotices: QueryResultMetaNotice[] = [];
+      if (dataRowCount >= 200) {
+        metaNotices = [
+          {
+            severity: 'warning',
+            text: 'Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval, or too big of a time range.',
+          },
+        ];
+      }
+
       return createDataFrame({
         name: target.aliasBy,
         fields: fields,
+        meta: { notices: metaNotices },
       });
     });
 
