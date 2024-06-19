@@ -56,7 +56,10 @@ export function QueryEditor(props: Props) {
    * as an indicator of whether an old JSON model was loaded.
    */
   useEffect(() => {
-    if (props.query.resultFormat == null) return;
+    if (props.query.resultFormat == null) {
+      return;
+    }
+    console.log('in the plugin conversion');
     //TODO why is it not working for more than one queries in a dashboard? Why do I need to first reset to the ewnewst graph
 
     // The old Angular plugin did the filter value conversion in the query method before
@@ -86,7 +89,7 @@ export function QueryEditor(props: Props) {
 
     props.onChange({ ...props.query, filter: convertedFilters, interval: interval, resultFormat: undefined });
     props.onRunQuery();
-  }, []);
+  }, [props.query]);
 
   const query = defaults(props.query, DEFAULT_QUERY);
 
