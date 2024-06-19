@@ -16,6 +16,7 @@ import { OrderByRow } from './OrderByRow';
 import type { QueryOrderBy } from '../types/queryOrderBy';
 import type { QueryFilter } from '../types/queryFilter';
 import { FilterRow } from './FilterRow';
+import { convertFilterValueToProperType } from '../utils/filterUtils';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -48,6 +49,44 @@ export function QueryEditor(props: Props) {
         setLicenseErrorMessage(e.status + ' ' + e.statusText);
       });
   }, [props.datasource.apiKey, props.datasource.baseUrl]);
+
+  /**
+   * Ensures that dashboard JSON Models from the old Angular plugin are mapped correctly to the
+   * current model used by the application. Uses the {@link BitmovinAnalyticsDataQuery.resultFormat}
+   * as an indicator of whether an old JSON model was loaded.
+   */
+  useEffect(() => {
+    if (props.query.resultFormat == null) return;
+    //TODO why is it not working for more than one queries in a dashboard? Why do I need to first reset to the ewnewst graph
+
+    // The old Angular plugin did the filter value conversion in the query method before
+    // sending the request, so the filter values saved in the old JSON model are the "raw"
+    // input values as strings. The new react plugin, however, saves the converted API conform filter
+    // values in the JSON model, as it converts the filter values in the `QueryInputFilter` component.
+    // This allows the new plugin to provide error feedback directly to the user via a tooltip before
+    // sending the request.
+    const convertedFilters = query.filter.map((filter) => {
+      return {
+        name: filter.name,
+        operator: filter.operator,
+        value: convertFilterValueToProperType(
+          filter.value as string,
+          filter.name,
+          filter.operator,
+          !!props.datasource.adAnalytics
+        ),
+      } as QueryFilter;
+    });
+
+    let interval = props.query.interval;
+    if (props.query.resultFormat === 'table') {
+      setIsTimeSeries(false);
+      interval = undefined;
+    }
+
+    props.onChange({ ...props.query, filter: convertedFilters, interval: interval, resultFormat: undefined });
+    props.onRunQuery();
+  }, []);
 
   const query = defaults(props.query, DEFAULT_QUERY);
 
