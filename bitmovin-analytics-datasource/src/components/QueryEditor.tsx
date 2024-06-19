@@ -68,7 +68,7 @@ export function QueryEditor(props: Props) {
     // values in the JSON model, as it converts the filter values in the `QueryInputFilter` component.
     // This allows the new plugin to provide error feedback directly to the user via a tooltip before
     // sending the request.
-    const convertedFilters = query.filter.map((filter) => {
+    const convertedFilters = props.query.filter.map((filter) => {
       return {
         name: filter.name,
         operator: filter.operator,
