@@ -113,20 +113,38 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
 
   return (
     <HorizontalGroup spacing="xs">
-      <Select
-        value={attributeSelectValue}
-        onChange={handleAttributeChange}
-        options={attributeSelectOptions}
-        width={ATTRIBUTE_COMPONENT_WIDTH}
-        invalid={derivedQueryFilterState.attributeError != null}
-      />
-      <Select
-        value={operatorSelectValue}
-        onChange={handleOperatorChange}
-        options={SELECTABLE_QUERY_FILTER_OPERATORS}
-        width={OPERATOR_COMPONENT_WIDTH}
-        invalid={derivedQueryFilterState.operatorError != null}
-      />
+      <Tooltip
+        content={derivedQueryFilterState.attributeError ?? ''}
+        show={derivedQueryFilterState.attributeError != null}
+        theme="error"
+      >
+        {/* this div wrapper is needed to expose `ref` for Tooltip above */}
+        <div>
+          <Select
+            value={attributeSelectValue}
+            onChange={handleAttributeChange}
+            options={attributeSelectOptions}
+            width={ATTRIBUTE_COMPONENT_WIDTH}
+            invalid={derivedQueryFilterState.attributeError != null}
+          />
+        </div>
+      </Tooltip>
+      <Tooltip
+        content={derivedQueryFilterState.operatorError ?? ''}
+        show={derivedQueryFilterState.operatorError != null}
+        theme="error"
+      >
+        {/* this div wrapper is needed to expose `ref` for Tooltip above */}
+        <div>
+          <Select
+            value={operatorSelectValue}
+            onChange={handleOperatorChange}
+            options={SELECTABLE_QUERY_FILTER_OPERATORS}
+            width={OPERATOR_COMPONENT_WIDTH}
+            invalid={derivedQueryFilterState.operatorError != null}
+          />
+        </div>
+      </Tooltip>
       <Tooltip
         content={derivedQueryFilterState.inputValueError ?? ''}
         show={derivedQueryFilterState.inputValueError != null}
