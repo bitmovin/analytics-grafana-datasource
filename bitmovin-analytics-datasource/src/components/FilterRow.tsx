@@ -73,13 +73,7 @@ export function FilterRow(props: Props) {
             selectedQueryFilters={props.filters}
           />
         ) : (
-          <IconButton
-            name="plus-square"
-            tooltip="Add Filter"
-            onClick={() => setHasNewQueryFilter(true)}
-            size="xl"
-            disabled={hasNewQueryFilter}
-          />
+          <IconButton name="plus-square" tooltip="Add Filter" onClick={() => setHasNewQueryFilter(true)} size="xl" />
         )}
       </Box>
     </VerticalGroup>
