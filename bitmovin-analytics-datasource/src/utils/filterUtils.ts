@@ -72,7 +72,7 @@ const parseValueForInFilter = (rawValue: string) => {
   return value;
 };
 
-const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute, filterAttributeLabel: string) => {
+const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute) => {
   switch (filterAttribute) {
     case QUERY_AD_ATTRIBUTES.IS_LINEAR:
       return rawValue === 'true';
@@ -99,7 +99,7 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
     case QUERY_AD_ATTRIBUTES.VIDEO_WINDOW_WIDTH: {
       const parsedValue = parseInt(rawValue, 10);
       if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter value, please provide data as an integer number`);
       }
       return parsedValue;
     }
@@ -110,7 +110,7 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
     case QUERY_AD_ATTRIBUTES.SKIP_PERCENTAGE: {
       const parsedValue = parseFloat(rawValue);
       if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter value, please provide data as a floating point number`);
       }
       return parsedValue;
     }
@@ -120,7 +120,7 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
   }
 };
 
-const convertFilter = (rawValue: string, filterAttribute: QueryAttribute, filterAttributeLabel: string) => {
+const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
   switch (filterAttribute) {
     case QUERY_ATTRIBUTES.IS_CASTING:
     case QUERY_ATTRIBUTES.IS_LIVE:
@@ -156,7 +156,7 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute, filter
     case QUERY_ATTRIBUTES.VIEWTIME: {
       const parsedValue = parseInt(rawValue, 10);
       if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter value, please provide data as an integer number`);
       }
       return parsedValue;
     }
@@ -165,7 +165,7 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute, filter
     case QUERY_ATTRIBUTES.REBUFFER_PERCENTAGE: {
       const parsedValue = parseFloat(rawValue);
       if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter for ${filterAttributeLabel}, please provide data as a number`);
+        throw new Error(`Couldn't parse filter value, please provide data as a floating point number`);
       }
       return parsedValue;
     }
@@ -180,7 +180,6 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute, filter
  *
  * @param {string} rawValue The raw string value from the Filter Input.
  * @param {QueryAttribute | QueryAdAttribute} filterAttribute The filter attribute.
- * @param {string} filterAttributeLabel The filter attribute label.
  * @param {QueryFilterOperator} filterOperator The filter operator.
  * @param {boolean} isAdAnalytics If Ad Analytics are queried.
  * @returns {QueryFilterValue} The correctly converted Filter Value.
@@ -188,7 +187,6 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute, filter
 export const convertFilterValueToProperType = (
   rawValue: string,
   filterAttribute: QueryAttribute | QueryAdAttribute,
-  filterAttributeLabel: string,
   filterOperator: QueryFilterOperator,
   isAdAnalytics: boolean
 ): QueryFilterValue => {
@@ -207,7 +205,7 @@ export const convertFilterValueToProperType = (
   }
 
   if (isAdAnalytics) {
-    return convertFilterForAds(rawValue, filterAttribute as QueryAdAttribute, filterAttributeLabel);
+    return convertFilterForAds(rawValue, filterAttribute as QueryAdAttribute);
   }
-  return convertFilter(rawValue, filterAttribute as QueryAttribute, filterAttributeLabel);
+  return convertFilter(rawValue, filterAttribute as QueryAttribute);
 };
