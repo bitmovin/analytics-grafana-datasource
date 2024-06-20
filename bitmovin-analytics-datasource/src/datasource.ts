@@ -39,6 +39,7 @@ type BitmovinAnalyticsRequestQuery = {
   metric?: Metric;
   interval?: QueryInterval;
   limit?: number;
+  percentile?: number;
 };
 
 export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions> {
@@ -104,6 +105,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
         licenseKey: target.license,
         interval: interval,
         limit: target.limit,
+        percentile: target.percentile,
       };
 
       const response = await lastValueFrom(

@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
-import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
+import { FieldSet, HorizontalGroup, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
 import type { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
 
@@ -42,9 +42,13 @@ export function QueryEditor(props: Props) {
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
+  const [percentileValue, setPercentileValue] = useState(props.query.percentile);
   const isMetricSelected = useMemo(() => {
     return props.query.dimension ? isMetric(props.query.dimension) : false;
   }, [props.query.dimension]);
+  const isPercentileSelected = useMemo(() => {
+    return props.query.metric === 'percentile';
+  }, [props.query.metric]);
 
   /** Fetch Licenses */
   useEffect(() => {
@@ -159,6 +163,21 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
+  const handelPercentileValueChange = (event: ChangeEvent<HTMLInputElement>) => {
+    let percentile = parseInt(event.target.value, 10);
+    if (percentile < 0) {
+      percentile = 0;
+    } else if (percentile > 99) {
+      percentile = 99;
+    }
+    setPercentileValue(percentile);
+  };
+
+  const handlePercentileBlur = () => {
+    props.onChange({ ...query, percentile: percentileValue });
+    props.onRunQuery();
+  };
+
   const renderTimeSeriesOption = () => {
     return (
       <>
@@ -195,16 +214,28 @@ export function QueryEditor(props: Props) {
             placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
           />
         </InlineField>
-        {!isMetricSelected && (
-          <InlineField label="Metric" labelWidth={20} required>
-            <Select
-              value={query.metric}
-              onChange={(item) => handleAggregationChange(item)}
-              width={30}
-              options={SELECTABLE_AGGREGATIONS}
+        <HorizontalGroup spacing="xs">
+          {!isMetricSelected && (
+            <InlineField label="Metric" labelWidth={20} required>
+              <Select
+                value={query.metric}
+                onChange={(item) => handleAggregationChange(item)}
+                width={30}
+                options={SELECTABLE_AGGREGATIONS}
+              />
+            </InlineField>
+          )}
+          {isPercentileSelected && (
+            <Input
+              value={percentileValue}
+              onChange={handelPercentileValueChange}
+              onBlur={handlePercentileBlur}
+              type="number"
+              placeholder="value"
+              width={10}
             />
-          </InlineField>
-        )}
+          )}
+        </HorizontalGroup>
         <InlineField label="Dimension" labelWidth={20} required>
           <Select
             value={query.dimension}
