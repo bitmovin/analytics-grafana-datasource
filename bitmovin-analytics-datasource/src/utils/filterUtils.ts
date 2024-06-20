@@ -1,8 +1,8 @@
 import { isEmpty } from 'lodash';
 
-import { QUERY_AD_ATTRIBUTES, QueryAdAttribute } from '../types/queryAdAttributes';
-import { QUERY_FILTER_OPERATORS, QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
-import { QUERY_ATTRIBUTES, QueryAttribute } from '../types/queryAttributes';
+import { QueryAdAttribute } from '../types/queryAdAttributes';
+import { QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
+import { QueryAttribute } from '../types/queryAttributes';
 
 /**
  * Convert QueryFilter value to string to correctly display the value in the Input Element.
@@ -21,43 +21,43 @@ export const mapQueryFilterValueToRawFilterValue = (filterValue: QueryFilterValu
 
 const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
   switch (filterAttribute) {
-    case QUERY_ATTRIBUTES.CDN_PROVIDER:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_1:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_2:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_3:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_4:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_5:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_6:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_7:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_8:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_9:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_10:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_11:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_12:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_13:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_14:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_15:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_16:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_17:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_18:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_19:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_20:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_21:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_22:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_23:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_24:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_25:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_26:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_27:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_28:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_29:
-    case QUERY_ATTRIBUTES.CUSTOM_DATA_30:
-    case QUERY_ATTRIBUTES.CUSTOM_USER_ID:
-    case QUERY_ATTRIBUTES.EXPERIMENT_NAME:
-    case QUERY_ATTRIBUTES.ISP:
-    case QUERY_ATTRIBUTES.PLAYER_TECH:
-    case QUERY_ATTRIBUTES.PLAYER_VERSION:
-    case QUERY_ATTRIBUTES.VIDEO_ID:
+    case 'CDN_PROVIDER':
+    case 'CUSTOM_DATA_1':
+    case 'CUSTOM_DATA_2':
+    case 'CUSTOM_DATA_3':
+    case 'CUSTOM_DATA_4':
+    case 'CUSTOM_DATA_5':
+    case 'CUSTOM_DATA_6':
+    case 'CUSTOM_DATA_7':
+    case 'CUSTOM_DATA_8':
+    case 'CUSTOM_DATA_9':
+    case 'CUSTOM_DATA_10':
+    case 'CUSTOM_DATA_11':
+    case 'CUSTOM_DATA_12':
+    case 'CUSTOM_DATA_13':
+    case 'CUSTOM_DATA_14':
+    case 'CUSTOM_DATA_15':
+    case 'CUSTOM_DATA_16':
+    case 'CUSTOM_DATA_17':
+    case 'CUSTOM_DATA_18':
+    case 'CUSTOM_DATA_19':
+    case 'CUSTOM_DATA_20':
+    case 'CUSTOM_DATA_21':
+    case 'CUSTOM_DATA_22':
+    case 'CUSTOM_DATA_23':
+    case 'CUSTOM_DATA_24':
+    case 'CUSTOM_DATA_25':
+    case 'CUSTOM_DATA_26':
+    case 'CUSTOM_DATA_27':
+    case 'CUSTOM_DATA_28':
+    case 'CUSTOM_DATA_29':
+    case 'CUSTOM_DATA_30':
+    case 'CUSTOM_USER_ID':
+    case 'EXPERIMENT_NAME':
+    case 'ISP':
+    case 'PLAYER_TECH':
+    case 'PLAYER_VERSION':
+    case 'VIDEO_ID':
       return true;
     default:
       return false;
@@ -74,29 +74,29 @@ const parseValueForInFilter = (rawValue: string) => {
 
 const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute) => {
   switch (filterAttribute) {
-    case QUERY_AD_ATTRIBUTES.IS_LINEAR:
+    case 'IS_LINEAR':
       return rawValue === 'true';
 
-    case QUERY_AD_ATTRIBUTES.AD_STARTUP_TIME:
-    case QUERY_AD_ATTRIBUTES.AD_WRAPPER_ADS_COUNT:
-    case QUERY_AD_ATTRIBUTES.AUDIO_BITRATE:
-    case QUERY_AD_ATTRIBUTES.CLICK_POSITION:
-    case QUERY_AD_ATTRIBUTES.CLOSE_POSITION:
-    case QUERY_AD_ATTRIBUTES.ERROR_CODE:
-    case QUERY_AD_ATTRIBUTES.MANIFEST_DOWNLOAD_TIME:
-    case QUERY_AD_ATTRIBUTES.MIN_SUGGESTED_DURATION:
-    case QUERY_AD_ATTRIBUTES.PAGE_LOAD_TIME:
-    case QUERY_AD_ATTRIBUTES.PLAYER_STARTUPTIME:
-    case QUERY_AD_ATTRIBUTES.SCREEN_HEIGHT:
-    case QUERY_AD_ATTRIBUTES.SCREEN_WIDTH:
-    case QUERY_AD_ATTRIBUTES.SKIP_POSITION:
-    case QUERY_AD_ATTRIBUTES.TIME_HOVERED:
-    case QUERY_AD_ATTRIBUTES.TIME_IN_VIEWPORT:
-    case QUERY_AD_ATTRIBUTES.TIME_PLAYED:
-    case QUERY_AD_ATTRIBUTES.TIME_UNTIL_HOVER:
-    case QUERY_AD_ATTRIBUTES.VIDEO_BITRATE:
-    case QUERY_AD_ATTRIBUTES.VIDEO_WINDOW_HEIGHT:
-    case QUERY_AD_ATTRIBUTES.VIDEO_WINDOW_WIDTH: {
+    case 'AD_STARTUP_TIME':
+    case 'AD_WRAPPER_ADS_COUNT':
+    case 'AUDIO_BITRATE':
+    case 'CLICK_POSITION':
+    case 'CLOSE_POSITION':
+    case 'ERROR_CODE':
+    case 'MANIFEST_DOWNLOAD_TIME':
+    case 'MIN_SUGGESTED_DURATION':
+    case 'PAGE_LOAD_TIME':
+    case 'PLAYER_STARTUPTIME':
+    case 'SCREEN_HEIGHT':
+    case 'SCREEN_WIDTH':
+    case 'SKIP_POSITION':
+    case 'TIME_HOVERED':
+    case 'TIME_IN_VIEWPORT':
+    case 'TIME_PLAYED':
+    case 'TIME_UNTIL_HOVER':
+    case 'VIDEO_BITRATE':
+    case 'VIDEO_WINDOW_HEIGHT':
+    case 'VIDEO_WINDOW_WIDTH': {
       const parsedValue = parseInt(rawValue, 10);
       if (isNaN(parsedValue)) {
         throw new Error(`Couldn't parse filter value, please provide data as an integer number`);
@@ -104,10 +104,10 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
       return parsedValue;
     }
 
-    case QUERY_AD_ATTRIBUTES.CLICK_PERCENTAGE:
-    case QUERY_AD_ATTRIBUTES.CLOSE_PERCENTAGE:
-    case QUERY_AD_ATTRIBUTES.PERCENTAGE_IN_VIEWPORT:
-    case QUERY_AD_ATTRIBUTES.SKIP_PERCENTAGE: {
+    case 'CLICK_PERCENTAGE':
+    case 'CLOSE_PERCENTAGE':
+    case 'PERCENTAGE_IN_VIEWPORT':
+    case 'SKIP_PERCENTAGE': {
       const parsedValue = parseFloat(rawValue);
       if (isNaN(parsedValue)) {
         throw new Error(`Couldn't parse filter value, please provide data as a floating point number`);
@@ -122,38 +122,38 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
 
 const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
   switch (filterAttribute) {
-    case QUERY_ATTRIBUTES.IS_CASTING:
-    case QUERY_ATTRIBUTES.IS_LIVE:
-    case QUERY_ATTRIBUTES.IS_MUTED:
+    case 'IS_CASTING':
+    case 'IS_LIVE':
+    case 'IS_MUTED':
       return rawValue === 'true';
 
-    case QUERY_ATTRIBUTES.AUDIO_BITRATE:
-    case QUERY_ATTRIBUTES.BUFFERED:
-    case QUERY_ATTRIBUTES.CLIENT_TIME:
-    case QUERY_ATTRIBUTES.DOWNLOAD_SPEED:
-    case QUERY_ATTRIBUTES.DRM_LOAD_TIME:
-    case QUERY_ATTRIBUTES.DROPPED_FRAMES:
-    case QUERY_ATTRIBUTES.DURATION:
-    case QUERY_ATTRIBUTES.ERROR_CODE:
-    case QUERY_ATTRIBUTES.PAGE_LOAD_TIME:
-    case QUERY_ATTRIBUTES.PAGE_LOAD_TYPE:
-    case QUERY_ATTRIBUTES.PAUSED:
-    case QUERY_ATTRIBUTES.PLAYED:
-    case QUERY_ATTRIBUTES.PLAYER_STARTUPTIME:
-    case QUERY_ATTRIBUTES.SCREEN_HEIGHT:
-    case QUERY_ATTRIBUTES.SCREEN_WIDTH:
-    case QUERY_ATTRIBUTES.SEEKED:
-    case QUERY_ATTRIBUTES.STARTUPTIME:
-    case QUERY_ATTRIBUTES.VIDEO_BITRATE:
-    case QUERY_ATTRIBUTES.VIDEO_DURATION:
-    case QUERY_ATTRIBUTES.VIDEO_PLAYBACK_HEIGHT:
-    case QUERY_ATTRIBUTES.VIDEO_PLAYBACK_WIDTH:
-    case QUERY_ATTRIBUTES.VIDEO_STARTUPTIME:
-    case QUERY_ATTRIBUTES.VIDEO_WINDOW_HEIGHT:
-    case QUERY_ATTRIBUTES.VIDEO_WINDOW_WIDTH:
-    case QUERY_ATTRIBUTES.VIDEOTIME_END:
-    case QUERY_ATTRIBUTES.VIDEOTIME_START:
-    case QUERY_ATTRIBUTES.VIEWTIME: {
+    case 'AUDIO_BITRATE':
+    case 'BUFFERED':
+    case 'CLIENT_TIME':
+    case 'DOWNLOAD_SPEED':
+    case 'DRM_LOAD_TIME':
+    case 'DROPPED_FRAMES':
+    case 'DURATION':
+    case 'ERROR_CODE':
+    case 'PAGE_LOAD_TIME':
+    case 'PAGE_LOAD_TYPE':
+    case 'PAUSED':
+    case 'PLAYED':
+    case 'PLAYER_STARTUPTIME':
+    case 'SCREEN_HEIGHT':
+    case 'SCREEN_WIDTH':
+    case 'SEEKED':
+    case 'STARTUPTIME':
+    case 'VIDEO_BITRATE':
+    case 'VIDEO_DURATION':
+    case 'VIDEO_PLAYBACK_HEIGHT':
+    case 'VIDEO_PLAYBACK_WIDTH':
+    case 'VIDEO_STARTUPTIME':
+    case 'VIDEO_WINDOW_HEIGHT':
+    case 'VIDEO_WINDOW_WIDTH':
+    case 'VIDEOTIME_END':
+    case 'VIDEOTIME_START':
+    case 'VIEWTIME': {
       const parsedValue = parseInt(rawValue, 10);
       if (isNaN(parsedValue)) {
         throw new Error(`Couldn't parse filter value, please provide data as an integer number`);
@@ -161,8 +161,8 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
       return parsedValue;
     }
 
-    case QUERY_ATTRIBUTES.ERROR_PERCENTAGE:
-    case QUERY_ATTRIBUTES.REBUFFER_PERCENTAGE: {
+    case 'ERROR_PERCENTAGE':
+    case 'REBUFFER_PERCENTAGE': {
       const parsedValue = parseFloat(rawValue);
       if (isNaN(parsedValue)) {
         throw new Error(`Couldn't parse filter value, please provide data as a floating point number`);
@@ -194,7 +194,7 @@ export const convertFilterValueToProperType = (
     return null;
   }
 
-  if (filterOperator === QUERY_FILTER_OPERATORS.IN) {
+  if (filterOperator === 'IN') {
     try {
       return parseValueForInFilter(rawValue);
     } catch (e) {

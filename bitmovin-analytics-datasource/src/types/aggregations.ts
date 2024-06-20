@@ -1,15 +1,10 @@
 import type { SelectableValue } from '@grafana/data';
 
-export type Aggregation = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'stddev' | 'percentile' | 'variance' | 'median';
+const AGGREGATIONS = ['count', 'sum', 'avg', 'min', 'max', 'stddev', 'percentile', 'variance', 'median'] as const;
 
-export const SELECTABLE_AGGREGATIONS: Array<SelectableValue<Aggregation>> = [
-  { value: 'count', label: 'Count' },
-  { value: 'sum', label: 'Sum' },
-  { value: 'avg', label: 'Avg' },
-  { value: 'min', label: 'Min' },
-  { value: 'max', label: 'Max' },
-  { value: 'stddev', label: 'Stddev' },
-  { value: 'percentile', label: 'Percentile' },
-  { value: 'variance', label: 'Variance' },
-  { value: 'median', label: 'Median' },
-];
+export type Aggregation = (typeof AGGREGATIONS)[number];
+
+export const SELECTABLE_AGGREGATIONS: Array<SelectableValue<Aggregation>> = AGGREGATIONS.map((aggregation) => ({
+  value: aggregation,
+  label: aggregation,
+}));

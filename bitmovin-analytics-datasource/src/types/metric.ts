@@ -1,19 +1,14 @@
 import { SelectableValue } from '@grafana/data';
 
-export enum METRICS {
-  AVG_CONCURRENTVIEWERS = 'avg-concurrentviewers',
-  MAX_CONCURRENTVIEWERS = 'max-concurrentviewers',
-  AVG_DROPPED_FRAMES = 'avg-dropped-frames',
-}
+const METRICS = ['avg-concurrentviewers', 'max-concurrentviewers', 'avg-dropped-frames'] as const;
 
-export type Metric = (typeof METRICS)[keyof typeof METRICS];
+export type Metric = (typeof METRICS)[number];
 
-export const SELECTABLE_METRICS: Array<SelectableValue<Metric>> = [
-  { value: METRICS.AVG_CONCURRENTVIEWERS, label: 'Avg Concurrent Viewers' },
-  { value: METRICS.MAX_CONCURRENTVIEWERS, label: 'Max Concurrent Viewers' },
-  { value: METRICS.AVG_DROPPED_FRAMES, label: 'Avg Dropped Frames' },
-];
+export const SELECTABLE_METRICS: Array<SelectableValue<Metric>> = METRICS.map((metric) => ({
+  value: metric,
+  label: metric,
+}));
 
-export const isMetric = (value: string): boolean => {
-  return Object.values(METRICS).includes(value as Metric);
+export const isMetric = (value: string): value is Metric => {
+  return METRICS.includes(value as Metric);
 };
