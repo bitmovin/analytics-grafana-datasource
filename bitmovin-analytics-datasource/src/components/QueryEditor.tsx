@@ -42,13 +42,14 @@ export function QueryEditor(props: Props) {
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
   const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
-  const [percentileValue, setPercentileValue] = useState(props.query.percentile);
+  const [percentileValue, setPercentileValue] = useState(props.query.percentileValue);
   const isMetricSelected = useMemo(() => {
     return props.query.dimension ? isMetric(props.query.dimension) : false;
   }, [props.query.dimension]);
   const isPercentileSelected = useMemo(() => {
     return props.query.metric === 'percentile';
   }, [props.query.metric]);
+  const query = defaults(props.query, DEFAULT_QUERY);
 
   /** Fetch Licenses */
   useEffect(() => {
@@ -95,17 +96,30 @@ export function QueryEditor(props: Props) {
       } as QueryFilter;
     });
 
+    // interval was always set in the old plugin's logic even for table data
+    // the new plugin only sets the interval for timeseries so for table data we need to reset the interval
     let interval = props.query.interval;
     if (props.query.resultFormat === 'table') {
       setIsTimeSeries(false);
       interval = undefined;
     }
 
-    props.onChange({ ...props.query, filter: convertedFilters, interval: interval, resultFormat: undefined });
+    // percentileValue was always set in the old plugin's logic,
+    // but it should only be set with the 'percentile' metric selected
+    let percentile = props.query.percentileValue;
+    if (props.query.metric !== 'percentile') {
+      percentile = undefined;
+    }
+
+    props.onChange({
+      ...props.query,
+      filter: convertedFilters,
+      interval: interval,
+      resultFormat: undefined,
+      percentileValue: percentile,
+    });
     props.onRunQuery();
   }, [props.query]);
-
-  const query = defaults(props.query, DEFAULT_QUERY);
 
   const handleLicenseChange = (item: SelectableValue) => {
     props.onChange({ ...query, license: item.value });
@@ -174,7 +188,7 @@ export function QueryEditor(props: Props) {
   };
 
   const handlePercentileBlur = () => {
-    props.onChange({ ...query, percentile: percentileValue });
+    props.onChange({ ...query, percentileValue: percentileValue });
     props.onRunQuery();
   };
 

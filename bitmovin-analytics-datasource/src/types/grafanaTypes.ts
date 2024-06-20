@@ -21,7 +21,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   limit?: number;
   filter: QueryFilter[];
   alias?: string;
-  percentile?: number;
+  percentileValue?: number;
 }
 
 /**
@@ -38,7 +38,7 @@ export interface OldBitmovinAnalyticsDataQuery extends DataQuery {
   limit?: number;
   filter: QueryFilter[];
   alias?: string;
-  percentile?: number;
+  percentileValue?: number;
   resultFormat?: 'table' | 'time_series';
 }
 
