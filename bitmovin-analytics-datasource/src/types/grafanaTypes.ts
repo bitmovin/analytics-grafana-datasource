@@ -1,12 +1,12 @@
 import { DataSourceJsonData } from '@grafana/data';
 import { DataQuery } from '@grafana/schema';
 import { QueryInterval } from '../utils/intervalUtils';
-import { Aggregation } from './aggregations';
 import { QueryAttribute } from './queryAttributes';
 import { QueryAdAttribute } from './queryAdAttributes';
 import { Metric } from './metric';
 import { QueryOrderBy } from './queryOrderBy';
 import { QueryFilter } from './queryFilter';
+import { AggregationMethod } from './aggregationMethod';
 
 /**
  * These are the options configurable via the QueryEditor
@@ -14,8 +14,9 @@ import { QueryFilter } from './queryFilter';
 export interface BitmovinAnalyticsDataQuery extends DataQuery {
   license: string;
   interval?: QueryInterval | 'AUTO';
-  metric?: Aggregation;
-  dimension?: QueryAttribute | QueryAdAttribute | Metric;
+  queryAggregationMethod?: AggregationMethod;
+  metric?: Metric;
+  dimension?: QueryAttribute | QueryAdAttribute;
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   limit?: number;
@@ -31,7 +32,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
 export interface OldBitmovinAnalyticsDataQuery extends DataQuery {
   license: string;
   interval?: QueryInterval | 'AUTO';
-  metric?: Aggregation;
+  metric?: AggregationMethod;
   dimension?: QueryAttribute | QueryAdAttribute | Metric;
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];

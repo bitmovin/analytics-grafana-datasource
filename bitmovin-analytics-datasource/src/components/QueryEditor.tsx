@@ -8,15 +8,14 @@ import {
   BitmovinDataSourceOptions,
   BitmovinAnalyticsDataQuery,
   DEFAULT_QUERY,
-  OldBitmovinAnalyticsDataQuery,
   isOldBitmovinAnalyticsDataQuery,
 } from '../types/grafanaTypes';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
-import { SELECTABLE_AGGREGATIONS } from '../types/aggregations';
+import { SELECTABLE_AGGREGATION_METHODS } from '../types/aggregationMethod';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
-import { isMetric, SELECTABLE_METRICS } from '../types/metric';
+import { isMetric, Metric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 import { OrderByRow } from './OrderByRow';
 import type { QueryOrderBy } from '../types/queryOrderBy';
@@ -31,11 +30,7 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-type Props = QueryEditorProps<
-  DataSource,
-  BitmovinAnalyticsDataQuery | OldBitmovinAnalyticsDataQuery,
-  BitmovinDataSourceOptions
->;
+type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions>;
 
 export function QueryEditor(props: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
@@ -44,11 +39,11 @@ export function QueryEditor(props: Props) {
   const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
   const [percentileValue, setPercentileValue] = useState(props.query.percentileValue);
   const isMetricSelected = useMemo(() => {
-    return props.query.dimension ? isMetric(props.query.dimension) : false;
-  }, [props.query.dimension]);
-  const isPercentileSelected = useMemo(() => {
-    return props.query.metric === 'percentile';
+    return props.query.metric != null;
   }, [props.query.metric]);
+  const isPercentileSelected = useMemo(() => {
+    return props.query.queryAggregationMethod === 'percentile';
+  }, [props.query.queryAggregationMethod]);
   const query = defaults(props.query, DEFAULT_QUERY);
 
   /** Fetch Licenses */
@@ -74,8 +69,7 @@ export function QueryEditor(props: Props) {
     if (!isOldBitmovinAnalyticsDataQuery(props.query)) {
       return;
     }
-    console.log('in the plugin conversion');
-    //TODO why is it not working for more than one queries in a dashboard? Why do I need to first reset to the ewnewst graph
+    //TODOMY why is it not working for more than one queries in a dashboard? Why do I need to first reset to the ewnewst graph
 
     // The old Angular plugin did the filter value conversion in the query method before
     // sending the request, so the filter values saved in the old JSON model are the "raw"
@@ -111,15 +105,36 @@ export function QueryEditor(props: Props) {
       percentile = undefined;
     }
 
-    props.onChange({
-      ...props.query,
+    // mapping is needed because old plugin used
+    //  - the metric field to save the query aggregations
+    //  - the dimension field to save metric and query attributes
+    // new plugin separates metric, query aggregations and query attributes in own fields to make data model more future-proof
+    //  - the metric field saves Metrics (e.g. avg_concurrent_viewers)
+    //  - the aggregation field saves query Aggregations (e.g. count)
+    //  - the dimension field saves the query Attributes (e.g. Impression_id)
+    const aggregation = props.query.metric;
+    let metric = undefined;
+    let dimension = props.query.dimension;
+    if (props.query.dimension && isMetric(props.query.dimension)) {
+      metric = props.query.dimension as Metric;
+      dimension = undefined;
+    }
+
+    const oldQuery = { ...props.query };
+    delete oldQuery['resultFormat'];
+    const newQuery: BitmovinAnalyticsDataQuery = {
+      ...oldQuery,
       filter: convertedFilters,
       interval: interval,
-      resultFormat: undefined,
       percentileValue: percentile,
-    });
+      metric: metric,
+      dimension: dimension,
+      queryAggregationMethod: aggregation,
+    };
+
+    props.onChange(newQuery);
     props.onRunQuery();
-  }, [props.query]);
+  }, []);
 
   const handleLicenseChange = (item: SelectableValue) => {
     props.onChange({ ...query, license: item.value });
@@ -127,12 +142,16 @@ export function QueryEditor(props: Props) {
   };
 
   const handleAggregationChange = (item: SelectableValue) => {
-    props.onChange({ ...query, metric: item.value });
+    props.onChange({ ...query, queryAggregationMethod: item.value, metric: undefined });
     props.onRunQuery();
   };
 
   const handleDimensionChange = (item: SelectableValue) => {
-    props.onChange({ ...query, dimension: item.value });
+    if (isMetric(item.value)) {
+      props.onChange({ ...query, queryAggregationMethod: undefined, dimension: undefined, metric: item.value });
+    } else {
+      props.onChange({ ...query, dimension: item.value, metric: undefined });
+    }
     props.onRunQuery();
   };
 
@@ -177,7 +196,7 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
-  const handelPercentileValueChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handlePercentileValueChange = (event: ChangeEvent<HTMLInputElement>) => {
     let percentile = parseInt(event.target.value, 10);
     if (percentile < 0) {
       percentile = 0;
@@ -232,17 +251,17 @@ export function QueryEditor(props: Props) {
           {!isMetricSelected && (
             <InlineField label="Metric" labelWidth={20} required>
               <Select
-                value={query.metric}
+                value={query.queryAggregationMethod}
                 onChange={(item) => handleAggregationChange(item)}
                 width={30}
-                options={SELECTABLE_AGGREGATIONS}
+                options={SELECTABLE_AGGREGATION_METHODS}
               />
             </InlineField>
           )}
           {isPercentileSelected && (
             <Input
               value={percentileValue}
-              onChange={handelPercentileValueChange}
+              onChange={handlePercentileValueChange}
               onBlur={handlePercentileBlur}
               type="number"
               placeholder="value"

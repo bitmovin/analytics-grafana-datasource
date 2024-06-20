@@ -21,8 +21,8 @@ import {
   transformTableData,
 } from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
-import { isMetric, Metric } from './types/metric';
-import { Aggregation } from './types/aggregations';
+import { Metric } from './types/metric';
+import { AggregationMethod } from './types/aggregationMethod';
 import { QueryFilter } from './types/queryFilter';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
@@ -83,23 +83,12 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
         ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
         : undefined;
 
-      let dimensionMetric: Metric | undefined = undefined;
-      let dimension: QueryAttribute | QueryAdAttribute | undefined = undefined;
-
-      if (target.dimension) {
-        if (isMetric(target.dimension)) {
-          dimensionMetric = target.dimension as Metric;
-        } else {
-          dimension = target.dimension as QueryAttribute | QueryAdAttribute;
-        }
-      }
-
       const query: BitmovinAnalyticsRequestQuery = {
         filters: target.filter,
         groupBy: target.groupBy,
         orderBy: target.orderBy,
-        dimension: dimension,
-        metric: dimensionMetric,
+        dimension: target.dimension,
+        metric: target.metric,
         start: from,
         end: to,
         licenseKey: target.license,
@@ -109,7 +98,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
       };
 
       const response = await lastValueFrom(
-        this.request(this.getRequestUrl(query.metric, target.metric), 'POST', query)
+        this.request(this.getRequestUrl(target.metric, target.queryAggregationMethod), 'POST', query)
       );
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
@@ -160,7 +149,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  getRequestUrl(metric?: Metric, aggregation?: Aggregation): string {
+  getRequestUrl(metric?: Metric, aggregation?: AggregationMethod): string {
     let url = '/analytics';
     if (this.adAnalytics === true) {
       url += '/ads';
