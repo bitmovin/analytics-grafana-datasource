@@ -4,7 +4,13 @@ import type { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
 
 import { DataSource } from '../datasource';
-import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from '../types/grafanaTypes';
+import {
+  BitmovinDataSourceOptions,
+  BitmovinAnalyticsDataQuery,
+  DEFAULT_QUERY,
+  OldBitmovinAnalyticsDataQuery,
+  isOldBitmovinAnalyticsDataQuery,
+} from '../types/grafanaTypes';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { SELECTABLE_AGGREGATIONS } from '../types/aggregations';
@@ -25,7 +31,11 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions>;
+type Props = QueryEditorProps<
+  DataSource,
+  BitmovinAnalyticsDataQuery | OldBitmovinAnalyticsDataQuery,
+  BitmovinDataSourceOptions
+>;
 
 export function QueryEditor(props: Props) {
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
@@ -56,7 +66,7 @@ export function QueryEditor(props: Props) {
    * as an indicator of whether an old JSON model was loaded.
    */
   useEffect(() => {
-    if (props.query.resultFormat == null) {
+    if (!isOldBitmovinAnalyticsDataQuery(props.query)) {
       return;
     }
     console.log('in the plugin conversion');

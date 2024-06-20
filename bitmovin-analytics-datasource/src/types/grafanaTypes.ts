@@ -21,12 +21,32 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   limit?: number;
   filter: QueryFilter[];
   alias?: string;
-  /**
-   * @deprecated This option is only used to migrate old Angular dashboards to the new React-based model.
-   * It serves as an indicator of whether an old Angular-based JSON model was loaded, as this option
-   * will only be set through the old plugin's logic. In the new React-based plugin, this option will always be undefined.
-   */
-  resultFormat?: string;
+  percentile?: number;
+}
+
+/**
+ * @deprecated
+ * These are the options query options of the old Angular based plugin
+ * */
+export interface OldBitmovinAnalyticsDataQuery extends DataQuery {
+  license: string;
+  interval?: QueryInterval | 'AUTO';
+  metric?: Aggregation;
+  dimension?: QueryAttribute | QueryAdAttribute | Metric;
+  groupBy: Array<QueryAttribute | QueryAdAttribute>;
+  orderBy: QueryOrderBy[];
+  limit?: number;
+  filter: QueryFilter[];
+  alias?: string;
+  percentile?: number;
+  resultFormat?: 'table' | 'time_series';
+}
+
+export function isOldBitmovinAnalyticsDataQuery(
+  query: OldBitmovinAnalyticsDataQuery | BitmovinAnalyticsDataQuery
+): query is OldBitmovinAnalyticsDataQuery {
+  // resultFormat is always set through the old plugin's logic
+  return (query as OldBitmovinAnalyticsDataQuery).resultFormat != null;
 }
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
