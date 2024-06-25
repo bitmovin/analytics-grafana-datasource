@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, HorizontalGroup, IconButton, InlineLabel, VerticalGroup } from '@grafana/ui';
 
-import { QueryFilter } from '../types/queryFilter';
+import { InputQueryFilter } from '../types/queryFilter';
 import {
   ATTRIBUTE_COMPONENT_WIDTH,
   OPERATOR_COMPONENT_WIDTH,
@@ -11,8 +11,8 @@ import {
 
 type Props = {
   readonly isAdAnalytics: boolean;
-  readonly onQueryFilterChange: (newFilters: QueryFilter[]) => void;
-  readonly filters: QueryFilter[];
+  readonly onQueryFilterChange: (newFilters: InputQueryFilter[]) => void;
+  readonly filters: InputQueryFilter[];
 };
 
 export function FilterRow(props: Props) {
@@ -24,13 +24,13 @@ export function FilterRow(props: Props) {
     props.onQueryFilterChange(newQueryFilters);
   }
 
-  function handleQueryFilterChange(queryFilterIndex: number, changedQueryFilter: QueryFilter) {
+  function handleQueryFilterChange(queryFilterIndex: number, changedQueryFilter: InputQueryFilter) {
     const newQueryFilters = [...props.filters];
     newQueryFilters.splice(queryFilterIndex, 1, changedQueryFilter);
     props.onQueryFilterChange(newQueryFilters);
   }
 
-  function handleNewQueryFilterChange(newQueryFilter: QueryFilter) {
+  function handleNewQueryFilterChange(newQueryFilter: InputQueryFilter) {
     const newQueryFilters = [...props.filters, newQueryFilter];
     props.onQueryFilterChange(newQueryFilters);
     setHasNewQueryFilter(false);

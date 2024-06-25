@@ -1,23 +1,8 @@
 import { isEmpty } from 'lodash';
 
 import { QueryAdAttribute } from '../types/queryAdAttributes';
-import { QueryFilterOperator, QueryFilterValue } from '../types/queryFilter';
+import { QueryFilterOperator, OutputQueryFilterValue } from '../types/queryFilter';
 import { QueryAttribute } from '../types/queryAttributes';
-
-/**
- * Convert QueryFilter value to string to correctly display the value in the Input Element.
- * @param {QueryFilterValue} filterValue the filter value with the from our API expected correct type
- * @return {string} the rawFilterValue as a string
- * */
-export const mapQueryFilterValueToRawFilterValue = (filterValue: QueryFilterValue): string => {
-  if (filterValue == null) {
-    return '';
-  } else if (Array.isArray(filterValue)) {
-    return JSON.stringify(filterValue);
-  } else {
-    return filterValue.toString();
-  }
-};
 
 const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
   switch (filterAttribute) {
@@ -182,14 +167,14 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
  * @param {QueryAttribute | QueryAdAttribute} filterAttribute The filter attribute.
  * @param {QueryFilterOperator} filterOperator The filter operator.
  * @param {boolean} isAdAnalytics If Ad Analytics are queried.
- * @returns {QueryFilterValue} The correctly converted Filter Value.
+ * @returns {OutputQueryFilterValue} The correctly converted Filter Value.
  * */
 export const convertFilterValueToProperType = (
   rawValue: string,
   filterAttribute: QueryAttribute | QueryAdAttribute,
   filterOperator: QueryFilterOperator,
   isAdAnalytics: boolean
-): QueryFilterValue => {
+): OutputQueryFilterValue => {
   if (isEmpty(rawValue) && isNullFilter(filterAttribute)) {
     return null;
   }

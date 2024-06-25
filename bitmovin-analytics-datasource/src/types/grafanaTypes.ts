@@ -5,8 +5,10 @@ import { QueryAttribute } from './queryAttributes';
 import { QueryAdAttribute } from './queryAdAttributes';
 import { Metric } from './metric';
 import { QueryOrderBy } from './queryOrderBy';
-import { QueryFilter } from './queryFilter';
+import { InputQueryFilter } from './queryFilter';
 import { AggregationMethod } from './aggregationMethod';
+
+type ResultFormat = 'table' | 'time_series';
 
 /**
  * These are the options configurable via the QueryEditor
@@ -14,15 +16,15 @@ import { AggregationMethod } from './aggregationMethod';
 export interface BitmovinAnalyticsDataQuery extends DataQuery {
   license: string;
   interval?: QueryInterval | 'AUTO';
-  queryAggregationMethod?: AggregationMethod;
-  metric?: Metric;
-  dimension?: QueryAttribute | QueryAdAttribute;
+  metric?: AggregationMethod;
+  dimension?: QueryAttribute | QueryAdAttribute | Metric;
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   limit?: number;
-  filter: QueryFilter[];
+  filter: InputQueryFilter[];
   alias?: string;
   percentileValue?: number;
+  resultFormat: ResultFormat;
 }
 
 /**
@@ -36,18 +38,11 @@ export interface OldBitmovinAnalyticsDataQuery extends DataQuery {
   dimension?: QueryAttribute | QueryAdAttribute | Metric;
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
-  limit?: number;
-  filter: QueryFilter[];
+  limit?: string;
+  filter: InputQueryFilter[];
   alias?: string;
-  percentileValue?: number;
-  resultFormat?: 'table' | 'time_series';
-}
-
-export function isOldBitmovinAnalyticsDataQuery(
-  query: OldBitmovinAnalyticsDataQuery | BitmovinAnalyticsDataQuery
-): query is OldBitmovinAnalyticsDataQuery {
-  // resultFormat is always set through the old plugin's logic
-  return (query as OldBitmovinAnalyticsDataQuery).resultFormat != null;
+  percentileValue: number;
+  resultFormat: ResultFormat;
 }
 
 export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
@@ -55,6 +50,8 @@ export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
   orderBy: [],
   groupBy: [],
   filter: [],
+  resultFormat: 'time_series',
+  interval: 'AUTO',
 };
 
 /**

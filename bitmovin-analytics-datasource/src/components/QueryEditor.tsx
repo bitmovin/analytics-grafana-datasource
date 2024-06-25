@@ -8,20 +8,19 @@ import {
   BitmovinDataSourceOptions,
   BitmovinAnalyticsDataQuery,
   DEFAULT_QUERY,
-  isOldBitmovinAnalyticsDataQuery,
+  OldBitmovinAnalyticsDataQuery,
 } from '../types/grafanaTypes';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
 import { SELECTABLE_AGGREGATION_METHODS } from '../types/aggregationMethod';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
-import { isMetric, Metric, SELECTABLE_METRICS } from '../types/metric';
+import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 import { OrderByRow } from './OrderByRow';
 import type { QueryOrderBy } from '../types/queryOrderBy';
-import type { QueryFilter } from '../types/queryFilter';
+import type { InputQueryFilter } from '../types/queryFilter';
 import { FilterRow } from './FilterRow';
-import { convertFilterValueToProperType } from '../utils/filterUtils';
 
 enum LoadingState {
   Default = 'DEFAULT',
@@ -30,21 +29,25 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions>;
+type Props = QueryEditorProps<
+  DataSource,
+  BitmovinAnalyticsDataQuery | OldBitmovinAnalyticsDataQuery,
+  BitmovinDataSourceOptions
+>;
 
 export function QueryEditor(props: Props) {
+  const query = defaults(props.query, DEFAULT_QUERY);
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
-  const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
-  const [percentileValue, setPercentileValue] = useState(props.query.percentileValue);
+  const [isTimeSeries, setIsTimeSeries] = useState(query.resultFormat === 'time_series');
+  const [percentileValue, setPercentileValue] = useState(query.percentileValue);
   const isMetricSelected = useMemo(() => {
-    return props.query.metric != null;
-  }, [props.query.metric]);
+    return query.dimension ? isMetric(query.dimension) : false;
+  }, [query.dimension]);
   const isPercentileSelected = useMemo(() => {
-    return props.query.queryAggregationMethod === 'percentile';
-  }, [props.query.queryAggregationMethod]);
-  const query = defaults(props.query, DEFAULT_QUERY);
+    return query.metric === 'percentile';
+  }, [query.metric]);
 
   /** Fetch Licenses */
   useEffect(() => {
@@ -60,98 +63,18 @@ export function QueryEditor(props: Props) {
       });
   }, [props.datasource.apiKey, props.datasource.baseUrl]);
 
-  /**
-   * Ensures that dashboard JSON Models from the old Angular plugin are mapped correctly to the
-   * current model used by the application. Uses the {@link BitmovinAnalyticsDataQuery.resultFormat}
-   * as an indicator of whether an old JSON model was loaded.
-   */
-  useEffect(() => {
-    if (!isOldBitmovinAnalyticsDataQuery(props.query)) {
-      return;
-    }
-    //TODOMY why is it not working for more than one queries in a dashboard? Why do I need to first reset to the ewnewst graph
-
-    // The old Angular plugin did the filter value conversion in the query method before
-    // sending the request, so the filter values saved in the old JSON model are the "raw"
-    // input values as strings. The new react plugin, however, saves the converted API conform filter
-    // values in the JSON model, as it converts the filter values in the `QueryInputFilter` component.
-    // This allows the new plugin to provide error feedback directly to the user via a tooltip before
-    // sending the request.
-    const convertedFilters = props.query.filter.map((filter) => {
-      return {
-        name: filter.name,
-        operator: filter.operator,
-        value: convertFilterValueToProperType(
-          filter.value as string,
-          filter.name,
-          filter.operator,
-          !!props.datasource.adAnalytics
-        ),
-      } as QueryFilter;
-    });
-
-    // interval was always set in the old plugin's logic even for table data
-    // the new plugin only sets the interval for timeseries so for table data we need to reset the interval
-    let interval = props.query.interval;
-    if (props.query.resultFormat === 'table') {
-      setIsTimeSeries(false);
-      interval = undefined;
-    }
-
-    // percentileValue was always set in the old plugin's logic,
-    // but it should only be set with the 'percentile' metric selected
-    let percentile = props.query.percentileValue;
-    if (props.query.metric !== 'percentile') {
-      percentile = undefined;
-    }
-
-    // mapping is needed because old plugin used
-    //  - the metric field to save the query aggregations
-    //  - the dimension field to save metric and query attributes
-    // new plugin separates metric, query aggregations and query attributes in own fields to make data model more future-proof
-    //  - the metric field saves Metrics (e.g. avg_concurrent_viewers)
-    //  - the aggregation field saves query Aggregations (e.g. count)
-    //  - the dimension field saves the query Attributes (e.g. Impression_id)
-    const aggregation = props.query.metric;
-    let metric = undefined;
-    let dimension = props.query.dimension;
-    if (props.query.dimension && isMetric(props.query.dimension)) {
-      metric = props.query.dimension as Metric;
-      dimension = undefined;
-    }
-
-    const oldQuery = { ...props.query };
-    delete oldQuery['resultFormat'];
-    const newQuery: BitmovinAnalyticsDataQuery = {
-      ...oldQuery,
-      filter: convertedFilters,
-      interval: interval,
-      percentileValue: percentile,
-      metric: metric,
-      dimension: dimension,
-      queryAggregationMethod: aggregation,
-    };
-
-    props.onChange(newQuery);
-    props.onRunQuery();
-  }, []);
-
   const handleLicenseChange = (item: SelectableValue) => {
     props.onChange({ ...query, license: item.value });
     props.onRunQuery();
   };
 
   const handleAggregationChange = (item: SelectableValue) => {
-    props.onChange({ ...query, queryAggregationMethod: item.value, metric: undefined });
+    props.onChange({ ...query, metric: item.value });
     props.onRunQuery();
   };
 
   const handleDimensionChange = (item: SelectableValue) => {
-    if (isMetric(item.value)) {
-      props.onChange({ ...query, queryAggregationMethod: undefined, dimension: undefined, metric: item.value });
-    } else {
-      props.onChange({ ...query, dimension: item.value, metric: undefined });
-    }
+    props.onChange({ ...query, dimension: item.value });
     props.onRunQuery();
   };
 
@@ -165,7 +88,7 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
-  const handleQueryFilterChange = (newFilters: QueryFilter[]) => {
+  const handleQueryFilterChange = (newFilters: InputQueryFilter[]) => {
     props.onChange({ ...query, filter: newFilters });
     props.onRunQuery();
   };
@@ -179,9 +102,9 @@ export function QueryEditor(props: Props) {
   const handleFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
     if (event.currentTarget.checked) {
-      props.onChange({ ...query, interval: 'AUTO' });
+      props.onChange({ ...query, interval: 'AUTO', resultFormat: 'time_series' });
     } else {
-      props.onChange({ ...query, interval: undefined });
+      props.onChange({ ...query, interval: undefined, resultFormat: 'table' });
     }
     props.onRunQuery();
   };
@@ -251,7 +174,7 @@ export function QueryEditor(props: Props) {
           {!isMetricSelected && (
             <InlineField label="Metric" labelWidth={20} required>
               <Select
-                value={query.queryAggregationMethod}
+                value={query.metric}
                 onChange={(item) => handleAggregationChange(item)}
                 width={30}
                 options={SELECTABLE_AGGREGATION_METHODS}
@@ -285,7 +208,7 @@ export function QueryEditor(props: Props) {
           <FilterRow
             isAdAnalytics={props.datasource.adAnalytics ? true : false}
             onQueryFilterChange={handleQueryFilterChange}
-            filters={props.query.filter}
+            filters={query.filter}
           />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>

@@ -1,6 +1,6 @@
 import { SelectableValue } from '@grafana/data';
 
-const METRICS = ['avg-concurrentviewers', 'max-concurrentviewers', 'avg-dropped-frames'] as const;
+const METRICS = ['AVG_CONCURRENTVIEWERS', 'MAX_CONCURRENTVIEWERS', 'AVG-DROPPED-FRAMES'] as const;
 
 export type Metric = (typeof METRICS)[number];
 

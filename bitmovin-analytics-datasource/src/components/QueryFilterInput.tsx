@@ -1,21 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { HorizontalGroup, IconButton, Input, Select, Tooltip } from '@grafana/ui';
 
-import { QueryFilter, QueryFilterOperator, SELECTABLE_QUERY_FILTER_OPERATORS } from '../types/queryFilter';
+import { InputQueryFilter, QueryFilterOperator, SELECTABLE_QUERY_FILTER_OPERATORS } from '../types/queryFilter';
 import type { SelectableValue } from '@grafana/data';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { differenceWith } from 'lodash';
-import { convertFilterValueToProperType, mapQueryFilterValueToRawFilterValue } from 'utils/filterUtils';
+import { convertFilterValueToProperType } from 'utils/filterUtils';
 
 interface QueryFilterInputProps {
   /** `undefined` when component is used to create new filter (no values yet) */
-  value: undefined | QueryFilter;
-  onChange(queryFilter: QueryFilter): void;
+  value: undefined | InputQueryFilter;
+  onChange(queryFilter: InputQueryFilter): void;
   onDelete(): void;
   isAdAnalytics: boolean;
   /** Selected query filters are used to filter out used values from attribute select options */
-  selectedQueryFilters: QueryFilter[];
+  selectedQueryFilters: InputQueryFilter[];
 }
 
 export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
@@ -64,7 +64,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
     setDerivedQueryFilterState((prevState) => ({
       ...prevState,
       dirty: true,
-      inputValue: value,
+      value: value,
       inputValueError: undefined,
     }));
   }
@@ -91,8 +91,8 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
     }
 
     try {
-      const validQueryFilterValue = convertFilterValueToProperType(
-        derivedQueryFilterState.inputValue,
+      convertFilterValueToProperType(
+        derivedQueryFilterState.value!,
         derivedQueryFilterState.attribute!,
         derivedQueryFilterState.operator!,
         props.isAdAnalytics
@@ -101,7 +101,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       props.onChange({
         name: derivedQueryFilterState.attribute!,
         operator: derivedQueryFilterState.operator!,
-        value: validQueryFilterValue,
+        value: derivedQueryFilterState.value!,
       });
     } catch (e: unknown) {
       setDerivedQueryFilterState((prevState) => ({
@@ -151,7 +151,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         theme="error"
       >
         <Input
-          value={derivedQueryFilterState.inputValue}
+          value={derivedQueryFilterState.value}
           onChange={(e) => handleInputValueChange(e.currentTarget.value)}
           invalid={derivedQueryFilterState.inputValueError != null}
           type="text"
@@ -185,19 +185,18 @@ export const OPERATOR_COMPONENT_WIDTH = 15;
 export const VALUE_COMPONENT_WIDTH = 30;
 
 type DerivedQueryFilterState = {
-  attribute: undefined | QueryFilter['name'];
+  attribute: undefined | InputQueryFilter['name'];
   attributeError: undefined | string;
-  operator: undefined | QueryFilter['operator'];
+  operator: undefined | InputQueryFilter['operator'];
   operatorError: undefined | string;
-  value: undefined | QueryFilter['value'];
+  value: undefined | InputQueryFilter['value'];
   /** `true` if some values have been changed by inputs */
   dirty: boolean;
-  inputValue: string;
   /** `undefined` when input value is valid */
   inputValueError: undefined | string;
 };
 
-function buildInitialDerivedQueryFilterState(queryFilter: undefined | QueryFilter): DerivedQueryFilterState {
+function buildInitialDerivedQueryFilterState(queryFilter: undefined | InputQueryFilter): DerivedQueryFilterState {
   return {
     attribute: queryFilter?.name,
     attributeError: undefined,
@@ -205,13 +204,12 @@ function buildInitialDerivedQueryFilterState(queryFilter: undefined | QueryFilte
     operatorError: undefined,
     value: queryFilter?.value,
     dirty: false,
-    inputValue: mapQueryFilterValueToRawFilterValue(queryFilter?.value ?? null),
     inputValueError: undefined,
   };
 }
 
 function buildAttributeSelectableValues(
-  usedQueryFilters: QueryFilter[],
+  usedQueryFilters: InputQueryFilter[],
   isAdAnalytics: boolean
 ): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> {
   const ALL_ATTRIBUTES: Array<SelectableValue<QueryAttribute | QueryAdAttribute>> = isAdAnalytics
