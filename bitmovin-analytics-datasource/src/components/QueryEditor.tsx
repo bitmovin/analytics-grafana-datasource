@@ -1,13 +1,18 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
-import { FieldSet, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
+import { FieldSet, HorizontalGroup, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
 import type { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
 
 import { DataSource } from '../datasource';
-import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from '../types/grafanaTypes';
+import {
+  BitmovinDataSourceOptions,
+  BitmovinAnalyticsDataQuery,
+  DEFAULT_QUERY,
+  OldBitmovinAnalyticsDataQuery,
+} from '../types/grafanaTypes';
 import { fetchLicenses } from '../utils/licenses';
 import { DEFAULT_SELECTABLE_QUERY_INTERVAL, SELECTABLE_QUERY_INTERVALS } from '../utils/intervalUtils';
-import { SELECTABLE_AGGREGATIONS } from '../types/aggregations';
+import { SELECTABLE_AGGREGATION_METHODS } from '../types/aggregationMethod';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { isMetric, SELECTABLE_METRICS } from '../types/metric';
@@ -24,16 +29,25 @@ enum LoadingState {
   Error = 'ERROR',
 }
 
-type Props = QueryEditorProps<DataSource, BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions>;
+type Props = QueryEditorProps<
+  DataSource,
+  BitmovinAnalyticsDataQuery | OldBitmovinAnalyticsDataQuery,
+  BitmovinDataSourceOptions
+>;
 
 export function QueryEditor(props: Props) {
+  const query = defaults(props.query, DEFAULT_QUERY);
   const [selectableLicenses, setSelectableLicenses] = useState<SelectableValue[]>([]);
   const [licenseLoadingState, setLicenseLoadingState] = useState<LoadingState>(LoadingState.Default);
   const [licenseErrorMessage, setLicenseErrorMessage] = useState('');
-  const [isTimeSeries, setIsTimeSeries] = useState(!!props.query.interval);
-  const isDimensionMetricSelected = useMemo(() => {
-    return props.query.metric !== undefined;
-  }, [props.query.metric]);
+  const [isTimeSeries, setIsTimeSeries] = useState(query.resultFormat === 'time_series');
+  const [percentileValue, setPercentileValue] = useState(query.percentileValue);
+  const isMetricSelected = useMemo(() => {
+    return query.dimension ? isMetric(query.dimension) : false;
+  }, [query.dimension]);
+  const isPercentileSelected = useMemo(() => {
+    return query.metric === 'percentile';
+  }, [query.metric]);
 
   /** Fetch Licenses */
   useEffect(() => {
@@ -49,24 +63,18 @@ export function QueryEditor(props: Props) {
       });
   }, [props.datasource.apiKey, props.datasource.baseUrl]);
 
-  const query = defaults(props.query, DEFAULT_QUERY);
-
   const handleLicenseChange = (item: SelectableValue) => {
-    props.onChange({ ...query, licenseKey: item.value });
+    props.onChange({ ...query, license: item.value });
     props.onRunQuery();
   };
 
   const handleAggregationChange = (item: SelectableValue) => {
-    props.onChange({ ...query, aggregation: item.value, metric: undefined });
+    props.onChange({ ...query, metric: item.value });
     props.onRunQuery();
   };
 
   const handleDimensionChange = (item: SelectableValue) => {
-    if (isMetric(item.value)) {
-      props.onChange({ ...query, aggregation: undefined, dimension: undefined, metric: item.value });
-    } else {
-      props.onChange({ ...query, dimension: item.value, metric: undefined });
-    }
+    props.onChange({ ...query, dimension: item.value });
     props.onRunQuery();
   };
 
@@ -81,7 +89,7 @@ export function QueryEditor(props: Props) {
   };
 
   const handleQueryFilterChange = (newFilters: QueryFilter[]) => {
-    props.onChange({ ...query, filters: newFilters });
+    props.onChange({ ...query, filter: newFilters });
     props.onRunQuery();
   };
 
@@ -94,9 +102,9 @@ export function QueryEditor(props: Props) {
   const handleFormatAsTimeSeriesChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsTimeSeries(event.currentTarget.checked);
     if (event.currentTarget.checked) {
-      props.onChange({ ...query, interval: 'AUTO' });
+      props.onChange({ ...query, interval: 'AUTO', resultFormat: 'time_series' });
     } else {
-      props.onChange({ ...query, interval: undefined });
+      props.onChange({ ...query, interval: undefined, resultFormat: 'table' });
     }
     props.onRunQuery();
   };
@@ -107,7 +115,22 @@ export function QueryEditor(props: Props) {
   };
 
   const handleAliasByBlur = (event: ChangeEvent<HTMLInputElement>) => {
-    props.onChange({ ...query, aliasBy: event.target.value });
+    props.onChange({ ...query, alias: event.target.value });
+    props.onRunQuery();
+  };
+
+  const handlePercentileValueChange = (event: ChangeEvent<HTMLInputElement>) => {
+    let percentile = parseInt(event.target.value, 10);
+    if (percentile < 0) {
+      percentile = 0;
+    } else if (percentile > 99) {
+      percentile = 99;
+    }
+    setPercentileValue(percentile);
+  };
+
+  const handlePercentileBlur = () => {
+    props.onChange({ ...query, percentileValue: percentileValue });
     props.onRunQuery();
   };
 
@@ -138,7 +161,7 @@ export function QueryEditor(props: Props) {
           required
         >
           <Select
-            value={query.licenseKey}
+            value={query.license}
             onChange={handleLicenseChange}
             width={30}
             options={selectableLicenses}
@@ -147,19 +170,31 @@ export function QueryEditor(props: Props) {
             placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
           />
         </InlineField>
-        {!isDimensionMetricSelected && (
-          <InlineField label="Metric" labelWidth={20} required>
-            <Select
-              value={query.aggregation}
-              onChange={(item) => handleAggregationChange(item)}
-              width={30}
-              options={SELECTABLE_AGGREGATIONS}
+        <HorizontalGroup spacing="xs">
+          {!isMetricSelected && (
+            <InlineField label="Metric" labelWidth={20} required>
+              <Select
+                value={query.metric}
+                onChange={(item) => handleAggregationChange(item)}
+                width={30}
+                options={SELECTABLE_AGGREGATION_METHODS}
+              />
+            </InlineField>
+          )}
+          {isPercentileSelected && (
+            <Input
+              value={percentileValue}
+              onChange={handlePercentileValueChange}
+              onBlur={handlePercentileBlur}
+              type="number"
+              placeholder="value"
+              width={10}
             />
-          </InlineField>
-        )}
+          )}
+        </HorizontalGroup>
         <InlineField label="Dimension" labelWidth={20} required>
           <Select
-            value={query.dimension || query.metric}
+            value={query.dimension}
             onChange={handleDimensionChange}
             width={30}
             options={
@@ -173,7 +208,7 @@ export function QueryEditor(props: Props) {
           <FilterRow
             isAdAnalytics={props.datasource.adAnalytics ? true : false}
             onQueryFilterChange={handleQueryFilterChange}
-            filters={props.query.filters}
+            filters={query.filter}
           />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
@@ -198,7 +233,7 @@ export function QueryEditor(props: Props) {
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input defaultValue={query.aliasBy} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
+          <Input defaultValue={query.alias} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
         </InlineField>
       </FieldSet>
     </div>

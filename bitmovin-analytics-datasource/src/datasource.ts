@@ -12,7 +12,12 @@ import { getBackendSrv } from '@grafana/runtime';
 import { filter } from 'lodash';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-import { BitmovinDataSourceOptions, BitmovinAnalyticsDataQuery, DEFAULT_QUERY } from './types/grafanaTypes';
+import {
+  BitmovinDataSourceOptions,
+  BitmovinAnalyticsDataQuery,
+  DEFAULT_QUERY,
+  OldBitmovinAnalyticsDataQuery,
+} from './types/grafanaTypes';
 import {
   MixedDataRowList,
   NumberDataRowList,
@@ -21,27 +26,32 @@ import {
   transformTableData,
 } from './utils/dataUtils';
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
-import { Metric } from './types/metric';
-import { Aggregation } from './types/aggregations';
-import { QueryFilter } from './types/queryFilter';
+import { isMetric, Metric } from './types/metric';
+import { AggregationMethod } from './types/aggregationMethod';
+import { ProperTypedQueryFilter } from './types/queryFilter';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
+import { convertFilterValueToProperType } from './utils/filterUtils';
 
 type BitmovinAnalyticsRequestQuery = {
   licenseKey: string;
   start: Date;
   end: Date;
-  filters: QueryFilter[];
+  filters: ProperTypedQueryFilter[];
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   dimension?: QueryAttribute | QueryAdAttribute;
   metric?: Metric;
   interval?: QueryInterval;
   limit?: number;
+  percentile?: number;
 };
 
-export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, BitmovinDataSourceOptions> {
+export class DataSource extends DataSourceApi<
+  BitmovinAnalyticsDataQuery | OldBitmovinAnalyticsDataQuery,
+  BitmovinDataSourceOptions
+> {
   baseUrl: string;
   apiKey: string;
   tenantOrgId?: string;
@@ -78,26 +88,47 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
     const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
 
     const promises = enabledQueries.map(async (target) => {
-      const interval = target.interval
-        ? calculateQueryInterval(target.interval!, from.getTime(), to.getTime())
-        : undefined;
+      const interval =
+        target.resultFormat === 'time_series' && target.interval
+          ? calculateQueryInterval(target.interval, from.getTime(), to.getTime())
+          : undefined;
+
+      let aggregationMethod: AggregationMethod | undefined = target.metric;
+      const percentileValue = aggregationMethod === 'percentile' ? target.percentileValue : undefined;
+
+      let metric: Metric | undefined = undefined;
+      let dimension: QueryAttribute | QueryAdAttribute | undefined = undefined;
+      if (target.dimension) {
+        if (isMetric(target.dimension)) {
+          metric = target.dimension as Metric;
+        } else {
+          dimension = target.dimension as QueryAttribute | QueryAdAttribute;
+        }
+      }
+
+      const filters: ProperTypedQueryFilter[] = target.filter.map((filter) => {
+        return {
+          name: filter.name,
+          operator: filter.operator,
+          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.adAnalytics),
+        };
+      });
 
       const query: BitmovinAnalyticsRequestQuery = {
-        filters: target.filters,
+        filters: filters,
         groupBy: target.groupBy,
         orderBy: target.orderBy,
-        dimension: target.dimension,
-        metric: target.metric,
+        dimension: dimension,
+        metric: metric,
         start: from,
         end: to,
-        licenseKey: target.licenseKey,
+        licenseKey: target.license,
         interval: interval,
-        limit: target.limit,
+        limit: this.parseLimit(target.limit),
+        percentile: percentileValue,
       };
 
-      const response = await lastValueFrom(
-        this.request(this.getRequestUrl(target.metric, target.aggregation), 'POST', query)
-      );
+      const response = await lastValueFrom(this.request(this.getRequestUrl(metric, aggregationMethod), 'POST', query));
 
       const dataRows: MixedDataRowList = response.data.data.result.rows;
       const dataRowCount: number = response.data.data.result.rowCount;
@@ -138,7 +169,7 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
       }
 
       return createDataFrame({
-        name: target.aliasBy,
+        name: target.alias,
         fields: fields,
         meta: { notices: metaNotices },
       });
@@ -147,7 +178,20 @@ export class DataSource extends DataSourceApi<BitmovinAnalyticsDataQuery, Bitmov
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  getRequestUrl(metric?: Metric, aggregation?: Aggregation): string {
+  /** needed because of old plugin logic where limit was saved as string and not as number */
+  parseLimit(limit: number | string | undefined): undefined | number {
+    if (limit == null) {
+      return undefined;
+    }
+
+    if (Number.isInteger(limit)) {
+      return limit as number;
+    } else {
+      return parseInt(limit as string, 10);
+    }
+  }
+
+  getRequestUrl(metric?: Metric, aggregation?: AggregationMethod): string {
     let url = '/analytics';
     if (this.adAnalytics === true) {
       url += '/ads';

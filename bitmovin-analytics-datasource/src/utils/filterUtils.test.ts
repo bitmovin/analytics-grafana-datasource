@@ -1,4 +1,4 @@
-import { convertFilterValueToProperType, mapQueryFilterValueToRawFilterValue } from './filterUtils';
+import { convertFilterValueToProperType } from './filterUtils';
 
 describe('convertFilterValueToProperType', () => {
   it('should return null if rawValue is empty and attribute a NullFilter', () => {
@@ -98,55 +98,5 @@ describe('convertFilterValueToProperType', () => {
     expect(() => convertFilterValueToProperType('two', 'ERROR_PERCENTAGE', 'EQ', false)).toThrow(
       new Error(`Couldn't parse filter value, please provide data as a floating point number`)
     );
-  });
-});
-
-describe('mapQueryFilterValueToRawFilterValue', () => {
-  it('should return empty string for null filter value', () => {
-    //arrange && act
-    const result = mapQueryFilterValueToRawFilterValue(null);
-
-    //assert
-    expect(result).toEqual('');
-  });
-
-  it('should return boolean as string', () => {
-    //arrange && act
-    const result = mapQueryFilterValueToRawFilterValue(true);
-
-    //assert
-    expect(result).toEqual('true');
-  });
-
-  it('should return integer as string', () => {
-    //arrange && act
-    const result = mapQueryFilterValueToRawFilterValue(23);
-
-    //assert
-    expect(result).toEqual('23');
-  });
-
-  it('should return float as string', () => {
-    //arrange && act
-    const result = mapQueryFilterValueToRawFilterValue(23.5);
-
-    //assert
-    expect(result).toEqual('23.5');
-  });
-
-  it('should return string as string', () => {
-    //arrange && act
-    const result = mapQueryFilterValueToRawFilterValue('de');
-
-    //assert
-    expect(result).toEqual('de');
-  });
-
-  it('should return string array as string', () => {
-    //arrange && act
-    const result = mapQueryFilterValueToRawFilterValue(['Firefox', 'Opera']);
-
-    //assert
-    expect(result).toEqual('["Firefox","Opera"]');
   });
 });

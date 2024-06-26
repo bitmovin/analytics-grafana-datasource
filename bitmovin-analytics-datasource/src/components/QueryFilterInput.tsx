@@ -6,7 +6,7 @@ import type { SelectableValue } from '@grafana/data';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { differenceWith } from 'lodash';
-import { convertFilterValueToProperType, mapQueryFilterValueToRawFilterValue } from 'utils/filterUtils';
+import { convertFilterValueToProperType } from 'utils/filterUtils';
 
 interface QueryFilterInputProps {
   /** `undefined` when component is used to create new filter (no values yet) */
@@ -64,7 +64,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
     setDerivedQueryFilterState((prevState) => ({
       ...prevState,
       dirty: true,
-      inputValue: value,
+      value: value,
       inputValueError: undefined,
     }));
   }
@@ -91,8 +91,8 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
     }
 
     try {
-      const validQueryFilterValue = convertFilterValueToProperType(
-        derivedQueryFilterState.inputValue,
+      convertFilterValueToProperType(
+        derivedQueryFilterState.value!,
         derivedQueryFilterState.attribute!,
         derivedQueryFilterState.operator!,
         props.isAdAnalytics
@@ -101,7 +101,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       props.onChange({
         name: derivedQueryFilterState.attribute!,
         operator: derivedQueryFilterState.operator!,
-        value: validQueryFilterValue,
+        value: derivedQueryFilterState.value!,
       });
     } catch (e: unknown) {
       setDerivedQueryFilterState((prevState) => ({
@@ -151,7 +151,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         theme="error"
       >
         <Input
-          value={derivedQueryFilterState.inputValue}
+          value={derivedQueryFilterState.value}
           onChange={(e) => handleInputValueChange(e.currentTarget.value)}
           invalid={derivedQueryFilterState.inputValueError != null}
           type="text"
@@ -192,7 +192,6 @@ type DerivedQueryFilterState = {
   value: undefined | QueryFilter['value'];
   /** `true` if some values have been changed by inputs */
   dirty: boolean;
-  inputValue: string;
   /** `undefined` when input value is valid */
   inputValueError: undefined | string;
 };
@@ -205,7 +204,6 @@ function buildInitialDerivedQueryFilterState(queryFilter: undefined | QueryFilte
     operatorError: undefined,
     value: queryFilter?.value,
     dirty: false,
-    inputValue: mapQueryFilterValueToRawFilterValue(queryFilter?.value ?? null),
     inputValueError: undefined,
   };
 }
