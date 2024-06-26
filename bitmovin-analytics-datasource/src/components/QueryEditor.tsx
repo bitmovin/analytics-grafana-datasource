@@ -19,7 +19,7 @@ import { isMetric, SELECTABLE_METRICS } from '../types/metric';
 import { GroupByRow } from './GroupByRow';
 import { OrderByRow } from './OrderByRow';
 import type { QueryOrderBy } from '../types/queryOrderBy';
-import type { InputQueryFilter } from '../types/queryFilter';
+import type { QueryFilter } from '../types/queryFilter';
 import { FilterRow } from './FilterRow';
 
 enum LoadingState {
@@ -88,7 +88,7 @@ export function QueryEditor(props: Props) {
     props.onRunQuery();
   };
 
-  const handleQueryFilterChange = (newFilters: InputQueryFilter[]) => {
+  const handleQueryFilterChange = (newFilters: QueryFilter[]) => {
     props.onChange({ ...query, filter: newFilters });
     props.onRunQuery();
   };

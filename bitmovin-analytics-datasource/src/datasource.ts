@@ -28,7 +28,7 @@ import {
 import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
 import { isMetric, Metric } from './types/metric';
 import { AggregationMethod } from './types/aggregationMethod';
-import { OutputQueryFilter } from './types/queryFilter';
+import { ProperTypedQueryFilter } from './types/queryFilter';
 import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
@@ -38,7 +38,7 @@ type BitmovinAnalyticsRequestQuery = {
   licenseKey: string;
   start: Date;
   end: Date;
-  filters: OutputQueryFilter[];
+  filters: ProperTypedQueryFilter[];
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   dimension?: QueryAttribute | QueryAdAttribute;
@@ -106,7 +106,7 @@ export class DataSource extends DataSourceApi<
         }
       }
 
-      const filters: OutputQueryFilter[] = target.filter.map((filter) => {
+      const filters: ProperTypedQueryFilter[] = target.filter.map((filter) => {
         return {
           name: filter.name,
           operator: filter.operator,

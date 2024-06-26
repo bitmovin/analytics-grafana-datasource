@@ -11,14 +11,14 @@ export const SELECTABLE_QUERY_FILTER_OPERATORS: Array<SelectableValue<QueryFilte
 
 /** This type is needed because of legacy reasons.
  * In the angular plugin the value was saved as a string in a dashboard JSON file. */
-export type InputQueryFilter = {
+export type QueryFilter = {
   name: QueryAdAttribute | QueryAttribute;
   operator: QueryFilterOperator;
   value: string;
 };
 
 /** QueryFilter type with the correct value type that is accepted by the Bitmovin API */
-export type OutputQueryFilter = {
+export type ProperTypedQueryFilter = {
   name: QueryAdAttribute | QueryAttribute;
   operator: QueryFilterOperator;
   value: OutputQueryFilterValue;

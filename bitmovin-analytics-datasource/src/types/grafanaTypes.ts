@@ -5,7 +5,7 @@ import { QueryAttribute } from './queryAttributes';
 import { QueryAdAttribute } from './queryAdAttributes';
 import { Metric } from './metric';
 import { QueryOrderBy } from './queryOrderBy';
-import { InputQueryFilter } from './queryFilter';
+import { QueryFilter } from './queryFilter';
 import { AggregationMethod } from './aggregationMethod';
 
 type ResultFormat = 'table' | 'time_series';
@@ -21,7 +21,7 @@ export interface BitmovinAnalyticsDataQuery extends DataQuery {
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   limit?: number;
-  filter: InputQueryFilter[];
+  filter: QueryFilter[];
   alias?: string;
   percentileValue?: number;
   resultFormat: ResultFormat;
@@ -39,7 +39,7 @@ export interface OldBitmovinAnalyticsDataQuery extends DataQuery {
   groupBy: Array<QueryAttribute | QueryAdAttribute>;
   orderBy: QueryOrderBy[];
   limit?: string;
-  filter: InputQueryFilter[];
+  filter: QueryFilter[];
   alias?: string;
   percentileValue: number;
   resultFormat: ResultFormat;
