@@ -38,6 +38,7 @@ const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boole
     case 'CUSTOM_DATA_29':
     case 'CUSTOM_DATA_30':
     case 'CUSTOM_USER_ID':
+    case 'ERROR_CODE':
     case 'EXPERIMENT_NAME':
     case 'ISP':
     case 'PLAYER_TECH':
