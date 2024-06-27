@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 19,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -86,7 +86,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 2,
       "options": {
         "legend": {
           "calcs": [],
@@ -111,16 +111,16 @@
             {
               "name": "VIDEO_STARTUPTIME",
               "operator": "GT",
-              "value": 0
+              "value": "0"
             }
           ],
           "groupBy": [],
-          "hide": false,
           "interval": "AUTO",
           "license": "",
+          "metric": "count",
           "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
+          "refId": "A",
+          "resultFormat": "time_series"
         },
         {
           "alias": "Error",
@@ -131,30 +131,34 @@
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
-              "name": "VIDEO_STARTUPTIME",
-              "operator": "GT",
-              "value": 0
+              "name": "ERROR_CODE",
+              "operator": "NE",
+              "value": ""
             },
             {
               "name": "ERROR_CODE",
-              "operator": "GT",
-              "value": 0
+              "operator": "NE",
+              "value": "10000"
             }
           ],
           "groupBy": [],
           "hide": false,
           "interval": "AUTO",
           "license": "",
+          "metric": "count",
           "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "B"
+          "refId": "B",
+          "resultFormat": "time_series"
         }
       ],
-      "title": "Total impressions",
+      "title": "Total Plays vs Error Plays",
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -206,6 +210,7 @@
               }
             ]
           },
+          "unit": "percent",
           "unitScale": true
         },
         "overrides": []
@@ -216,7 +221,7 @@
         "x": 0,
         "y": 8
       },
-      "id": 2,
+      "id": 7,
       "options": {
         "legend": {
           "calcs": [],
@@ -231,28 +236,241 @@
       },
       "targets": [
         {
-          "alias": "",
           "datasource": {
             "type": "bitmovin-analytics-datasource",
             "uid": "PC6526C9D339F63A2"
           },
-          "dimension": "IMPRESSION_ID",
-          "filter": [],
-          "groupBy": [
-            "BROWSER"
+          "dimension": "ERROR_PERCENTAGE",
+          "filter": [
+            {
+              "name": "ERROR_CODE",
+              "operator": "NE",
+              "value": "10000"
+            }
           ],
+          "groupBy": [],
           "interval": "AUTO",
           "license": "",
+          "metric": "avg",
           "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
+          "refId": "A",
+          "resultFormat": "time_series"
         }
       ],
-      "title": "Impressions per Browser",
+      "title": "Error Percentage",
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "bitmovin-analytics-datasource",
+            "uid": "PC6526C9D339F63A2"
+          },
+          "dimension": "REBUFFER_PERCENTAGE",
+          "filter": [],
+          "groupBy": [],
+          "interval": "AUTO",
+          "license": "",
+          "metric": "avg",
+          "orderBy": [],
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Rebuffer Percentage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "bitmovin-analytics-datasource",
+            "uid": "PC6526C9D339F63A2"
+          },
+          "dimension": "PLAYED",
+          "filter": [
+            {
+              "name": "PLAYED",
+              "operator": "GT",
+              "value": "0"
+            }
+          ],
+          "groupBy": [],
+          "interval": "AUTO",
+          "license": "",
+          "metric": "sum",
+          "orderBy": [],
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Total Hours Watched",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -312,7 +530,105 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "bitmovin-analytics-datasource",
+            "uid": "PC6526C9D339F63A2"
+          },
+          "dimension": "MAX_CONCURRENTVIEWERS",
+          "filter": [],
+          "groupBy": [],
+          "interval": "AUTO",
+          "license": "",
+          "orderBy": [],
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "Concurrent Viewers",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
       },
       "id": 3,
       "options": {
@@ -336,328 +652,66 @@
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
-              "name": "PLAYER_STARTUPTIME",
+              "name": "VIDEO_STARTUPTIME",
               "operator": "GT",
-              "value": 0
-            }
-          ],
-          "groupBy": [
-            "COUNTRY"
-          ],
-          "interval": "AUTO",
-          "license": "",
-          "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
-        }
-      ],
-      "title": "Impressions per Country",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {},
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 16
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
-          "dimension": "IMPRESSION_ID",
-          "filter": [
-            {
-              "name": "PLAYER_STARTUPTIME",
-              "operator": "GT",
-              "value": 0
-            }
-          ],
-          "groupBy": [
-            "PLAYER_TECH"
-          ],
-          "interval": "AUTO",
-          "license": "",
-          "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
-        }
-      ],
-      "title": "Impression per Player Technology",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {},
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      },
-      "id": 5,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
-          "dimension": "IMPRESSION_ID",
-          "filter": [
-            {
-              "name": "PLAYER_STARTUPTIME",
-              "operator": "GT",
-              "value": 0
-            }
-          ],
-          "groupBy": [
-            "OPERATINGSYSTEM"
-          ],
-          "interval": "AUTO",
-          "license": "",
-          "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
-        }
-      ],
-      "title": "Impressions per Operating System",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {},
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 6,
-        "x": 0,
-        "y": 24
-      },
-      "id": 6,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Impression id / Play id"
-          }
-        ]
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
-          "dimension": "IMPRESSION_ID",
-          "filter": [
-            {
-              "name": "PLAYER_STARTUPTIME",
-              "operator": "GT",
-              "value": 0
+              "value": "0"
             }
           ],
           "groupBy": [
             "BROWSER"
           ],
+          "interval": "AUTO",
           "license": "",
-          "limit": 10,
+          "metric": "count",
           "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
+          "refId": "A",
+          "resultFormat": "time_series"
         }
       ],
-      "title": "Impressions per Browser",
-      "type": "table"
+      "title": "Plays per Browser",
+      "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "inspect": false
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -678,33 +732,27 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
-        "w": 6,
-        "x": 6,
+        "h": 8,
+        "w": 12,
+        "x": 12,
         "y": 24
       },
-      "id": 7,
+      "id": 1,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Impression id / Play id"
-          }
-        ]
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
-      "pluginVersion": "10.3.3",
       "targets": [
         {
+          "alias": "",
           "datasource": {
             "type": "bitmovin-analytics-datasource",
             "uid": "PC6526C9D339F63A2"
@@ -712,26 +760,30 @@
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
-              "name": "PLAYER_STARTUPTIME",
+              "name": "VIDEO_STARTUPTIME",
               "operator": "GT",
-              "value": 0
+              "value": "0"
             }
           ],
           "groupBy": [
             "COUNTRY"
           ],
+          "interval": "AUTO",
           "license": "",
-          "limit": 10,
+          "metric": "count",
           "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
+          "refId": "A",
+          "resultFormat": "time_series"
         }
       ],
-      "title": "Impressions per Country",
-      "type": "table"
+      "title": "Plays per Country",
+      "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -763,97 +815,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 8,
         "w": 6,
-        "x": 12,
-        "y": 24
+        "x": 0,
+        "y": 32
       },
-      "id": 8,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Impression id / Play id"
-          }
-        ]
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
-          "dimension": "IMPRESSION_ID",
-          "filter": [
-            {
-              "name": "PLAYER_STARTUPTIME",
-              "operator": "GT",
-              "value": 0
-            }
-          ],
-          "groupBy": [
-            "OPERATINGSYSTEM"
-          ],
-          "license": "",
-          "limit": 10,
-          "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
-        }
-      ],
-      "title": "Impressions per Operating System",
-      "type": "table"
-    },
-    {
-      "datasource": {},
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 6,
-        "x": 18,
-        "y": 24
-      },
-      "id": 9,
+      "id": 5,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -876,22 +843,283 @@
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
-              "name": "PLAYER_STARTUPTIME",
+              "name": "VIDEO_STARTUPTIME",
               "operator": "GT",
-              "value": 0
+              "value": "0"
             }
           ],
           "groupBy": [
             "PLAYER_TECH"
           ],
+          "interval": "AUTO",
           "license": "",
-          "limit": 10,
-          "orderBy": [],
-          "queryAggregationMethod": "count",
-          "refId": "A"
+          "metric": "count",
+          "orderBy": [
+            {
+              "name": "FUNCTION",
+              "order": "DESC"
+            }
+          ],
+          "refId": "A",
+          "resultFormat": "table"
         }
       ],
-      "title": "Impressions per Player Technology",
+      "title": "Plays per Player Technology",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 32
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "bitmovin-analytics-datasource",
+            "uid": "PC6526C9D339F63A2"
+          },
+          "dimension": "IMPRESSION_ID",
+          "filter": [
+            {
+              "name": "VIDEO_STARTUPTIME",
+              "operator": "GT",
+              "value": "0"
+            }
+          ],
+          "groupBy": [
+            "OPERATINGSYSTEM"
+          ],
+          "interval": "AUTO",
+          "license": "",
+          "limit": 10,
+          "metric": "count",
+          "orderBy": [
+            {
+              "name": "FUNCTION",
+              "order": "DESC"
+            }
+          ],
+          "refId": "A",
+          "resultFormat": "table"
+        }
+      ],
+      "title": "Plays per Operating System",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 32
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "bitmovin-analytics-datasource",
+            "uid": "PC6526C9D339F63A2"
+          },
+          "dimension": "IMPRESSION_ID",
+          "filter": [],
+          "groupBy": [
+            "BROWSER"
+          ],
+          "interval": "AUTO",
+          "license": "",
+          "limit": 10,
+          "metric": "count",
+          "orderBy": [
+            {
+              "name": "FUNCTION",
+              "order": "DESC"
+            }
+          ],
+          "refId": "A",
+          "resultFormat": "table"
+        }
+      ],
+      "title": "Plays per Browser",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "bitmovin-analytics-datasource",
+        "uid": "PC6526C9D339F63A2"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 32
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "bitmovin-analytics-datasource",
+            "uid": "PC6526C9D339F63A2"
+          },
+          "dimension": "IMPRESSION_ID",
+          "filter": [],
+          "groupBy": [
+            "COUNTRY"
+          ],
+          "interval": "AUTO",
+          "license": "",
+          "limit": 10,
+          "metric": "count",
+          "orderBy": [
+            {
+              "name": "FUNCTION",
+              "order": "DESC"
+            }
+          ],
+          "refId": "A",
+          "resultFormat": "table"
+        }
+      ],
+      "title": "Plays per Country",
       "type": "table"
     }
   ],
@@ -908,7 +1136,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "Bitmovin Analytics",
-  "uid": "f8bfe39e-39f4-401b-8f2d-59f01c8ef93a",
-  "version": 2,
+  "uid": "bfe2f6e3-fffc-42ec-b332-382a954d8afe",
+  "version": 15,
   "weekStart": ""
 }
