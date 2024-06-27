@@ -5,7 +5,6 @@ import { QueryFilter, QueryFilterOperator, SELECTABLE_QUERY_FILTER_OPERATORS } f
 import type { SelectableValue } from '@grafana/data';
 import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES } from '../types/queryAttributes';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
-import { differenceWith } from 'lodash';
 import { convertFilterValueToProperType } from 'utils/filterUtils';
 
 interface QueryFilterInputProps {
@@ -33,10 +32,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
     () => findAttributeSelectableValue(derivedQueryFilterState.attribute, props.isAdAnalytics),
     [derivedQueryFilterState.attribute, props.isAdAnalytics]
   );
-  const attributeSelectOptions = useMemo(
-    () => buildAttributeSelectableValues(props.selectedQueryFilters, props.isAdAnalytics),
-    [props.selectedQueryFilters, props.isAdAnalytics]
-  );
+
   const operatorSelectValue = useMemo(
     () => findOperatorSelectableValue(derivedQueryFilterState.operator),
     [derivedQueryFilterState.operator]
@@ -123,7 +119,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
           <Select
             value={attributeSelectValue}
             onChange={handleAttributeChange}
-            options={attributeSelectOptions}
+            options={props.isAdAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
             width={ATTRIBUTE_COMPONENT_WIDTH}
             invalid={derivedQueryFilterState.attributeError != null}
           />
@@ -160,7 +156,6 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       </Tooltip>
 
       <IconButton variant="destructive" name="trash-alt" size="lg" tooltip="Delete Filter" onClick={props.onDelete} />
-
       {/* in "create mode" we want to show save icons all the time */}
       {(isCreatingNewOne || derivedQueryFilterState.dirty) && (
         <IconButton
@@ -171,7 +166,6 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
           onClick={handleSaveClick}
         />
       )}
-
       {/* in "create mode" there is nothing to revert to */}
       {!isCreatingNewOne && derivedQueryFilterState.dirty && (
         <IconButton variant="secondary" name="history" size="lg" tooltip="Revert changes" onClick={handleRevertClick} />
@@ -206,22 +200,6 @@ function buildInitialDerivedQueryFilterState(queryFilter: undefined | QueryFilte
     dirty: false,
     inputValueError: undefined,
   };
-}
-
-function buildAttributeSelectableValues(
-  usedQueryFilters: QueryFilter[],
-  isAdAnalytics: boolean
-): Array<SelectableValue<QueryAttribute | QueryAdAttribute>> {
-  const ALL_ATTRIBUTES: Array<SelectableValue<QueryAttribute | QueryAdAttribute>> = isAdAnalytics
-    ? SELECTABLE_QUERY_AD_ATTRIBUTES
-    : SELECTABLE_QUERY_ATTRIBUTES;
-
-  // filter out attributes that are already used in some used query filters
-  return differenceWith(
-    ALL_ATTRIBUTES,
-    usedQueryFilters,
-    (selectableValue, queryFilter) => selectableValue.value === queryFilter.name
-  );
 }
 
 function findAttributeSelectableValue(
