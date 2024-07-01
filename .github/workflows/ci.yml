@@ -9,10 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-    #TODO delete after merge to main
-    defaults:
-      run:
-        working-directory: ./bitmovin-analytics-datasource
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,8 +19,6 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-          #TODO delete after merge to main
-          cache-dependency-path: './bitmovin-analytics-datasource/yarn.lock'
 
       - name: Install dependencies
         run: yarn install --immutable --prefer-offline

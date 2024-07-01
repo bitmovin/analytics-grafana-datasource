@@ -9,9 +9,9 @@
     "alwaysStrict": true,
     "declaration": false,
     "rootDir": "../src",
-    "baseUrl": "../bitmovin-analytics-datasource/src",
+    "baseUrl": "../src",
     "typeRoots": [
-      "../bitmovin-analytics-datasource/node_modules/@types"
+      "../node_modules/@types"
     ],
     "resolveJsonModule": true
   },
@@ -24,6 +24,6 @@
     "transpileOnly": true
   },
   "include": [
-    "../bitmovin-analytics-datasource/src", "./types"],
+    "../src", "./types"],
   "extends": "@grafana/tsconfig"
 }
