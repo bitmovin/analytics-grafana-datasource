@@ -52,7 +52,7 @@ export function QueryEditor(props: Props) {
   /** Fetch Licenses */
   useEffect(() => {
     setLicenseLoadingState(LoadingState.Loading);
-    fetchLicenses(props.datasource.apiKey, props.datasource.baseUrl)
+    fetchLicenses(props.datasource.apiKey, props.datasource.baseUrl, props.datasource.tenantOrgId)
       .then((licenses) => {
         setSelectableLicenses(licenses);
         setLicenseLoadingState(LoadingState.Success);
@@ -61,7 +61,7 @@ export function QueryEditor(props: Props) {
         setLicenseLoadingState(LoadingState.Error);
         setLicenseErrorMessage(e.status + ' ' + e.statusText);
       });
-  }, [props.datasource.apiKey, props.datasource.baseUrl]);
+  }, [props.datasource.apiKey, props.datasource.baseUrl, props.datasource.tenantOrgId]);
 
   const handleLicenseChange = (item: SelectableValue) => {
     props.onChange({ ...query, license: item.value });
