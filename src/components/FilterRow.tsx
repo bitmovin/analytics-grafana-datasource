@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, HorizontalGroup, IconButton, InlineLabel, VerticalGroup } from '@grafana/ui';
+import { HorizontalGroup, IconButton, InlineLabel, VerticalGroup } from '@grafana/ui';
 
 import { QueryFilter } from '../types/queryFilter';
 import {
@@ -17,6 +17,7 @@ type Props = {
 
 export function FilterRow(props: Props) {
   const [hasNewQueryFilter, setHasNewQueryFilter] = useState<boolean>(false);
+  const paddingTop= props.filters.length === 0 ? 4 : 0
 
   function handleQueryFilterDelete(queryFilterIndex: number) {
     const newQueryFilters = [...props.filters];
@@ -63,7 +64,7 @@ export function FilterRow(props: Props) {
         />
       ))}
 
-      <Box paddingTop={props.filters.length === 0 ? 0.5 : 0}>
+      <div style={{ paddingTop }}>
         {hasNewQueryFilter ? (
           <QueryFilterInput
             isAdAnalytics={props.isAdAnalytics}
@@ -75,7 +76,7 @@ export function FilterRow(props: Props) {
         ) : (
           <IconButton name="plus-square" tooltip="Add Filter" onClick={() => setHasNewQueryFilter(true)} size="xl" />
         )}
-      </Box>
+      </div>
     </VerticalGroup>
   );
 }

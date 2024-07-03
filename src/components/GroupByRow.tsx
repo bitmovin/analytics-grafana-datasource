@@ -1,6 +1,6 @@
 import React from 'react';
 import { SelectableValue } from '@grafana/data';
-import { Box, IconButton, VerticalGroup } from '@grafana/ui';
+import { IconButton, VerticalGroup } from '@grafana/ui';
 import { differenceWith } from 'lodash';
 
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
@@ -44,6 +44,7 @@ type Props = {
 };
 
 export function GroupByRow(props: Props) {
+  const paddingTop= props.groupBys.length === 0 ? 4 : 0
   const deleteGroupByInput = (index: number) => {
     const newSelectedGroupBys = [...props.groupBys];
     newSelectedGroupBys.splice(index, 1);
@@ -88,9 +89,9 @@ export function GroupByRow(props: Props) {
           onReorderGroupBy={(direction: REORDER_DIRECTION) => reorderGroupBy(direction, index)}
         />
       ))}
-      <Box paddingTop={props.groupBys.length === 0 ? 0.5 : 0}>
+      <div style={{ paddingTop }}>
         <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addGroupByInput()} size="xl" />
-      </Box>
+      </div>
     </VerticalGroup>
   );
 }

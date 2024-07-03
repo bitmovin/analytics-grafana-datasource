@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, IconButton, VerticalGroup } from '@grafana/ui';
+import { IconButton, VerticalGroup } from '@grafana/ui';
 import type { SelectableValue } from '@grafana/data';
 import { differenceWith } from 'lodash';
 
@@ -46,6 +46,7 @@ type Props = {
 };
 
 export function OrderByRow(props: Props) {
+  const paddingTop=  props.orderBys.length === 0 ? 4 : 0
   const deleteOrderByInput = (index: number) => {
     const newOrderBys = [...props.orderBys];
     newOrderBys.splice(index, 1);
@@ -106,9 +107,9 @@ export function OrderByRow(props: Props) {
         />
       ))}
 
-      <Box paddingTop={props.orderBys.length === 0 ? 0.5 : 0}>
+      <div style={{ paddingTop }}>
         <IconButton name="plus-square" tooltip="Add Order By" onClick={() => addOrderByInput()} size="xl" />
-      </Box>
+      </div>
     </VerticalGroup>
   );
 }
