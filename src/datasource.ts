@@ -205,9 +205,9 @@ export class DataSource extends DataSourceApi<
   }
 
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
-    const headers = { 'X-Api-Key': this.apiKey, 'X-Tenant-Org-Id': undefined}
-    if (this.tenantOrgId == null) {
-      delete headers["X-Tenant-Org-Id"]
+    const headers: Record<string, string>= { 'X-Api-Key': this.apiKey}
+    if (this.tenantOrgId != null) {
+      headers["X-Tenant-Org-Id"] = this.tenantOrgId
     }
     const options = {
       url: this.baseUrl + url,

@@ -38,9 +38,9 @@ async function fetchLicensesForEndpoint(
   mapperFunc: (license: AnalyticsLicense) => SelectableValue,
   tenantOrgId?: string
 ) {
-  const headers = { 'X-Api-Key': apiKey, 'X-Tenant-Org-Id': tenantOrgId}
-  if (tenantOrgId == null) {
-    delete headers["X-Tenant-Org-Id"]
+  const headers: Record<string, string>= { 'X-Api-Key': apiKey}
+  if (tenantOrgId != null) {
+    headers["X-Tenant-Org-Id"] = tenantOrgId
   }
   const options = {
     url: url,
