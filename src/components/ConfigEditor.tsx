@@ -19,7 +19,7 @@ export function ConfigEditor(props: Props) {
   const onAdAnalyticsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const jsonData = {
       ...options.jsonData,
-      adAnalytics: event.currentTarget.checked,
+      isAdAnalytics: event.currentTarget.checked,
     };
     onOptionsChange({ ...options, jsonData });
   };
@@ -70,7 +70,7 @@ export function ConfigEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Ad Analytics" tooltip={'Check if you want to query ads data'} labelWidth={26}>
-          <InlineSwitch value={jsonData.adAnalytics || false} onChange={onAdAnalyticsChange}></InlineSwitch>
+          <InlineSwitch value={jsonData.isAdAnalytics || false} onChange={onAdAnalyticsChange}></InlineSwitch>
         </InlineField>
       </FieldSet>
     </>

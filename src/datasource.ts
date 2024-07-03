@@ -55,14 +55,14 @@ export class DataSource extends DataSourceApi<
   baseUrl: string;
   apiKey: string;
   tenantOrgId?: string;
-  adAnalytics?: boolean;
+  isAdAnalytics?: boolean;
 
   constructor(instanceSettings: DataSourceInstanceSettings<BitmovinDataSourceOptions>) {
     super(instanceSettings);
 
     this.apiKey = instanceSettings.jsonData.apiKey;
     this.tenantOrgId = instanceSettings.jsonData.tenantOrgId;
-    this.adAnalytics = instanceSettings.jsonData.adAnalytics;
+    this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
     this.baseUrl = instanceSettings.url!;
   }
 
@@ -110,7 +110,7 @@ export class DataSource extends DataSourceApi<
         return {
           name: filter.name,
           operator: filter.operator,
-          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.adAnalytics),
+          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.isAdAnalytics),
         };
       });
 
@@ -193,7 +193,7 @@ export class DataSource extends DataSourceApi<
 
   getRequestUrl(metric?: Metric, aggregation?: AggregationMethod): string {
     let url = '/analytics';
-    if (this.adAnalytics === true) {
+    if (this.isAdAnalytics === true) {
       url += '/ads';
     }
 

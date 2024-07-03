@@ -198,7 +198,7 @@ export function QueryEditor(props: Props) {
             onChange={handleDimensionChange}
             width={30}
             options={
-              props.datasource.adAnalytics
+              props.datasource.isAdAnalytics
                 ? SELECTABLE_QUERY_AD_ATTRIBUTES
                 : SELECTABLE_QUERY_ATTRIBUTES.concat(SELECTABLE_METRICS)
             }
@@ -206,21 +206,21 @@ export function QueryEditor(props: Props) {
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
           <FilterRow
-            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            isAdAnalytics={props.datasource.isAdAnalytics ? true : false}
             onQueryFilterChange={handleQueryFilterChange}
             filters={query.filter}
           />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
           <GroupByRow
-            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            isAdAnalytics={props.datasource.isAdAnalytics ? true : false}
             onChange={handleGroupByChange}
             groupBys={query.groupBy}
           />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
           <OrderByRow
-            isAdAnalytics={props.datasource.adAnalytics ? true : false}
+            isAdAnalytics={props.datasource.isAdAnalytics ? true : false}
             onChange={handleOrderByChange}
             orderBys={query.orderBy}
           />

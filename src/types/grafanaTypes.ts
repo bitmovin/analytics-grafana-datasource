@@ -60,5 +60,5 @@ export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
 export interface BitmovinDataSourceOptions extends DataSourceJsonData {
   apiKey: string;
   tenantOrgId?: string;
-  adAnalytics?: boolean;
+  isAdAnalytics?: boolean;
 }
