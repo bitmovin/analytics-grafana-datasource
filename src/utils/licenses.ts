@@ -35,11 +35,16 @@ const licenseEndpoints = [
 async function fetchLicensesForEndpoint(
   url: string,
   apiKey: string,
-  mapperFunc: (license: AnalyticsLicense) => SelectableValue
+  mapperFunc: (license: AnalyticsLicense) => SelectableValue,
+  tenantOrgId?: string
 ) {
+  const headers: Record<string, string> = { 'X-Api-Key': apiKey}
+  if (tenantOrgId != null) {
+    headers["X-Tenant-Org-Id"] = tenantOrgId
+  }
   const options = {
     url: url,
-    headers: { 'X-Api-Key': apiKey },
+    headers: headers,
     method: 'GET',
   };
 
@@ -55,14 +60,15 @@ async function fetchLicensesForEndpoint(
   return selectableLicenses;
 }
 
-export async function fetchLicenses(apiKey: string, baseUrl: string): Promise<SelectableValue[]> {
+export async function fetchLicenses(apiKey: string, baseUrl: string, tenantOrgId?: string): Promise<SelectableValue[]> {
   const allLicenses: SelectableValue[] = [];
 
   for (const licenseEndpoint of licenseEndpoints) {
     const licenses = await fetchLicensesForEndpoint(
       baseUrl + licenseEndpoint.endpoint,
       apiKey,
-      licenseEndpoint.mapperFunc
+      licenseEndpoint.mapperFunc,
+      tenantOrgId
     );
     allLicenses.push(...licenses);
   }
