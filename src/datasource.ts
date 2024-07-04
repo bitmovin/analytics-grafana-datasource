@@ -1,240 +1,278 @@
 import {
-  ATTRIBUTE,
-  ATTRIBUTE_LIST,
-  AD_ATTRIBUTE_LIST,
-  METRICS_ATTRIBUTE_LIST,
-  QUERY_SPECIFIC_ORDERBY_ATTRIBUTES
-} from './types/queryAttributes';
-import {getAsOptionsList} from './utils/uiUtils'
-import { convertFilterValueToProperType } from './utils/queryUtils'
-import { AGGREGATION } from './types/aggregations';
-import { calculateAutoInterval, getMomentTimeUnitForQueryInterval } from './utils/intervalUtils';
-import { QUERY_INTERVAL } from './types/intervals';
-import { transform } from './result_transformer';
-import {ResultData, ResultFormat, ResultSeriesData} from './types/resultFormat';
-import { OPERATOR } from './types/operators';
-import LicenseService from './licenseService';
-import RequestHandler from './requestHandler';
+  CoreApp,
+  createDataFrame,
+  DataQueryRequest,
+  DataQueryResponse,
+  DataSourceApi,
+  DataSourceInstanceSettings,
+  Field,
+  QueryResultMetaNotice,
+} from '@grafana/data';
+import { getBackendSrv } from '@grafana/runtime';
+import {filter, isEmpty} from 'lodash';
+import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
-const getApiRequestUrl = (baseUrl, isAdAnalytics, isMetric): string => {
-  if (isAdAnalytics === true) {
-    return baseUrl + '/analytics/ads/queries';
-  }
-  if (isMetric == true) {
-    return baseUrl + '/analytics/metrics';
-  }
-  return baseUrl + '/analytics/queries';
+import {
+  BitmovinDataSourceOptions,
+  BitmovinAnalyticsDataQuery,
+  DEFAULT_QUERY,
+  OldBitmovinAnalyticsDataQuery,
+} from './types/grafanaTypes';
+import {
+  MixedDataRowList,
+  NumberDataRowList,
+  transformGroupedTimeSeriesData,
+  transformSimpleTimeSeries,
+  transformTableData,
+} from './utils/dataUtils';
+import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
+import { isMetric, Metric } from './types/metric';
+import { AggregationMethod } from './types/aggregationMethod';
+import { ProperTypedQueryFilter } from './types/queryFilter';
+import { QueryAttribute } from './types/queryAttributes';
+import { QueryAdAttribute } from './types/queryAdAttributes';
+import { QueryOrderBy } from './types/queryOrderBy';
+import { convertFilterValueToProperType } from './utils/filterUtils';
+
+type BitmovinAnalyticsRequestQuery = {
+  licenseKey: string;
+  start: Date;
+  end: Date;
+  filters: ProperTypedQueryFilter[];
+  groupBy: Array<QueryAttribute | QueryAdAttribute>;
+  orderBy: QueryOrderBy[];
+  dimension?: QueryAttribute | QueryAdAttribute;
+  metric?: Metric;
+  interval?: QueryInterval;
+  limit?: number;
+  percentile?: number;
 };
 
-const mapMathOperatorToAnalyticsFilterOperator = (operator): OPERATOR => {
-  switch (operator) {
-    case '=':
-      return OPERATOR.EQ;
-    case '!=':
-      return OPERATOR.NE;
-    case '<':
-      return OPERATOR.LT;
-    case '<=':
-      return OPERATOR.LTE;
-    case '>':
-      return OPERATOR.GT;
-    case '>=':
-      return OPERATOR.GTE;
-    default:
-      return OPERATOR[operator];
-  }
-};
+export class DataSource extends DataSourceApi<
+  BitmovinAnalyticsDataQuery | OldBitmovinAnalyticsDataQuery,
+  BitmovinDataSourceOptions
+> {
+  baseUrl: string;
+  apiKey: string;
+  tenantOrgId?: string;
+  isAdAnalytics?: boolean;
 
-export class BitmovinAnalyticsDatasource {
-  type: string;
-  url: string;
-  isAdAnalytics: boolean;
-  name: string;
-  q: any;
-  backendSrv: any;
-  templateSrv: any;
-  withCredentials: boolean;
-  requestHandler: RequestHandler;
-  licenseService: LicenseService;
+  constructor(instanceSettings: DataSourceInstanceSettings<BitmovinDataSourceOptions>) {
+    super(instanceSettings);
 
-  constructor(instanceSettings, $q, backendSrv, templateSrv) {
-    this.type = instanceSettings.type;
-    this.url = instanceSettings.url;
+    this.apiKey = instanceSettings.jsonData.apiKey;
+    this.tenantOrgId = instanceSettings.jsonData.tenantOrgId;
     this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
-    this.name = instanceSettings.name;
-    this.q = $q;
-    this.backendSrv = backendSrv;
-    this.templateSrv = templateSrv;
-    this.withCredentials = instanceSettings.withCredentials;
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-Api-Key': instanceSettings.jsonData.apiKey,
-    };
-
-    const tenantOrgId = instanceSettings.jsonData.tenantOrgId;
-    if (typeof tenantOrgId === 'string' && tenantOrgId.length > 0) {
-      headers['X-Tenant-Org-Id'] = tenantOrgId;
-    }
-
-    if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
-      headers['Authorization'] = instanceSettings.basicAuth;
-    }
-
-    this.requestHandler = new RequestHandler(backendSrv, headers, instanceSettings.withCredentials)
-    this.licenseService = new LicenseService(this.requestHandler, instanceSettings.url);
+    this.baseUrl = instanceSettings.url!;
   }
 
-  query(options): Promise<{data: ResultSeriesData[], error?: {cancelled: boolean, message: string, status: string}}> {
-    const query = this.buildQueryParameters(options);
-    query.targets = query.targets.filter(t => !t.hide);
+  getDefaultQuery(_: CoreApp): Partial<BitmovinAnalyticsDataQuery> {
+    return DEFAULT_QUERY;
+  }
 
-    if (query.targets.length <= 0) {
-      return this.q.when({ data: [] });
-    }
+  /**
+   * The Bitmovin API Response follows these rules:
+   * - If the interval property is provided in the request query, time series data is returned and the first value of each row is a timestamp in milliseconds.
+   * - If the groupBy property array is not empty in the request query:
+   *    - Depending on whether the interval property is set:
+   *      - Interval is set: All values between the first one (timestamp) and the last one (not included) can be considered string values.
+   *      - Interval is not set: All values up to the last one (not included) can be considered string values
+   * - The last value of each row is always be a number.
+   * */
+  async query(options: DataQueryRequest<BitmovinAnalyticsDataQuery>): Promise<DataQueryResponse> {
+    const { range } = options;
+    const from = range!.from.toDate();
+    const to = range!.to.toDate();
 
-    if (this.templateSrv.getAdhocFilters) {
-      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-    } else {
-      query.adhocFilters = [];
-    }
+    //filter disabled queries
+    const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
 
+    //filter invalid queries
+    const validQueries = filter(enabledQueries, (t) => this.isQueryComplete(t))
 
-    const targetResponsePromises = query.targets.map(target => {
-      target.resultFormat = target.resultFormat || ResultFormat.TIME_SERIES;
-      target.interval = target.interval || QUERY_INTERVAL.HOUR;
+    const promises = validQueries.map(async (target) => {
+      const interval =
+        target.resultFormat === 'time_series' && target.interval
+          ? calculateQueryInterval(target.interval, from.getTime(), to.getTime())
+          : undefined;
 
-      const filters = [...target.filter, ...query.adhocFilters].map( e => {
-        let filter = {
-          name: (e.name) ? e.name : e.key,
-          operator: mapMathOperatorToAnalyticsFilterOperator(e.operator),
-          value: this.templateSrv.replace(e.value, options.scopedVars)
+      let aggregationMethod: AggregationMethod | undefined = target.metric;
+      const percentileValue = aggregationMethod === 'percentile' ? target.percentileValue : undefined;
+
+      let metric: Metric | undefined = undefined;
+      let dimension: QueryAttribute | QueryAdAttribute | undefined = undefined;
+      if (target.dimension) {
+        if (isMetric(target.dimension)) {
+          metric = target.dimension as Metric;
+        } else {
+          dimension = target.dimension as QueryAttribute | QueryAdAttribute;
         }
+      }
+
+      const filters: ProperTypedQueryFilter[] = target.filter.map((filter) => {
         return {
           name: filter.name,
           operator: filter.operator,
-          value: convertFilterValueToProperType(filter)
-        }
+          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.isAdAnalytics),
+        };
       });
-      const orderBy = target.orderBy.map(e => ({ name: e.name, order: e.order }));
-      const data = {
+
+      const query: BitmovinAnalyticsRequestQuery = {
+        filters: filters,
+        groupBy: target.groupBy,
+        orderBy: target.orderBy,
+        dimension: dimension,
+        metric: metric,
+        start: from,
+        end: to,
         licenseKey: target.license,
-        start: options.range.from.toISOString(),
-        end: options.range.to.toISOString(),
-        filters,
-        orderBy
+        interval: interval,
+        limit: this.parseLimit(target.limit),
+        percentile: percentileValue,
       };
 
-      let isMetric = METRICS_ATTRIBUTE_LIST.includes(target.dimension);
-      let urlAppendix = '';
+      const response = await lastValueFrom(this.request(this.getRequestUrl(metric, aggregationMethod), 'POST', query));
 
-      if (isMetric) {
-        urlAppendix = target.dimension;
-        data['metric'] = target.dimension
+      const dataRows: MixedDataRowList = response.data.data.result.rows;
+      const dataRowCount: number = response.data.data.result.rowCount;
+      const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
+
+      const fields: Array<Partial<Field>> = [];
+
+      // Determine the appropriate transformation based on query parameters
+      if (query.interval && query.groupBy?.length > 0) {
+        // If the query has an interval and group by columns, transform the data as grouped time series
+        fields.push(...transformGroupedTimeSeriesData(dataRows, from.getTime(), to.getTime(), query.interval));
       } else {
-        target.metric = target.metric || AGGREGATION.COUNT;
-        target.dimension = target.dimension || ATTRIBUTE.LICENSE_KEY;
-        urlAppendix = target.metric
-        data['dimension'] = target.dimension;
-
-        if (target.metric === 'percentile') {
-          data['percentile'] = target.percentileValue;
+        if (query.interval) {
+          // If the query has an interval but no group by columns, transform the data as simple time series
+          fields.push(
+            ...transformSimpleTimeSeries(
+              dataRows as NumberDataRowList,
+              columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
+              from.getTime(),
+              to.getTime(),
+              query.interval
+            )
+          );
+        } else {
+          // If no interval is specified, transform the data as table data
+          fields.push(...transformTableData(dataRows, columnLabels));
         }
       }
 
-      if (target.resultFormat === ResultFormat.TIME_SERIES) {
-        data['interval'] = target.interval;
-        if (target.interval === QUERY_INTERVAL.AUTO) {
-          const intervalMs = options.range.to.valueOf() - options.range.from.valueOf();
-          data['interval'] = calculateAutoInterval(intervalMs);
-        }
-
-        if (target.intervalSnapTo === true) {
-          const intervalTimeUnit = getMomentTimeUnitForQueryInterval(data['interval']);
-          if (intervalTimeUnit != null) {
-            data['start'] = options.range.from.startOf(intervalTimeUnit).toISOString();
-            data['end'] = options.range.to.startOf(intervalTimeUnit).toISOString();
-          }
-        }
+      let metaNotices: QueryResultMetaNotice[] = [];
+      if (dataRowCount >= 200) {
+        metaNotices = [
+          {
+            severity: 'warning',
+            text: 'Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval, or too big of a time range.',
+          },
+        ];
       }
-      data['groupBy'] = target.groupBy;
-      data['orderBy'].forEach(e => {
-        if (e.name == QUERY_SPECIFIC_ORDERBY_ATTRIBUTES.INTERVAL) {
-          e.name = data['interval'];
-        }
-      });
-      data['limit'] = Number(target.limit) || undefined;
-      var apiRequestUrl = getApiRequestUrl(this.url, this.isAdAnalytics, isMetric);
 
-      const requestOptions = {
-        url: apiRequestUrl + '/' + urlAppendix,
-        data: data,
-        method: 'POST',
-        resultTarget: target.alias || target.refId,
-        resultFormat: target.resultFormat
-      };
-      return this.requestHandler.doRequest(requestOptions);
+      return createDataFrame({
+        name: target.alias,
+        fields: fields,
+        meta: { notices: metaNotices },
+      });
     });
 
-    return Promise.all(targetResponsePromises).then(targetResponses => {
-      let result: ResultData = {
-        series: [],
-        datapointsCnt: 0
-      };
-      targetResponses.map(response => {
-        const partialResult = transform(response, options);
-        result.series = [...result.series, ...partialResult.series];
-        result.datapointsCnt += partialResult.datapointsCnt
-      });
-      return {
-        data: result.series,
-        error: this.generateWarningsForResult(result)
-      };
-    });
+    return Promise.all(promises).then((data) => ({ data }));
   }
 
-  testDatasource(): {status: string, message: string, title: string} {
-    const requestOptions = {
-      url: this.url + '/analytics/licenses',
-      method: 'GET',
+  /** needed because of old plugin logic where limit was saved as string and not as number */
+  parseLimit(limit: number | string | undefined): undefined | number {
+    if (limit == null) {
+      return undefined;
+    }
+
+    if (Number.isInteger(limit)) {
+      return limit as number;
+    } else {
+      return parseInt(limit as string, 10);
+    }
+  }
+
+  /** check if needed fields are set to avoid sending queries to API that will certainly return an error*/
+  isQueryComplete(query: BitmovinAnalyticsDataQuery) {
+    if (isEmpty(query.license) || isEmpty(query.dimension)) {
+      return false
+    }
+
+    if (query.dimension != null) {
+      if (!isMetric(query.dimension) && isEmpty(query.metric)) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  getRequestUrl(metric?: Metric, aggregation?: AggregationMethod): string {
+    let url = '/analytics';
+    if (this.isAdAnalytics === true) {
+      url += '/ads';
+    }
+
+    if (metric != null) {
+      return url + '/metrics/' + metric;
+    }
+
+    return url + '/queries/' + aggregation;
+  }
+
+  request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
+    const headers: Record<string, string>= { 'X-Api-Key': this.apiKey}
+    if (this.tenantOrgId != null) {
+      headers["X-Tenant-Org-Id"] = this.tenantOrgId
+    }
+    const options = {
+      url: this.baseUrl + url,
+      headers: headers,
+      method: method,
+      data: payload,
     };
-    return this.requestHandler.doRequest(requestOptions).then(response => {
-      if (response.status === 200) {
-        return { status: "success", message: "Data source is working", title: "Success" };
-      }
-      return { status: "error", message: "Data source is not working", title: "Error" };
-    });
+
+    return getBackendSrv().fetch(options);
   }
 
-  annotationQuery(options) {
+  async testDatasource() {
+    return lastValueFrom(
+      this.request('/analytics/licenses', 'GET').pipe(
+        map(() => {
+          return {
+            status: 'success',
+            message: 'Data source successfully setup and connected.',
+          };
+        }),
+        catchError((err) => {
+          let message = 'Bitmovin: ';
+          if (err.status) {
+            message += err.status + ' ';
+          }
+          if (err.statusText) {
+            message += err.statusText;
+          } else {
+            message += 'Can not connect to Bitmovin API';
+          }
 
-  }
+          let errorMessage = err.data?.message || err.data?.data?.message;
 
-  metricFindQuery(query) {
+          //additional errorDetails like requestId and timestamp if requestId is set
+          let errorDetails;
+          if (err.data?.requestId) {
+            errorDetails = 'Timestamp: ' + new Date().toISOString();
+            errorDetails += err.data?.requestId ? '\nRequestId: ' + err.data?.requestId : '';
+          }
 
-  }
-
-  getTagKeys(options) {
-    if (this.isAdAnalytics) {
-      return Promise.resolve(getAsOptionsList(AD_ATTRIBUTE_LIST));
-    }
-    return Promise.resolve(getAsOptionsList(ATTRIBUTE_LIST));
-  }
-
-  buildQueryParameters(options): any {
-    return options;
-  }
-
-  // returns DataQueryError https://github.com/grafana/grafana/blob/08bf2a54523526a7f59f7c6a8dafaace79ab87db/packages/grafana-data/src/types/datasource.ts#L400
-  generateWarningsForResult(result): {cancelled: boolean, message: string, status: string} {
-    if (result.datapointsCnt == 200) {
-      return {
-        cancelled: false,
-        message: "Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval or too big of a time range.",
-        status: "WARNING"
-      }
-    }
-
-    return null
+          return of({
+            status: 'error',
+            message: message,
+            details: { message: errorMessage, verboseMessage: errorDetails },
+          });
+        })
+      )
+    );
   }
 }

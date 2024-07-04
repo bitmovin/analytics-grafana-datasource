@@ -1,58 +1,104 @@
-import {QUERY_INTERVAL} from "../types/intervals";
+export type QueryInterval = 'MINUTE' | 'HOUR' | 'DAY';
 
-export const getMomentTimeUnitForQueryInterval = (interval: QUERY_INTERVAL): string => {
-    switch (interval) {
-        case QUERY_INTERVAL.SECOND:
-            return 'second';
-        case QUERY_INTERVAL.MINUTE:
-            return 'minute';
-        case QUERY_INTERVAL.HOUR:
-            return 'hour';
-        case QUERY_INTERVAL.DAY:
-            return 'day';
-        case QUERY_INTERVAL.MONTH:
-            return 'month';
-        default:
-            return null;
-    }
-};
+export type SelectableQueryInterval = QueryInterval | 'AUTO';
 
-/**
- * Calculate the Auto interval based on given intervalMs
- * @param {number} intervalMs The intervalMS
- * @returns {QUERY_INTERVAL} calculated Interval as QUERY_INTERVAL
- */
-export const calculateAutoInterval = (intervalMs: number): QUERY_INTERVAL=> {
-    if (intervalMs <= 5 * 1000) { // SECOND granularity for timeframes below 5min
-        return QUERY_INTERVAL.SECOND;
-    } else if (intervalMs <= 3 * 60 * 60 * 1000) { // MINUTE granularity for timeframes below 3h
-        return QUERY_INTERVAL.MINUTE;
-    } else if (intervalMs <= 6 * 24 * 60 * 60 * 1000) { // HOUR granularity for timeframes below 6d
-        return QUERY_INTERVAL.HOUR;
-    } else if (intervalMs <= 30 * 24 * 60 * 60 * 1000) { // DAY granularity for timeframes below 30d
-        return QUERY_INTERVAL.DAY;
-    }
-    return QUERY_INTERVAL.MONTH;
-}
+export const SELECTABLE_QUERY_INTERVALS: Array<{ value: SelectableQueryInterval | 'AUTO'; label: string }> = [
+  { value: 'AUTO', label: 'Auto' },
+  { value: 'MINUTE', label: 'Minute' },
+  { value: 'HOUR', label: 'Hour' },
+  { value: 'DAY', label: 'Day' },
+];
+
+export const DEFAULT_SELECTABLE_QUERY_INTERVAL = SELECTABLE_QUERY_INTERVALS[0];
 
 /**
  * Get corresponding interval in milliseconds.
- * @param {String} interval The interval
+ *
+ * @param {QueryInterval} interval The interval
  * @returns {number} Interval in milliseconds or -1 if unknown.
  */
-export const intervalToMilliseconds = (interval: string) : number => {
-    switch(interval) {
-        case QUERY_INTERVAL.SECOND:
-            return 1000;
-        case QUERY_INTERVAL.MINUTE:
-            return 1000*60;
-        case QUERY_INTERVAL.HOUR:
-            return 1000*60*60;
-        case QUERY_INTERVAL.DAY:
-            return 1000*60*60*24;
-        case QUERY_INTERVAL.MONTH:
-            return 1000*60*60*24*30;
-        default:
-            return -1;
-    }
+export const intervalToMilliseconds = (interval: QueryInterval): number => {
+  switch (interval) {
+    case 'MINUTE':
+      return 1000 * 60;
+    case 'HOUR':
+      return 1000 * 60 * 60;
+    case 'DAY':
+      return 1000 * 60 * 60 * 24;
+    default:
+      return -1;
+  }
 };
+
+/**
+ * Calculates the Query interval based on a given selected interval, start timestamp and end timestamp
+ *
+ * @param {SelectableQueryInterval} interval The selected interval
+ * @param {number} startTimestamp The start timestamp in milliseconds
+ * @param {number} endTimestamp The end timestamp in milliseconds
+ * @returns {QueryInterval} calculated Interval as QueryInterval
+ */
+export const calculateQueryInterval = (
+  interval: SelectableQueryInterval,
+  startTimestamp: number,
+  endTimestamp: number
+): QueryInterval => {
+  if (interval !== 'AUTO') {
+    return interval as QueryInterval;
+  }
+
+  const intervalInMilliseconds = endTimestamp - startTimestamp;
+  const minuteIntervalLimitInMilliseconds = 3 * 60 * 60 * 1000; // MINUTE granularity for timeframes below 3h
+  const hourIntervalLimitInMilliseconds = 6 * 24 * 60 * 60 * 1000; // HOUR granularity for timeframes below 6d
+
+  if (intervalInMilliseconds <= minuteIntervalLimitInMilliseconds) {
+    return 'MINUTE';
+  } else if (intervalInMilliseconds <= hourIntervalLimitInMilliseconds) {
+    return 'HOUR';
+  }
+  return 'DAY';
+};
+
+/**
+ * Rounds up a timestamp according to the specified query interval.
+ *
+ * @param {number} startTimestamp The start timestamp of the query.
+ * @param {QueryInterval} interval       The query interval.
+ * @param {number} dataTimestamp  The timestamp of a data point. Needed to calculate correct Day interval timestamp.
+ * @return {number} The rounded up timestamp.
+ */
+export function ceilTimestampAccordingToQueryInterval(
+  startTimestamp: number,
+  interval: QueryInterval,
+  dataTimestamp: number
+): number {
+  const startDate = new Date(startTimestamp);
+  switch (interval) {
+    case 'MINUTE':
+      if (startDate.getSeconds() === 0 && startDate.getMilliseconds() === 0) {
+        return startTimestamp;
+      }
+      return startDate.setMinutes(startDate.getMinutes() + 1, 0, 0);
+    case 'HOUR':
+      if (startDate.getMinutes() === 0 && startDate.getSeconds() === 0 && startDate.getMilliseconds() === 0) {
+        return startTimestamp;
+      }
+      return startDate.setHours(startDate.getHours() + 1, 0, 0, 0);
+    case 'DAY':
+      // Take the hours and minutes value from the datapoint timestamps as the timestamps for the day interval depend on the timezone of the license
+      const dataHours = new Date(dataTimestamp).getHours();
+      const dataMinutes = new Date(dataTimestamp).getMinutes();
+      const startDateWithCorrectTime = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        dataHours,
+        dataMinutes
+      );
+
+      if (startDateWithCorrectTime.getTime() > startTimestamp) {
+        return startDateWithCorrectTime.getTime();
+      }
+      return new Date(startDateWithCorrectTime).setDate(startDateWithCorrectTime.getDate() + 1);
+  }
+}
