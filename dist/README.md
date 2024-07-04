@@ -1,51 +1,55 @@
-<!-- This README file is going to be the one displayed on the Grafana.com website for your plugin. Uncomment and replace the content here before publishing.
+# Bitmovin Analytics Grafana Plugin
 
-Remove any remaining comments before publishing as these may be displayed on Grafana.com -->
+Plugin that allows you to connect Bitmovin Analytics solution into your Grafana dashboards.
 
-# Bitmovin Analytics
+## Setup
 
-Data source plugin which allows you to query analytics data from the bitmovin api
+### Add the datasource
 
-<!-- To help maximize the impact of your README and improve usability for users, we propose the following loose structure:
+Add the plugin and acquire your Bitmovin Analytics API key from the [bitmovin dashboard](https://dashboard.bitmovin.com/account).
 
-**BEFORE YOU BEGIN**
-- Ensure all links are absolute URLs so that they will work when the README is displayed within Grafana and Grafana.com
-- Be inspired ✨
-  - [grafana-polystat-panel](https://github.com/grafana/grafana-polystat-panel)
-  - [volkovlabs-variable-panel](https://github.com/volkovlabs/volkovlabs-variable-panel)
+Configure the datasource:
 
-**ADD SOME BADGES**
+| Setting      | Value                                                    |
+|--------------|----------------------------------------------------------|
+| URL          | `https://api.bitmovin.com/v1`                            |
+| API Key      | Your API key                                             |
+| Ad Analytics | If checked, the datasource is switched to query ads data |
 
-Badges convey useful information at a glance for users whether in the Catalog or viewing the source code. You can use the generator on [Shields.io](https://shields.io/badges/dynamic-json-badge) together with the Grafana.com API
-to create dynamic badges that update automatically when you publish a new version to the marketplace.
+Optionally add your `Tenant Org Id` which you can also get from the [bitmovin dashboard](https://dashboard.bitmovin.com).
 
-- For the logo field use 'grafana'.
-- Examples (label: query)
-  - Downloads: $.downloads
-  - Catalog Version: $.version
-  - Grafana Dependency: $.grafanaDependency
-  - Signature Type: $.versionSignatureType
+### Add example dashboard
 
-Full example: ![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?logo=grafana&query=$.version&url=https://grafana.com/api/plugins/grafana-polystat-panel&label=Marketplace&prefix=v&color=F47A20)
+See the [example_dashboard.json](example_dashboard.json) for a demo. Configure the datasource with your Api Key and select a license key in each panel.
 
-Consider other [badges](https://shields.io/badges) as you feel appropriate for your project.
+## Time Series Graph
 
-## Overview / Introduction
-Provide one or more paragraphs as an introduction to your plugin to help users understand why they should use it.
+Add a new panel and select the bitmovin analytics datasource.
+Configure the metric with following settings:
 
-Consider including screenshots:
-- in [plugin.json](https://grafana.com/developers/plugin-tools/reference-plugin-json#info) include them as relative links.
-- in the README ensure they are absolute URLs.
+| Setting                | Description                                                                              |
+|------------------------|------------------------------------------------------------------------------------------|
+| License*               | Your analytics license                                                                   |
+| Metric*                | Aggregation method to use, e.g. `count`, `sum`                                           |
+| Dimension*             | Dimension to aggregate over                                                              |
+| Filter                 | Apply filters to the query                                                               |
+| Format as time series* | Check the switch to see time series data                                                 |
+| Group By*              | Group query by dimension and plot as individual time series                              |
+| Order By               | Order query ascending or descending by dimension                                         |
+| Limit                  | Limit the result to given number                                                         |
+| Interval*              | Time granularity of queries, select `AUTO` to automatically adapt to selected time range |
+| Alias By*              | Set the name of series (only visible with multiple queries in one Graph)                 |
 
-## Requirements
-List any requirements or dependencies they may need to run the plugin.
+Settings marked with `*` are required for the time series graph.
 
-## Getting Started
-Provide a quick start on how to configure and use the plugin.
+### Grouped Time Series
 
-## Documentation
-If your project has dedicated documentation available for users, provide links here. For help in following Grafana's style recommendations for technical documentation, refer to our [Writer's Toolkit](https://grafana.com/docs/writers-toolkit/).
+To compare e.g. impressions per browser, we provide the `Group By` attribute to group the results by specific dimensions and plot them as individual time series. Multiple `Group Bys` are supported for time series.
 
-## Contributing
-Do you want folks to contribute to the plugin or provide feedback through specific means? If so, tell them how!
--->
+## Tables
+
+Configure the metric as described in [Time Series Graph](#time-series-graph) but uncheck the `Format as time series` option and add a `Group By` dimension. It is recommended to add a limit (e.g. 10).
+
+## Support
+
+Please refer to our [Documentation](https://developer.bitmovin.com/playback/docs/integrating-bitmovin-analytics-with-grafana) and [Analytics Api Reference](https://developer.bitmovin.com/playback/reference/overview) for more information or reach out to us at [bitmovin.com](https://bitmovin.com/contact-bitmovin/).

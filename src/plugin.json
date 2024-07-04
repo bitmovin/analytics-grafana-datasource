@@ -5,16 +5,20 @@
   "id": "bitmovin-analytics-datasource",
   "metrics": true,
   "info": {
-    "description": "Data source plugin which allows you to query analytics data from the bitmovin api",
+    "description": "Data source plugin which allows you to query Analytics data from the Bitmovin API",
     "author": {
-      "name": "Bitmovin"
+      "name": "Bitmovin",
+      "url": "https://bitmovin.com"
     },
-    "keywords": ["datasource"],
+    "keywords": ["bitmovin", "video", "analytics", "datasource", "drm", "ads", "streaming"],
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
-    "links": [],
+    "links": [
+      {"name": "Project site", "url": "https://github.com/bitmovin/analytics-grafana-datasource"},
+      {"name": "Apache License", "url": "https://github.com/bitmovin/analytics-grafana-datasource/blob/main/LICENSE"}
+    ],
     "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"
