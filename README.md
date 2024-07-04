@@ -1,3 +1,6 @@
+# [DEPRECATED] 
+This plugin version is deprecated and should not be used anymore. It is angular based and only works with grafana versions <= 10.1.10. The migrated react based plugin can be found [here](https://github.com/bitmovin/analytics-grafana-datasource/).
+
 # Bitmovin Analytics Grafana Plugin
 
 Plugin that allows you to connect Bitmovin Analytics solution into your Grafana dashboards.
