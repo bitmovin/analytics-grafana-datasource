@@ -9,7 +9,7 @@ import {
   QueryResultMetaNotice,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { filter } from 'lodash';
+import {filter, isEmpty} from 'lodash';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import {
@@ -87,7 +87,10 @@ export class DataSource extends DataSourceApi<
     //filter disabled queries
     const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
 
-    const promises = enabledQueries.map(async (target) => {
+    //filter invalid queries
+    const validQueries = filter(enabledQueries, (t) => this.isQueryComplete(t))
+
+    const promises = validQueries.map(async (target) => {
       const interval =
         target.resultFormat === 'time_series' && target.interval
           ? calculateQueryInterval(target.interval, from.getTime(), to.getTime())
@@ -189,6 +192,21 @@ export class DataSource extends DataSourceApi<
     } else {
       return parseInt(limit as string, 10);
     }
+  }
+
+  /** check if needed fields are set to avoid sending queries to API that will certainly return an error*/
+  isQueryComplete(query: BitmovinAnalyticsDataQuery) {
+    if (isEmpty(query.license) || isEmpty(query.dimension)) {
+      return false
+    }
+
+    if (query.dimension != null) {
+      if (!isMetric(query.dimension) && isEmpty(query.metric)) {
+        return false
+      }
+    }
+
+    return true
   }
 
   getRequestUrl(metric?: Metric, aggregation?: AggregationMethod): string {
