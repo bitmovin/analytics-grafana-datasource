@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Development
+## 0.4.0
+
+### Deprecated
+**This angular based plugin version is now deprecated.** The migrated react based plugin can be found [here](https://github.com/bitmovin/analytics-grafana-datasource/).
 
 ### Changed
 - [internal] converts project to typescript
