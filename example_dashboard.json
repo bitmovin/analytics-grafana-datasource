@@ -102,10 +102,7 @@
       "targets": [
         {
           "alias": "Total",
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -124,10 +121,7 @@
         },
         {
           "alias": "Error",
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -155,10 +149,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -236,10 +227,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "ERROR_PERCENTAGE",
           "filter": [
             {
@@ -261,10 +249,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -342,10 +327,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "REBUFFER_PERCENTAGE",
           "filter": [],
           "groupBy": [],
@@ -361,10 +343,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -442,10 +421,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "PLAYED",
           "filter": [
             {
@@ -467,10 +443,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -547,10 +520,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "MAX_CONCURRENTVIEWERS",
           "filter": [],
           "groupBy": [],
@@ -565,10 +535,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -645,10 +612,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -672,10 +636,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -753,10 +714,7 @@
       "targets": [
         {
           "alias": "",
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -780,10 +738,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -836,10 +791,7 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -868,10 +820,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -924,10 +873,7 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -957,10 +903,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1013,10 +956,7 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [],
           "groupBy": [
@@ -1040,10 +980,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "bitmovin-analytics-datasource",
-        "uid": "PC6526C9D339F63A2"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1096,10 +1033,7 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {
-            "type": "bitmovin-analytics-datasource",
-            "uid": "PC6526C9D339F63A2"
-          },
+          "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [],
           "groupBy": [
