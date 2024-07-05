@@ -34,11 +34,11 @@ Configure the metric with following settings:
 | Dimension*             | Dimension to aggregate over                                                              |
 | Filter                 | Apply filters to the query                                                               |
 | Format as time series* | Check the switch to see time series data                                                 |
-| Group By*              | Group query by dimension and plot as individual time series                              |
+| Group By               | Group query by dimension and plot as individual time series                              |
 | Order By               | Order query ascending or descending by dimension                                         |
 | Limit                  | Limit the result to given number                                                         |
 | Interval*              | Time granularity of queries, select `AUTO` to automatically adapt to selected time range |
-| Alias By*              | Set the name of series (only visible with multiple queries in one Graph)                 |
+| Alias By               | Set the name of series (only visible with multiple queries in one Graph)                 |
 
 Settings marked with `*` are required for the time series graph.
 
