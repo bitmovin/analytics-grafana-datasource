@@ -96,7 +96,7 @@ This project was generated with `yarn create @grafana/plugin@4.3.0`.
    yarn run server
    ```
 
-6. Run the E2E tests (using Cypress)
+6. Run the E2E tests (using Playwright)
 
    ```bash
    # Spins up a Grafana instance first that we tests against
