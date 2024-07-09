@@ -140,6 +140,7 @@ export function QueryEditor(props: Props) {
         <InlineField label="Interval" labelWidth={20}>
           <Select
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
+            value={query.interval}
             onChange={(item) => handleIntervalChange(item)}
             width={30}
             options={SELECTABLE_QUERY_INTERVALS}
