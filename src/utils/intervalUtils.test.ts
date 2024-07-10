@@ -1,4 +1,30 @@
-import { calculateQueryInterval } from './intervalUtils';
+import { calculateQueryInterval, getSmallerInterval } from './intervalUtils';
+
+describe('getSmallerInterval', () => {
+  it('should return smaller interval for MINUTE and HOUR interval', () => {
+    //arrange && act
+    const result = getSmallerInterval('HOUR', 'MINUTE');
+
+    //assert
+    expect(result).toEqual('MINUTE');
+  });
+
+  it('should return smaller interval for HOUR and DAY interval', () => {
+    //arrange && act
+    const result = getSmallerInterval('DAY', 'HOUR');
+
+    //assert
+    expect(result).toEqual('HOUR');
+  });
+
+  it('should return smaller interval for DAY and MONTH interval', () => {
+    //arrange && act
+    const result = getSmallerInterval('DAY', 'MONTH');
+
+    //assert
+    expect(result).toEqual('DAY');
+  });
+});
 
 describe('calculateQueryInterval', () => {
   it('should return correct given interval if interval is not AUTO', () => {
