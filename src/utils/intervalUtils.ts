@@ -1,3 +1,4 @@
+// eslint-disable-next-line  no-restricted-imports
 import type { DurationInputArg2 } from 'moment';
 
 export type QueryInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'MONTH';

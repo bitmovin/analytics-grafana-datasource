@@ -1,6 +1,7 @@
 import { differenceWith, sortBy, zip } from 'lodash';
 import { getMomentTimeUnitForQueryInterval, QueryInterval } from './intervalUtils';
 import { Field, FieldType } from '@grafana/data';
+// eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
 import type { DurationInputArg2 } from 'moment/moment';
 
