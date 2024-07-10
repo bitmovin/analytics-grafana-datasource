@@ -14,6 +14,24 @@ export const SELECTABLE_QUERY_INTERVALS: Array<{ value: SelectableQueryInterval 
 
 export const DEFAULT_SELECTABLE_QUERY_INTERVAL = SELECTABLE_QUERY_INTERVALS[0];
 
+/** Intervals ordered ascending by duration */
+const intervalOrder = ['MINUTE', 'HOUR', 'DAY', 'MONTH'];
+
+/**
+ * Return the smaller interval of two provided intervals
+ *
+ * @param {QueryInterval} interval1 The first interval
+ * @param {QueryInterval} interval2 The second interval
+ * */
+export const getSmallerInterval = (interval1: QueryInterval, interval2: QueryInterval) => {
+  // Get the indices of the intervals
+  const index1 = intervalOrder.indexOf(interval1);
+  const index2 = intervalOrder.indexOf(interval2);
+
+  // Return the smaller interval
+  return index1 < index2 ? interval1 : interval2;
+};
+
 /**
  * Calculates the Query interval based on a given selected interval, start timestamp and end timestamp
  *

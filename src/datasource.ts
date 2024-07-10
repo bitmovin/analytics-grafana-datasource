@@ -26,7 +26,12 @@ import {
   transformSimpleTimeSeries,
   transformTableData,
 } from './utils/dataUtils';
-import { calculateQueryInterval, getMomentTimeUnitForQueryInterval, QueryInterval } from './utils/intervalUtils';
+import {
+  calculateQueryInterval,
+  getMomentTimeUnitForQueryInterval,
+  getSmallerInterval,
+  QueryInterval,
+} from './utils/intervalUtils';
 import { isMetric, Metric } from './types/metric';
 import { AggregationMethod } from './types/aggregationMethod';
 import { ProperTypedQueryFilter } from './types/queryFilter';
@@ -99,11 +104,17 @@ export class DataSource extends DataSourceApi<
       let queryFrom = range!.from;
       const queryTo = range!.to;
 
-      //TODOMY is the interval here is still relevant for flooring, for cash optimization we should also consider table so maybe ignoroe interval?
-      if (isRelativeRange && interval != null) {
-        const momentTimeUnit = getMomentTimeUnitForQueryInterval(interval);
+      // floor the query start time to improve cache hitting
+      if (isRelativeRange) {
+        let flooringInterval = calculateQueryInterval('AUTO', queryFrom.valueOf(), queryTo.valueOf());
+        if (interval != null) {
+          // to allow higher granularity if interval is selected by user
+          flooringInterval = getSmallerInterval(interval, flooringInterval);
+        }
+        const momentTimeUnit = getMomentTimeUnitForQueryInterval(flooringInterval);
         if (momentTimeUnit != null) {
-          // range from is a moment and startOf is mutating moment object, aka we can at this point change grafana selected valued
+          // range from is a moment and startOf is mutating moment object so this has a side effect to also change the
+          // grafana selected timeframe value which will adapt the grafana graph as well
           queryFrom = range!.from.startOf(momentTimeUnit);
         }
       }
