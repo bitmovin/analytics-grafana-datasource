@@ -37,7 +37,7 @@ export function calculateTimeSeriesStartTimestamp(
     case 'MONTH':
       referenceDataDate.getDate() === 1
         ? intervalStartDate.setDate(referenceDataDate.getDate())
-        : intervalStartDate.setDate(0);
+        : intervalStartDate.setDate(0); // sets the date to the last day of the previous month
       return intervalStartDate.setHours(referenceDataDate.getHours(), referenceDataDate.getMinutes(), 0, 0);
   }
 }

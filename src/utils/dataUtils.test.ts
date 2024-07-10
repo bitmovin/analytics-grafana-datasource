@@ -1,10 +1,73 @@
 import {
+  calculateTimeSeriesStartTimestamp,
   padAndSortTimeSeries,
   transformGroupedTimeSeriesData,
   transformSimpleTimeSeries,
   transformTableData,
 } from './dataUtils';
 import { FieldType } from '@grafana/data';
+
+describe('calculateTimeSeriesStartTimestamp', () => {
+  it('should return correct timestamp for MINUTE interval', () => {
+    //arrange
+    const referenceDataTimestamp = 1720598700000; // Wednesday, 10 July 2024 08:05:00
+    const intervalStartTimestamp = 1720598508400; // Wednesday, 10 July 2024 08:01:48.400
+
+    //act
+    const result = calculateTimeSeriesStartTimestamp(referenceDataTimestamp, intervalStartTimestamp, 'MINUTE');
+
+    //assert
+    expect(result).toEqual(1720598460000); //Wednesday, 10 July 2024 08:01:00
+  });
+
+  it('should return correct timestamp for HOUR interval', () => {
+    //arrange
+    const referenceDataTimestamp = 1720598400000; // Wednesday, 10 July 2024 08:00:00
+    const intervalStartTimestamp = 1720591381300; // Wednesday, 10 July 2024 03:03:01.300
+
+    //act
+    const result = calculateTimeSeriesStartTimestamp(referenceDataTimestamp, intervalStartTimestamp, 'HOUR');
+
+    //assert
+    expect(result).toEqual(1720591200000); // Wednesday, 10 July 2024 06:00:00
+  });
+
+  it('should return correct timestamp for DAY interval', () => {
+    //arrange
+    const referenceDataTimestamp = 1720650600000; // Wednesday, 10 July 2024 22:30:00
+    const intervalStartTimestamp = 1720442041020; // Monday, 8 July 2024 12:34:01.020
+
+    //act
+    const result = calculateTimeSeriesStartTimestamp(referenceDataTimestamp, intervalStartTimestamp, 'DAY');
+
+    //assert
+    expect(result).toEqual(1720477800000); // Monday, 8 July 2024 22:30:00
+  });
+
+  it('should return correct timestamp for MONTH interval with dataTimestamp being the first day of a month', () => {
+    //arrange
+    const referenceDataTimestamp = 1719873000000; // Monday, 1 July 2024 22:30:00
+    const intervalStartTimestamp = 1714915205040; // Sunday, 5 May 2024 13:20:05.040
+
+    //act
+    const result = calculateTimeSeriesStartTimestamp(referenceDataTimestamp, intervalStartTimestamp, 'MONTH');
+
+    //assert
+    expect(result).toEqual(1714602600000); //  Wednesday, 1 May 2024 22:30:00
+  });
+
+  it('should return correct timestamp for MONTH interval with dataTimestamp being the last day of a month', () => {
+    //arrange
+    const referenceDataTimestamp = 1719786600000; // Sunday, 30 June 2024 22:30:00
+    const intervalStartTimestamp = 1711374785001; // Monday, 25 March 2024 13:53:05.001
+
+    //act
+    const result = calculateTimeSeriesStartTimestamp(referenceDataTimestamp, intervalStartTimestamp, 'MONTH');
+
+    //assert
+    expect(result).toEqual(1709245800000); // Thursday, 29 February 2024 22:30:00
+  });
+});
 
 describe('padAndSortTimeSeries', () => {
   it('should return sorted and padded data for simple time series data for MINUTE interval', () => {
@@ -52,6 +115,30 @@ describe('padAndSortTimeSeries', () => {
       [1712926800000, 0], //Friday, 12 April 2024 13:00:00
       [1712930400000, 5], //Friday, 12 April 2024 14:00:00
       [1712934000000, 2], //Friday, 12 April 2024 15:00:00
+    ]);
+  });
+
+  it('should return sorted and padded data for simple time series data for DAY interval', () => {
+    //arrange
+    const data = [
+      [1712917800000, 1], //Friday, 12 April 2024 10:30:00
+      [1713004200000, 2], //Saturday, 13 April 2024 10:30:00
+      [1713263400000, 5], //Tuesday, 16 April 2024 10:30:00
+    ];
+
+    const startTimestamp = 1712919560000; //Friday, 12 April 2024 10:59:20
+    const endTimestamp = 1713351560000; //Wednesday, 17 April 2024 10:59:20
+
+    //act
+    const result = padAndSortTimeSeries(data, startTimestamp, endTimestamp, 'DAY');
+
+    //assert
+    expect(result).toEqual([
+      [1713004200000, 2], //Saturday, 13 April 2024 10:30:00
+      [1713090600000, 0], //Sunday, 14 April 2024 10:30:00
+      [1713177000000, 0], //Monday, 15 April 2024 10:30:00
+      [1713263400000, 5], //Tuesday, 16 April 2024 10:30:00
+      [1713349800000, 0], //Wednesday, 17 April 2024 10:30:00
     ]);
   });
 
