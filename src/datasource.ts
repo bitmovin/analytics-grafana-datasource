@@ -87,7 +87,7 @@ export class DataSource extends DataSourceApi<
    * */
   async query(options: DataQueryRequest<BitmovinAnalyticsDataQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const isRelativeRange = this.isRelativeRange(range.raw);
+    const isRelativeRangeFrom = this.isRelativeRangeFrom(range.raw);
 
     //filter disabled queries
     const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
@@ -105,7 +105,7 @@ export class DataSource extends DataSourceApi<
       const queryTo = range!.to;
 
       // floor the query start time to improve cache hitting
-      if (isRelativeRange) {
+      if (isRelativeRangeFrom) {
         let flooringInterval = calculateQueryInterval('AUTO', queryFrom.valueOf(), queryTo.valueOf());
         if (interval != null) {
           // to allow higher granularity if interval is selected by user
@@ -206,8 +206,8 @@ export class DataSource extends DataSourceApi<
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  /** Checks if the selected grafana Timerange is relative or absolute */
-  isRelativeRange(range: RawTimeRange) {
+  /** Checks if the selected grafana Timerange From is relative or absolute */
+  private isRelativeRangeFrom(range: RawTimeRange) {
     return typeof range.from === 'string';
   }
 
