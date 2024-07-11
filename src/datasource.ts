@@ -253,7 +253,10 @@ export class DataSource extends DataSourceApi<
   }
 
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
-    const headers: Record<string, string> = { 'X-Api-Key': this.apiKey };
+    const headers: Record<string, string> = {
+      'X-Api-Key': this.apiKey,
+      'X-Api-Client': 'analytics-grafana-datasource',
+    };
     if (this.tenantOrgId != null) {
       headers['X-Tenant-Org-Id'] = this.tenantOrgId;
     }
