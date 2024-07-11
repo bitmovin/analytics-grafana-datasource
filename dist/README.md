@@ -50,6 +50,13 @@ To compare e.g. impressions per browser, we provide the `Group By` attribute to 
 
 Configure the metric as described in [Time Series Graph](#time-series-graph) but uncheck the `Format as time series` option and add a `Group By` dimension. It is recommended to add a limit (e.g. 10).
 
+## Gauges
+
+Configure the Gauge's `Value Options`, depending on your query. 
+
+- For table data (`Format as time series` option **unchecked**) for the `Show` option select `All Values`.
+- For time series data (`Format as time series` option **checked**) for the `Show` option select `Calculate` and choose a reducer function.
+
 ## Support
 
 Please refer to our [Documentation](https://developer.bitmovin.com/playback/docs/integrating-bitmovin-analytics-with-grafana) and [Analytics Api Reference](https://developer.bitmovin.com/playback/reference/overview) for more information or reach out to us at [bitmovin.com](https://bitmovin.com/contact-bitmovin/).

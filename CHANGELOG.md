@@ -2,6 +2,8 @@
 
 ## Development
 
+## 1.1.0
+
 ### Added
 
 - `MONTH` option to interval selection
