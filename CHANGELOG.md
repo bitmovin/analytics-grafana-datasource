@@ -2,6 +2,8 @@
 
 ## Development
 
+## 1.1.1
+
 ### Added
 
 - `X-Api-Client` header
