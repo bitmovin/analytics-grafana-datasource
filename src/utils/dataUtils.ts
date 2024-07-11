@@ -67,13 +67,9 @@ export function padAndSortTimeSeries(
     throw new Error(`Query interval ${interval} is not a valid interval.`);
   }
 
-  let zeroValueDataRow: MixedDataRow = [0];
   const zeroValueTimeSeries: MixedDataRowList = [];
-
-  // Preserve groupBys in the data if present
-  if (data[0].length > 2) {
-    zeroValueDataRow = [...data[0].slice(1, -1), 0];
-  }
+  // Create zero value data for padding and preserve groupBys in the data if present
+  const zeroValueDataRow = data[0].length > 2 ? [...data[0].slice(1, -1), 0] : [0];
 
   let momentStartTimestamp = moment(startTimestamp);
 
