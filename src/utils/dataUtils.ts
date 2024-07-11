@@ -1,6 +1,9 @@
 import { differenceWith, sortBy, zip } from 'lodash';
-import { ceilTimestampAccordingToQueryInterval, intervalToMilliseconds, QueryInterval } from './intervalUtils';
+import { getMomentTimeUnitForQueryInterval, QueryInterval } from './intervalUtils';
 import { Field, FieldType } from '@grafana/data';
+// eslint-disable-next-line  no-restricted-imports
+import moment from 'moment';
+import type { DurationInputArg2 } from 'moment/moment';
 
 export type MixedDataRow = Array<string | number>;
 export type MixedDataRowList = MixedDataRow[];
@@ -9,12 +12,44 @@ export type NumberDataRow = number[];
 export type NumberDataRowList = NumberDataRow[];
 
 /**
+ * Calculates the start timestamp for a time series based on a given interval,
+ * the start timestamp of the interval and a reference data point timestamp.
+ *
+ * @param {number} dataTimestamp - The timestamp of a reference data point, from which to take the correct min, hour and date (in milliseconds).
+ * @param {number} intervalStartTimestamp - The start timestamp of the interval (in milliseconds).
+ * @param {QueryInterval} interval - The interval used for the query, e.g. MINUTE, HOUR, ... .
+ * @returns {number} - The calculated start timestamp for the time series (in milliseconds).
+ */
+export function calculateTimeSeriesStartTimestamp(
+  dataTimestamp: number,
+  intervalStartTimestamp: number,
+  interval: QueryInterval
+): number {
+  const referenceDataDate = new Date(dataTimestamp);
+  const intervalStartDate = new Date(intervalStartTimestamp);
+
+  switch (interval) {
+    case 'MINUTE':
+      return intervalStartDate.setSeconds(0, 0);
+    case 'HOUR':
+      return intervalStartDate.setMinutes(0, 0, 0);
+    case 'DAY':
+      return intervalStartDate.setHours(referenceDataDate.getHours(), referenceDataDate.getMinutes(), 0, 0);
+    case 'MONTH':
+      referenceDataDate.getDate() === 1
+        ? intervalStartDate.setDate(referenceDataDate.getDate())
+        : intervalStartDate.setDate(0); // sets the date to the last day of the previous month
+      return intervalStartDate.setHours(referenceDataDate.getHours(), referenceDataDate.getMinutes(), 0, 0);
+  }
+}
+
+/**
  * Adds padding to a given time series to fill in any missing timestamps for a given interval.
  *
  * @param {MixedDataRowList} data The time series data to be padded. Each data row must have the following structure: [timestamp: number, groupBy1?: string, ... , groupByN?: string, value: number] where each row has the same groupByValue. If the groupByValues differ from row to row, only the groupByValues of the first row are considered.
  * @param {number} startTimestamp The start timestamp in milliseconds for the padding interval.
  * @param {number} endTimestamp The end timestamp in milliseconds for the padding interval.
- * @param {String} interval The interval used for the query, e.g. MINUTE, HOUR, ... .
+ * @param {QueryInterval} interval The interval used for the query, e.g. MINUTE, HOUR, ... .
  * @returns {MixedDataRowList} The padded and sorted time series data.
  */
 export function padAndSortTimeSeries(
@@ -27,26 +62,32 @@ export function padAndSortTimeSeries(
     return [];
   }
 
-  const intervalInMs = intervalToMilliseconds(interval);
-  if (intervalInMs < 0) {
+  const momentInterval = getMomentTimeUnitForQueryInterval(interval);
+  if (momentInterval == null) {
     throw new Error(`Query interval ${interval} is not a valid interval.`);
   }
 
-  // ceil timestamp to pad data with accurate timestamps and to ignore incomplete first datapoints
-  const ceiledTimestamp = ceilTimestampAccordingToQueryInterval(startTimestamp, interval, data[0][0] as number);
-
-  let dataRows: MixedDataRow = [0];
   const zeroValueTimeSeries: MixedDataRowList = [];
+  // Create zero value data for padding and preserve groupBys in the data if present
+  const zeroValueDataRow = data[0].length > 2 ? [...data[0].slice(1, -1), 0] : [0];
 
-  // Preserve groupBys in the data if present
-  if (data[0].length > 2) {
-    dataRows = [...data[0].slice(1, -1), 0];
-  }
+  let momentStartTimestamp = moment(startTimestamp);
 
   // Create zero value time series data for the entire interval
-  for (let timestamp = ceiledTimestamp; timestamp <= endTimestamp; timestamp += intervalInMs) {
-    const row = [timestamp, ...dataRows];
+  while (momentStartTimestamp.valueOf() <= endTimestamp) {
+    const row = [momentStartTimestamp.valueOf(), ...zeroValueDataRow];
     zeroValueTimeSeries.push(row);
+
+    // Move the timestamp forward by one interval unit
+    momentStartTimestamp.add(1, momentInterval as DurationInputArg2);
+
+    // Handle the special case for monthly intervals with last day of the month data timestamps
+    // This code ensures that intervals starting at the end of a month correctly transition to the
+    // last day of the next month. E.g. adding one month to 30th April with moment results in 30th May,
+    // but the last day of the month, i.e., 31st May is the correct value.
+    if (interval === 'MONTH' && momentStartTimestamp.date() !== 1) {
+      momentStartTimestamp.set('date', momentStartTimestamp.daysInMonth());
+    }
   }
 
   // Find the missing time series data
@@ -58,14 +99,7 @@ export function padAndSortTimeSeries(
   // Sort data by timestamp
   const sortedData = sortBy(paddedData, (row) => row[0]);
 
-  // Ignore datapoints before ceiled start timestamp to only show complete datapoints and to not overflow graph to the left
-  let index = 0;
-  while (sortedData[index][0] < ceiledTimestamp) {
-    index++;
-  }
-  const trimmedData = sortedData.slice(index);
-
-  return trimmedData;
+  return sortedData;
 }
 
 /**
@@ -74,7 +108,7 @@ export function padAndSortTimeSeries(
  * @param {MixedDataRowList} dataRows The grouped time series data to be transformed. Each data row must have the following structure: [timestamp: number, groupBy1: string, groupBy2: string, ... ,groupByN: string, value: number]
  * @param {number} startTimestamp The start timestamp in milliseconds for the time series data.
  * @param {number} endTimestamp The end timestamp in milliseconds for the time series data.
- * @param {string} interval The interval used for the time series data.
+ * @param {QueryInterval} interval The interval used for the time series data.
  * @returns {Array<Partial<Field>>} The transformed time series data.
  */
 export function transformGroupedTimeSeriesData(
@@ -102,7 +136,14 @@ export function transformGroupedTimeSeriesData(
   // Pad grouped data as there can only be one time field for a graph with multiple time series
   const paddedTimeSeries: MixedDataRowList[] = [];
   groupedTimeSeriesMap.forEach((data) => {
-    paddedTimeSeries.push(padAndSortTimeSeries(data, startTimestamp, endTimestamp, interval));
+    paddedTimeSeries.push(
+      padAndSortTimeSeries(
+        data,
+        calculateTimeSeriesStartTimestamp(data[0][0] as number, startTimestamp, interval),
+        endTimestamp,
+        interval
+      )
+    );
   });
 
   // Extract and save timestamps from the first group data
@@ -136,7 +177,7 @@ export function transformGroupedTimeSeriesData(
  * @param {string} columnName The name for the value column in the time series data.
  * @param {number} startTimestamp The start timestamp in milliseconds for the time series data.
  * @param {number} endTimestamp The end timestamp in milliseconds for the time series data.
- * @param {string} interval The interval used for the time series data.
+ * @param {QueryInterval} interval The interval used for the time series data.
  * @returns {Array<Partial<Field>>} The transformed time series data.
  */
 export function transformSimpleTimeSeries(
@@ -151,7 +192,12 @@ export function transformSimpleTimeSeries(
   }
 
   const fields: Array<Partial<Field>> = [];
-  const paddedData = padAndSortTimeSeries(dataRows, startTimestamp, endTimestamp, interval);
+  const paddedData = padAndSortTimeSeries(
+    dataRows,
+    calculateTimeSeriesStartTimestamp(dataRows[0][0], startTimestamp, interval),
+    endTimestamp,
+    interval
+  );
   const columns = zip(...paddedData);
 
   fields.push({ name: 'Time', values: columns[0] as NumberDataRow, type: FieldType.time });

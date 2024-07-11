@@ -7,14 +7,15 @@ import {
   DataSourceInstanceSettings,
   Field,
   QueryResultMetaNotice,
+  RawTimeRange,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import {filter, isEmpty} from 'lodash';
+import { filter, isEmpty } from 'lodash';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import {
-  BitmovinDataSourceOptions,
   BitmovinAnalyticsDataQuery,
+  BitmovinDataSourceOptions,
   DEFAULT_QUERY,
   OldBitmovinAnalyticsDataQuery,
 } from './types/grafanaTypes';
@@ -25,7 +26,12 @@ import {
   transformSimpleTimeSeries,
   transformTableData,
 } from './utils/dataUtils';
-import { calculateQueryInterval, QueryInterval } from './utils/intervalUtils';
+import {
+  calculateQueryInterval,
+  getMomentTimeUnitForQueryInterval,
+  getSmallerInterval,
+  QueryInterval,
+} from './utils/intervalUtils';
 import { isMetric, Metric } from './types/metric';
 import { AggregationMethod } from './types/aggregationMethod';
 import { ProperTypedQueryFilter } from './types/queryFilter';
@@ -81,20 +87,37 @@ export class DataSource extends DataSourceApi<
    * */
   async query(options: DataQueryRequest<BitmovinAnalyticsDataQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const from = range!.from.toDate();
-    const to = range!.to.toDate();
+    const isRelativeRangeFrom = this.isRelativeRangeFrom(range.raw);
 
     //filter disabled queries
     const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
 
     //filter invalid queries
-    const validQueries = filter(enabledQueries, (t) => this.isQueryComplete(t))
+    const validQueries = filter(enabledQueries, (t) => this.isQueryComplete(t));
 
     const promises = validQueries.map(async (target) => {
       const interval =
         target.resultFormat === 'time_series' && target.interval
-          ? calculateQueryInterval(target.interval, from.getTime(), to.getTime())
+          ? calculateQueryInterval(target.interval, range!.from.valueOf(), range!.to.valueOf())
           : undefined;
+
+      let queryFrom = range!.from;
+      const queryTo = range!.to;
+
+      // floor the query start time to improve cache hitting
+      if (isRelativeRangeFrom) {
+        let flooringInterval = calculateQueryInterval('AUTO', queryFrom.valueOf(), queryTo.valueOf());
+        if (interval != null) {
+          // to allow higher granularity if interval is selected by user
+          flooringInterval = getSmallerInterval(interval, flooringInterval);
+        }
+        const momentTimeUnit = getMomentTimeUnitForQueryInterval(flooringInterval);
+        if (momentTimeUnit != null) {
+          // range from is a moment and startOf is mutating moment object so this has a side effect to also change the
+          // grafana selected timeframe value which will adapt the grafana graph as well
+          queryFrom = range!.from.startOf(momentTimeUnit);
+        }
+      }
 
       let aggregationMethod: AggregationMethod | undefined = target.metric;
       const percentileValue = aggregationMethod === 'percentile' ? target.percentileValue : undefined;
@@ -123,8 +146,8 @@ export class DataSource extends DataSourceApi<
         orderBy: target.orderBy,
         dimension: dimension,
         metric: metric,
-        start: from,
-        end: to,
+        start: queryFrom.toDate(),
+        end: queryTo.toDate(),
         licenseKey: target.license,
         interval: interval,
         limit: this.parseLimit(target.limit),
@@ -142,7 +165,9 @@ export class DataSource extends DataSourceApi<
       // Determine the appropriate transformation based on query parameters
       if (query.interval && query.groupBy?.length > 0) {
         // If the query has an interval and group by columns, transform the data as grouped time series
-        fields.push(...transformGroupedTimeSeriesData(dataRows, from.getTime(), to.getTime(), query.interval));
+        fields.push(
+          ...transformGroupedTimeSeriesData(dataRows, queryFrom.valueOf(), queryTo.valueOf(), query.interval)
+        );
       } else {
         if (query.interval) {
           // If the query has an interval but no group by columns, transform the data as simple time series
@@ -150,8 +175,8 @@ export class DataSource extends DataSourceApi<
             ...transformSimpleTimeSeries(
               dataRows as NumberDataRowList,
               columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
-              from.getTime(),
-              to.getTime(),
+              queryFrom.valueOf(),
+              queryTo.valueOf(),
               query.interval
             )
           );
@@ -181,6 +206,11 @@ export class DataSource extends DataSourceApi<
     return Promise.all(promises).then((data) => ({ data }));
   }
 
+  /** Checks if the selected grafana Timerange From is relative or absolute */
+  private isRelativeRangeFrom(range: RawTimeRange) {
+    return typeof range.from === 'string';
+  }
+
   /** needed because of old plugin logic where limit was saved as string and not as number */
   parseLimit(limit: number | string | undefined): undefined | number {
     if (limit == null) {
@@ -197,16 +227,16 @@ export class DataSource extends DataSourceApi<
   /** check if needed fields are set to avoid sending queries to API that will certainly return an error*/
   isQueryComplete(query: BitmovinAnalyticsDataQuery) {
     if (isEmpty(query.license) || isEmpty(query.dimension)) {
-      return false
+      return false;
     }
 
     if (query.dimension != null) {
       if (!isMetric(query.dimension) && isEmpty(query.metric)) {
-        return false
+        return false;
       }
     }
 
-    return true
+    return true;
   }
 
   getRequestUrl(metric?: Metric, aggregation?: AggregationMethod): string {
@@ -223,9 +253,9 @@ export class DataSource extends DataSourceApi<
   }
 
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
-    const headers: Record<string, string>= { 'X-Api-Key': this.apiKey}
+    const headers: Record<string, string> = { 'X-Api-Key': this.apiKey };
     if (this.tenantOrgId != null) {
-      headers["X-Tenant-Org-Id"] = this.tenantOrgId
+      headers['X-Tenant-Org-Id'] = this.tenantOrgId;
     }
     const options = {
       url: this.baseUrl + url,
