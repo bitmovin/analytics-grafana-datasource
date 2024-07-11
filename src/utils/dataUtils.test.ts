@@ -86,9 +86,9 @@ describe('padAndSortTimeSeries', () => {
     //assert
     expect(result).toEqual([
       [1712919540000, 0], //Friday, 12 April 2024 10:59:00
-      [1712919600000, 2], //Friday, 12 April 2024 11:00:00
+      data[0],
       [1712919660000, 0], //Friday, 12 April 2024 11:01:00
-      [1712919720000, 5], //Friday, 12 April 2024 11:02:00
+      data[1],
       [1712919780000, 0], //Friday, 12 April 2024 11:03:00
     ]);
   });
@@ -110,11 +110,11 @@ describe('padAndSortTimeSeries', () => {
     //assert
     expect(result).toEqual([
       [1712916000000, 0], //Friday, 12 April 2024 10:00:00
-      [1712919600000, 7], //Friday, 12 April 2024 11:00:00
+      data[0],
       [1712923200000, 0], //Friday, 12 April 2024 12:00:00
       [1712926800000, 0], //Friday, 12 April 2024 13:00:00
-      [1712930400000, 5], //Friday, 12 April 2024 14:00:00
-      [1712934000000, 2], //Friday, 12 April 2024 15:00:00
+      data[1],
+      data[2],
     ]);
   });
 
@@ -134,10 +134,10 @@ describe('padAndSortTimeSeries', () => {
     //assert
     expect(result).toEqual([
       [1712917800000, 0], //Friday, 12 April 2024 10:30:00
-      [1713004200000, 2], //Saturday, 13 April 2024 10:30:00
+      data[0],
       [1713090600000, 0], //Sunday, 14 April 2024 10:30:00
       [1713177000000, 0], //Monday, 15 April 2024 10:30:00
-      [1713263400000, 5], //Tuesday, 16 April 2024 10:30:00
+      data[1],
       [1713349800000, 0], //Wednesday, 17 April 2024 10:30:00
     ]);
   });
@@ -158,10 +158,10 @@ describe('padAndSortTimeSeries', () => {
 
     //assert
     expect(result).toEqual([
-      [1706740200000, 1], //Wednesday, 31 January 2024 22:30:00
+      data[0],
       [1709245800000, 0], //Thursday, 29 February 2024 22:30:00
-      [1711924200000, 2], //Sunday, 31 March 2024 22:30:00
-      [1714516200000, 5], //Tuesday, 30 April 2024 22:30:00
+      data[1],
+      data[2],
       [1717194600000, 0], // Friday, 31 May 2024 22:30:00
     ]);
   });
@@ -183,8 +183,8 @@ describe('padAndSortTimeSeries', () => {
     expect(result).toEqual([
       [1706826600000, 0], //Thursday, 1 February 2024 22:30:00
       [1709332200000, 0], //Friday, 1 March 2024 22:30:00
-      [1712010600000, 2], //Monday, 1 April 2024 22:30:00
-      [1714602600000, 5], //Wednesday, 1 May 2024 22:30:00
+      data[0],
+      data[1],
       [1717281000000, 0], //Saturday, 1 June 2024 22:30:00
     ]);
   });
@@ -205,9 +205,9 @@ describe('padAndSortTimeSeries', () => {
     //assert
     expect(result).toEqual([
       [1712919540000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 10:59:00
-      [1712919600000, 'BROWSER', 'DEVICE_TYPE', 2], //Friday, 12 April 2024 11:00:00
+      data[0],
       [1712919660000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 11:01:00
-      [1712919720000, 'BROWSER', 'DEVICE_TYPE', 5], //Friday, 12 April 2024 11:02:00
+      data[1],
       [1712919780000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 11:03:00
     ]);
   });
@@ -229,11 +229,11 @@ describe('padAndSortTimeSeries', () => {
     //assert
     expect(result).toEqual([
       [1712916000000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 10:00:00
-      [1712919600000, 'BROWSER', 'DEVICE_TYPE', 7], //Friday, 12 April 2024 11:00:00
+      data[0],
       [1712923200000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 12:00:00
       [1712926800000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 13:00:00
-      [1712930400000, 'BROWSER', 'DEVICE_TYPE', 5], //Friday, 12 April 2024 14:00:00
-      [1712934000000, 'BROWSER', 'DEVICE_TYPE', 2], //Friday, 12 April 2024 15:00:00
+      data[1],
+      data[2],
     ]);
   });
 
@@ -253,10 +253,10 @@ describe('padAndSortTimeSeries', () => {
     //assert
     expect(result).toEqual([
       [1712917800000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 12 April 2024 10:30:00
-      [1713004200000, 'BROWSER', 'DEVICE_TYPE', 2], //Saturday, 13 April 2024 10:30:00
+      data[0],
       [1713090600000, 'BROWSER', 'DEVICE_TYPE', 0], //Sunday, 14 April 2024 10:30:00
       [1713177000000, 'BROWSER', 'DEVICE_TYPE', 0], //Monday, 15 April 2024 10:30:00
-      [1713263400000, 'BROWSER', 'DEVICE_TYPE', 5], //Tuesday, 16 April 2024 10:30:00
+      data[1],
       [1713349800000, 'BROWSER', 'DEVICE_TYPE', 0], //Wednesday, 17 April 2024 10:30:00
     ]);
   });
@@ -277,10 +277,10 @@ describe('padAndSortTimeSeries', () => {
 
     //assert
     expect(result).toEqual([
-      [1706740200000, 'BROWSER', 'DEVICE_TYPE', 1], //Wednesday, 31 January 2024 22:30:00
+      data[0],
       [1709245800000, 'BROWSER', 'DEVICE_TYPE', 0], //Thursday, 29 February 2024 22:30:00
-      [1711924200000, 'BROWSER', 'DEVICE_TYPE', 2], //Sunday, 31 March 2024 22:30:00
-      [1714516200000, 'BROWSER', 'DEVICE_TYPE', 5], //Tuesday, 30 April 2024 22:30:00
+      data[1],
+      data[2],
       [1717194600000, 'BROWSER', 'DEVICE_TYPE', 0], // Friday, 31 May 2024 22:30:00
     ]);
   });
@@ -302,8 +302,8 @@ describe('padAndSortTimeSeries', () => {
     expect(result).toEqual([
       [1706826600000, 'BROWSER', 'DEVICE_TYPE', 0], //Thursday, 1 February 2024 22:30:00
       [1709332200000, 'BROWSER', 'DEVICE_TYPE', 0], //Friday, 1 March 2024 22:30:00
-      [1712010600000, 'BROWSER', 'DEVICE_TYPE', 2], //Monday, 1 April 2024 22:30:00
-      [1714602600000, 'BROWSER', 'DEVICE_TYPE', 5], //Wednesday, 1 May 2024 22:30:00
+      data[0],
+      data[1],
       [1717281000000, 'BROWSER', 'DEVICE_TYPE', 0], //Saturday, 1 June 2024 22:30:00
     ]);
   });
