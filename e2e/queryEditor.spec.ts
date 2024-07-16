@@ -114,6 +114,7 @@ test('Query Editor should send correct query with timeseries data', async ({
   // check for right values in request Payload
   const queryRequest = await queryRequestPromise;
   expect(queryRequest.url().endsWith('queries/count')).toBeTruthy();
+  expect(queryRequest.headers()['x-api-client']).toBe('analytics-grafana-datasource');
   expect(queryRequest.postDataJSON().licenseKey).toBe('first-test-license-key');
   expect(queryRequest.postDataJSON().dimension).toBe('IMPRESSION_ID');
   expect(queryRequest.postDataJSON().filters[0].name).toBe('VIDEO_STARTUPTIME');
@@ -124,8 +125,8 @@ test('Query Editor should send correct query with timeseries data', async ({
   expect(queryRequest.postDataJSON().orderBy[0].order).toBe('DESC');
   expect(queryRequest.postDataJSON().limit).toBe(10);
   expect(queryRequest.postDataJSON().interval).toBe('MINUTE');
-  //TODOMY check the end and start date
-  //TODOMY check header
+  expect(queryRequest.postDataJSON().start).not.toBeUndefined();
+  expect(queryRequest.postDataJSON().end).not.toBeUndefined();
 });
 
 // test('Query Editor should send selected request data to API with timeseries data and metric selected', async ({
