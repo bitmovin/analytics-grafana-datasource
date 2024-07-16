@@ -46,7 +46,7 @@ type Props = {
 };
 
 export function OrderByRow(props: Props) {
-  const paddingTop=  props.orderBys.length === 0 ? 4 : 0
+  const paddingTop = props.orderBys.length === 0 ? 4 : 0;
   const deleteOrderByInput = (index: number) => {
     const newOrderBys = [...props.orderBys];
     newOrderBys.splice(index, 1);
@@ -108,7 +108,13 @@ export function OrderByRow(props: Props) {
       ))}
 
       <div style={{ paddingTop }}>
-        <IconButton name="plus-square" tooltip="Add Order By" onClick={() => addOrderByInput()} size="xl" />
+        <IconButton
+          id="query-editor_add-order-by-button"
+          name="plus-square"
+          tooltip="Add Order By"
+          onClick={() => addOrderByInput()}
+          size="xl"
+        />
       </div>
     </VerticalGroup>
   );

@@ -44,7 +44,7 @@ type Props = {
 };
 
 export function GroupByRow(props: Props) {
-  const paddingTop= props.groupBys.length === 0 ? 4 : 0
+  const paddingTop = props.groupBys.length === 0 ? 4 : 0;
   const deleteGroupByInput = (index: number) => {
     const newSelectedGroupBys = [...props.groupBys];
     newSelectedGroupBys.splice(index, 1);
@@ -90,7 +90,13 @@ export function GroupByRow(props: Props) {
         />
       ))}
       <div style={{ paddingTop }}>
-        <IconButton name="plus-square" tooltip="Add Group By" onClick={() => addGroupByInput()} size="xl" />
+        <IconButton
+          id="query-editor_add-group-by-button"
+          name="plus-square"
+          tooltip="Add Group By"
+          onClick={() => addGroupByInput()}
+          size="xl"
+        />
       </div>
     </VerticalGroup>
   );

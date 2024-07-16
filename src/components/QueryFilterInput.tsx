@@ -10,8 +10,11 @@ import { convertFilterValueToProperType } from 'utils/filterUtils';
 interface QueryFilterInputProps {
   /** `undefined` when component is used to create new filter (no values yet) */
   value: undefined | QueryFilter;
+
   onChange(queryFilter: QueryFilter): void;
+
   onDelete(): void;
+
   isAdAnalytics: boolean;
   /** Selected query filters are used to filter out used values from attribute select options */
   selectedQueryFilters: QueryFilter[];
@@ -117,6 +120,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         {/* this div wrapper is needed to expose `ref` for Tooltip above */}
         <div>
           <Select
+            id="query-editor_filter-attribute-select"
             value={attributeSelectValue}
             onChange={handleAttributeChange}
             options={props.isAdAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
@@ -133,6 +137,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         {/* this div wrapper is needed to expose `ref` for Tooltip above */}
         <div>
           <Select
+            id="query-editor_filter-operator-select"
             value={operatorSelectValue}
             onChange={handleOperatorChange}
             options={SELECTABLE_QUERY_FILTER_OPERATORS}
@@ -147,6 +152,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         theme="error"
       >
         <Input
+          id="query-editor_filter-value-input"
           value={derivedQueryFilterState.value}
           onChange={(e) => handleInputValueChange(e.currentTarget.value)}
           invalid={derivedQueryFilterState.inputValueError != null}
@@ -159,6 +165,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       {/* in "create mode" we want to show save icons all the time */}
       {(isCreatingNewOne || derivedQueryFilterState.dirty) && (
         <IconButton
+          id="query-editor_filter-save-button"
           variant="primary"
           name={isCreatingNewOne ? 'plus-square' : 'save'}
           size="lg"

@@ -25,6 +25,7 @@ export function GroupByInput(props: Props) {
   return (
     <HorizontalGroup>
       <Select
+        id="query-editor_group-by-select"
         value={isEmpty(props.groupBy) ? undefined : props.groupBy}
         onChange={(selectableValue) => props.onChange(selectableValue.value!)}
         options={props.selectableGroupBys}

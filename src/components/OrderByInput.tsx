@@ -30,6 +30,7 @@ export function OrderByInput(props: Props) {
   return (
     <HorizontalGroup spacing="xs">
       <Select
+        id="query-editor_order-by-select"
         value={isEmpty(props.attribute) ? undefined : props.attribute}
         onChange={(selectableValue) => props.onAttributeChange(selectableValue)}
         options={props.selectableOrderByAttributes}

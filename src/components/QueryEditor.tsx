@@ -161,6 +161,7 @@ export function QueryEditor(props: Props) {
           required
         >
           <Select
+            id="query-editor_license-select"
             value={query.license}
             onChange={handleLicenseChange}
             width={30}
@@ -178,6 +179,7 @@ export function QueryEditor(props: Props) {
                 onChange={(item) => handleAggregationChange(item)}
                 width={30}
                 options={SELECTABLE_AGGREGATION_METHODS}
+                id="query-editor_aggregation-method-select"
               />
             </InlineField>
           )}
@@ -202,6 +204,7 @@ export function QueryEditor(props: Props) {
                 ? SELECTABLE_QUERY_AD_ATTRIBUTES
                 : SELECTABLE_QUERY_ATTRIBUTES.concat(SELECTABLE_METRICS)
             }
+            id="query-editor_dimension-select"
           />
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
@@ -226,7 +229,14 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
-          <Input defaultValue={query.limit} type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
+          <Input
+            id="query-editor_limit-input"
+            defaultValue={query.limit}
+            type="number"
+            onBlur={handleLimitBlur}
+            width={30}
+            placeholder="No limit"
+          />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>

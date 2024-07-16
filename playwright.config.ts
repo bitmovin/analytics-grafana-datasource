@@ -1,6 +1,6 @@
 import { dirname } from 'path';
 import { defineConfig, devices } from '@playwright/test';
-import {PluginOptions} from "@grafana/plugin-e2e";
+import { PluginOptions } from '@grafana/plugin-e2e';
 
 /**
  * Read environment variables from file.
@@ -43,7 +43,7 @@ export default defineConfig<PluginOptions>({
       testMatch: [/.*\.js/],
     },
     {
-      name: 'run-tests',
+      name: 'run-tests Chrome',
       use: {
         ...devices['Desktop Chrome'],
         // @grafana/plugin-e2e writes the auth state to this file,
@@ -53,7 +53,7 @@ export default defineConfig<PluginOptions>({
       dependencies: ['auth'],
     },
     {
-      name: 'run-tests',
+      name: 'run-tests Firefox',
       use: {
         ...devices['Desktop Firefox'],
         // @grafana/plugin-e2e writes the auth state to this file,
@@ -63,7 +63,7 @@ export default defineConfig<PluginOptions>({
       dependencies: ['auth'],
     },
     {
-      name: 'run-tests',
+      name: 'run-tests Safari',
       use: {
         ...devices['Desktop Safari'],
         // @grafana/plugin-e2e writes the auth state to this file,
