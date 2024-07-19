@@ -48,25 +48,20 @@ test.beforeEach(async ({ context }) => {
   await context.route('*/**/analytics/demo-licenses', (route) => {
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(emptyLicenseJson) });
   });
-
-  await context.route('*/**/analytics/queries/undefined', (route) => {
-    route.abort();
-  });
-
-  await context.route('*/**/analytics/queries/count', async (route) => {
-    //TODOMY return after last call to check whether data was rendered?
-    //TODOMY actual integration tests or everything mocked?
-    //TODOMY count the times it gets called to check whether it gets called after every change
-    route.abort();
-  });
 });
 
-test('Query Editor should send correct query with timeseries data', async ({
+test('should trigger correct number of queries with correct payload', async ({
   panelEditPage,
   readProvisionedDataSource,
   selectors,
   page,
 }) => {
+  let queryCounter = 0;
+  await page.route('*/**/analytics/queries/count', (route) => {
+    queryCounter++;
+    console.log('Im here in the page router qith queryCounter', queryCounter);
+    route.abort();
+  });
   // read and select datasource
   const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
   await panelEditPage.datasource.set(ds.name);
@@ -74,29 +69,6 @@ test('Query Editor should send correct query with timeseries data', async ({
   // select query interval
   await panelEditPage.getByGrafanaSelector(selectors.components.TimePicker.openButton).click();
   await page.getByText('Last 3 hours').click();
-
-  // add filter
-  await page.locator('#query-editor_add-new-filter-button').click();
-  await page.locator('#query-editor_filter-attribute-select').click();
-  await page.getByText('VIDEO_STARTUPTIME', { exact: true }).click();
-  await page.locator('#query-editor_filter-operator-select').click();
-  await page.getByText('GT', { exact: true }).click();
-  await page.locator('#query-editor_filter-value-input').fill('0');
-  await page.locator('#query-editor_filter-save-button').click();
-
-  // add group by
-  await page.locator('#query-editor_add-group-by-button').click();
-  await page.locator('#query-editor_group-by-select').click();
-  await page.getByText('BROWSER', { exact: true }).click();
-
-  // add order by
-  await page.locator('#query-editor_add-order-by-button').click();
-  await page.locator('#query-editor_order-by-select').click();
-  await page.getByText('FUNCTION', { exact: true }).click();
-  await page.getByTitle('Sort by descending').click();
-
-  // add limit
-  await page.locator('#query-editor_limit-input').fill('10');
 
   // select license
   await page.locator('#query-editor_license-select').click();
@@ -107,12 +79,41 @@ test('Query Editor should send correct query with timeseries data', async ({
   await page.getByText('count', { exact: true }).click();
 
   // select dimension
-  const queryRequestPromise = page.waitForRequest('*/**/analytics/queries/count');
   await page.locator('#query-editor_dimension-select').click();
-  await page.getByText('IMPRESSION_ID', { exact: true }).click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
 
-  // check for right values in request Payload
+  // add filter
+  await page.locator('#query-editor_add-new-filter-button').click();
+  await page.locator('#query-editor_filter-attribute-select').click();
+  await page.getByText('VIDEO_STARTUPTIME', { exact: true }).click();
+  await page.locator('#query-editor_filter-operator-select').click();
+  await page.getByText('GT', { exact: true }).click();
+  await page.locator('#query-editor_filter-value-input').fill('0');
+  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+
+  // add group by
+  await page.locator('#query-editor_add-group-by-button').click(); // request triggered
+  await page.locator('#query-editor_group-by-select').click();
+  await page.getByText('BROWSER', { exact: true }).click(); // request triggered
+
+  // add order by
+  await page.locator('#query-editor_add-order-by-button').click(); // request triggered
+  await page.locator('#query-editor_order-by-select').click();
+  await page.getByText('FUNCTION', { exact: true }).click(); // request triggered
+  await page.getByTitle('Sort by descending').click(); // request triggered
+
+  // add limit
+  await page.locator('#query-editor_limit-input').fill('10');
+  await page.locator('#query-editor_limit-input').blur(); // request triggered
+
+  // add alias
+  await page.locator('#query-editor_alias-by-input').fill('TestAlias');
+  const queryRequestPromise = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_alias-by-input').blur(); // request triggered
+
+  // check for right values in last request Payload
   const queryRequest = await queryRequestPromise;
+  expect(queryCounter).toEqual(9);
   expect(queryRequest.url().endsWith('queries/count')).toBeTruthy();
   expect(queryRequest.headers()['x-api-client']).toBe('analytics-grafana-datasource');
   expect(queryRequest.postDataJSON().licenseKey).toBe('first-test-license-key');
@@ -127,31 +128,205 @@ test('Query Editor should send correct query with timeseries data', async ({
   expect(queryRequest.postDataJSON().interval).toBe('MINUTE');
   expect(queryRequest.postDataJSON().start).not.toBeUndefined();
   expect(queryRequest.postDataJSON().end).not.toBeUndefined();
+  expect(queryRequest.postDataJSON().percentile).toBeUndefined();
 });
 
-// test('Query Editor should send selected request data to API with timeseries data and metric selected', async ({
-//   panelEditPage,
-//   readProvisionedDataSource,
-//   selectors,
-//   page,
-// }) => {
-//   //TODOMY implement
-// });
-//
-// test('Query Editor should send selected request data to API with percentile selected', async ({
-//   panelEditPage,
-//   readProvisionedDataSource,
-//   selectors,
-//   page,
-// }) => {
-//   //TODOMY implement
-// });
-//
-// test('Query Editor should send correct request data to API table data selected', async ({
-//   panelEditPage,
-//   readProvisionedDataSource,
-//   selectors,
-//   page,
-// }) => {
-//   //TODOMY implement
-// });
+test('should send correct query if a metric was selected', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  let queryCounter = 0;
+  await page.route('*/**/analytics/metrics/AVG_CONCURRENTVIEWERS', (route) => {
+    queryCounter++;
+    route.abort();
+  });
+
+  // read and select datasource
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+
+  // select query interval
+  await panelEditPage.getByGrafanaSelector(selectors.components.TimePicker.openButton).click();
+  await page.getByText('Last 3 hours').click();
+
+  // select license
+  await page.locator('#query-editor_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select dimension
+  const queryRequestPromise = page.waitForRequest('*/**/analytics/metrics/AVG_CONCURRENTVIEWERS');
+  await page.locator('#query-editor_dimension-select').click();
+  await page.getByText('AVG_CONCURRENTVIEWERS', { exact: true }).click(); // request triggered
+
+  // check that aggregation method selection is not visible
+  await expect(page.locator('#query-editor_aggregation-method-select')).toHaveCount(0);
+
+  // check for right values in request Payload
+  const queryRequest = await queryRequestPromise;
+  expect(queryCounter).toEqual(1);
+  expect(queryRequest.url().endsWith('metrics/AVG_CONCURRENTVIEWERS')).toBeTruthy();
+  expect(queryRequest.headers()['x-api-client']).toBe('analytics-grafana-datasource');
+  expect(queryRequest.postDataJSON().licenseKey).toBe('first-test-license-key');
+  expect(queryRequest.postDataJSON().dimension).toBeUndefined();
+  expect(queryRequest.postDataJSON().metric).toBe('AVG_CONCURRENTVIEWERS');
+  expect(queryRequest.postDataJSON().orderBy.length).toBe(0);
+  expect(queryRequest.postDataJSON().filters.length).toBe(0);
+  expect(queryRequest.postDataJSON().groupBy.length).toBe(0);
+  expect(queryRequest.postDataJSON().limit).toBeUndefined();
+  expect(queryRequest.postDataJSON().interval).toBe('MINUTE');
+  expect(queryRequest.postDataJSON().start).not.toBeUndefined();
+  expect(queryRequest.postDataJSON().end).not.toBeUndefined();
+  expect(queryRequest.postDataJSON().percentile).toBeUndefined();
+});
+
+test('should send correct query for time series and table data', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  let queryCounter = 0;
+  await page.route('*/**/analytics/queries/count', (route) => {
+    queryCounter++;
+    route.abort();
+  });
+  // read and select datasource
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+
+  // select query interval
+  await panelEditPage.getByGrafanaSelector(selectors.components.TimePicker.openButton).click();
+  await page.getByText('Last 3 hours').click();
+
+  // select license
+  await page.locator('#query-editor_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select aggregation method
+  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.getByText('count', { exact: true }).click();
+
+  // select dimension
+  await page.locator('#query-editor_dimension-select').click();
+  const queryTimeSeriesPromise = page.waitForRequest('*/**/analytics/queries/count');
+  await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
+  const queryTimeSeriesRequest = await queryTimeSeriesPromise;
+
+  // check that interval is set correctly by default
+  expect(queryTimeSeriesRequest.postDataJSON().interval).toBe('MINUTE');
+
+  // uncheck format as time series option to query for table data
+  const queryTablePromise = page.waitForRequest('*/**/analytics/queries/count');
+  // The actual input switch element is not in the viewport (because of grafana ui library magic), that's why the
+  // parent element ('..') is fetched here
+  await page.locator('#query-editor_format-as-time-series-switch').locator('..').click(); // request triggered
+  // check that interval selection is not visible anymore
+  await expect(page.locator('#query-editor_interval-select')).toHaveCount(0);
+  const queryTableRequest = await queryTablePromise;
+  // check that interval is not set in request
+  expect(queryTableRequest.postDataJSON().interval).toBeUndefined();
+
+  // check format as time series option and select DAY interval
+  await page.locator('#query-editor_format-as-time-series-switch').locator('..').click(); // request triggered
+  const queryTimeSeriesDayPromise = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_interval-select').click();
+  await page.getByText('Day', { exact: true }).click(); // request triggered
+  const queryTimeSeriesDayRequest = await queryTimeSeriesDayPromise;
+  // check that correct interval is set in request
+  expect(queryTimeSeriesDayRequest.postDataJSON().interval).toBe('DAY');
+
+  expect(queryCounter).toEqual(4);
+});
+
+test('should send correct query for percentile selection', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  let queryCounter = 0;
+  await page.route('*/**/analytics/queries/percentile', (route) => {
+    queryCounter++;
+    route.abort();
+  });
+  // read and select datasource
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+
+  // select query interval
+  await panelEditPage.getByGrafanaSelector(selectors.components.TimePicker.openButton).click();
+  await page.getByText('Last 3 hours').click();
+
+  // select license
+  await page.locator('#query-editor_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select dimension
+  await page.locator('#query-editor_dimension-select').click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click();
+
+  // select percentile aggregation && add percentile value
+  const queryPromise = page.waitForRequest('*/**/analytics/queries/percentile');
+  await page.locator('#query-editor_aggregation-method-select').click(); // request triggere
+  await page.getByText('percentile', { exact: true }).click();
+  await page.locator('#query-editor_percentile-value-input').fill('95'); // request triggered
+  await page.locator('#query-editor_percentile-value-input').blur();
+  const queryRequest = await queryPromise;
+
+  // check for right values in request Payload
+  expect(queryCounter).toEqual(2);
+  expect(queryRequest.headers()['x-api-client']).toBe('analytics-grafana-datasource');
+  expect(queryRequest.postDataJSON().licenseKey).toBe('first-test-license-key');
+  expect(queryRequest.postDataJSON().dimension).toBe('IMPRESSION_ID');
+  expect(queryRequest.postDataJSON().metric).toBeUndefined();
+  expect(queryRequest.postDataJSON().orderBy.length).toBe(0);
+  expect(queryRequest.postDataJSON().filters.length).toBe(0);
+  expect(queryRequest.postDataJSON().groupBy.length).toBe(0);
+  expect(queryRequest.postDataJSON().limit).toBeUndefined();
+  expect(queryRequest.postDataJSON().interval).toBe('MINUTE');
+  expect(queryRequest.postDataJSON().start).not.toBeUndefined();
+  expect(queryRequest.postDataJSON().end).not.toBeUndefined();
+  expect(queryRequest.postDataJSON().percentile).toBe(95);
+});
+
+test('should add, edit and delete filters correctly', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  //TODOMY implement
+});
+
+test('should add, edit and delete groupBys correctly', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  //TODOMY implement
+});
+
+test('should add, edit and delete orderBys correctly', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  //TODOMY implement
+});
+
+test('should display data with gauge correctly', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  //TODOMY implement
+});
+
+test('should display data alias correctly', async ({ panelEditPage, readProvisionedDataSource, selectors, page }) => {
+  //TODOMY implement
+});
