@@ -59,7 +59,6 @@ test('should trigger correct number of queries with correct payload', async ({
   let queryCounter = 0;
   await page.route('*/**/analytics/queries/count', (route) => {
     queryCounter++;
-    console.log('Im here in the page router qith queryCounter', queryCounter);
     route.abort();
   });
   // read and select datasource

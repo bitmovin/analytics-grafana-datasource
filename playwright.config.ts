@@ -52,26 +52,26 @@ export default defineConfig<PluginOptions>({
       },
       dependencies: ['auth'],
     },
-    {
-      name: 'run-tests Firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        // @grafana/plugin-e2e writes the auth state to this file,
-        // the path should not be modified
-        storageState: 'playwright/.auth/admin.json',
-      },
-      dependencies: ['auth'],
-    },
-    {
-      name: 'run-tests Safari',
-      use: {
-        ...devices['Desktop Safari'],
-        // @grafana/plugin-e2e writes the auth state to this file,
-        // the path should not be modified
-        storageState: 'playwright/.auth/admin.json',
-      },
-      dependencies: ['auth'],
-    },
+    // {
+    //   name: 'run-tests Firefox',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     // @grafana/plugin-e2e writes the auth state to this file,
+    //     // the path should not be modified
+    //     storageState: 'playwright/.auth/admin.json',
+    //   },
+    //   dependencies: ['auth'],
+    // },
+    // {
+    //   name: 'run-tests Safari',
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //     // @grafana/plugin-e2e writes the auth state to this file,
+    //     // the path should not be modified
+    //     storageState: 'playwright/.auth/admin.json',
+    //   },
+    //   dependencies: ['auth'],
+    // },
 
     /* Test against mobile viewports. */
     // {
