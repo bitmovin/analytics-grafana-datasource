@@ -52,6 +52,7 @@ export const DEFAULT_QUERY: Partial<BitmovinAnalyticsDataQuery> = {
   filter: [],
   resultFormat: 'time_series',
   interval: 'AUTO',
+  percentileValue: 95,
 };
 
 /**
