@@ -139,6 +139,7 @@ export function QueryEditor(props: Props) {
       <>
         <InlineField label="Interval" labelWidth={20}>
           <Select
+            id="query-editor_interval-select"
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
             value={query.interval}
             onChange={(item) => handleIntervalChange(item)}
@@ -186,6 +187,7 @@ export function QueryEditor(props: Props) {
           )}
           {isPercentileSelected && (
             <Input
+              id="query-editor_percentile-value-input"
               value={percentileValue}
               onChange={handlePercentileValueChange}
               onBlur={handlePercentileBlur}
@@ -240,11 +242,20 @@ export function QueryEditor(props: Props) {
           />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
-          <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>
+          <InlineSwitch
+            id="query-editor_format-as-time-series-switch"
+            value={isTimeSeries}
+            onChange={handleFormatAsTimeSeriesChange}
+          ></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input defaultValue={query.alias} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
+          <Input
+            id="query-editor_alias-by-input"
+            defaultValue={query.alias}
+            placeholder="Naming pattern"
+            onBlur={handleAliasByBlur}
+          />
         </InlineField>
       </FieldSet>
     </div>
