@@ -1,6 +1,6 @@
 name: CI
 
-on: [push]
+on: [ push ]
 
 permissions: read-all
 
@@ -21,7 +21,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install --immutable --prefer-offline
+        run: yarn install --immutable
 
       - name: Check types
         run: yarn run typecheck
