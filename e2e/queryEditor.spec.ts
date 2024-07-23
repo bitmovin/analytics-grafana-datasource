@@ -99,7 +99,9 @@ test('should trigger correct number of queries with correct payload', async ({
   await page.locator('#query-editor_add-order-by-button').click(); // request triggered
   await page.locator('#query-editor_order-by-select').click();
   await page.getByText('FUNCTION', { exact: true }).click(); // request triggered
-  await page.getByTitle('Sort by descending').click(); // request triggered
+  // The actual button element is not in the right place to be clicked (because of grafana ui library magic), that's why the
+  // sibling label element ('+ label') is fetched and clicked here
+  await page.locator('#option-DESC-query-editor_order-by-button-group').locator('+ label').click();
 
   // add limit
   await page.locator('#query-editor_limit-input').fill('10');
@@ -268,9 +270,9 @@ test('should send correct query for percentile selection', async ({
 
   // select percentile aggregation && add percentile value
   const queryPromise = page.waitForRequest('*/**/analytics/queries/percentile');
-  await page.locator('#query-editor_aggregation-method-select').click(); // request triggere
+  await page.locator('#query-editor_aggregation-method-select').click(); // request triggered
   await page.getByText('percentile', { exact: true }).click();
-  await page.locator('#query-editor_percentile-value-input').fill('95'); // request triggered
+  await page.locator('#query-editor_percentile-value-input').fill('50'); // request triggered
   await page.locator('#query-editor_percentile-value-input').blur();
   const queryRequest = await queryPromise;
 
@@ -287,7 +289,7 @@ test('should send correct query for percentile selection', async ({
   expect(queryRequest.postDataJSON().interval).toBe('MINUTE');
   expect(queryRequest.postDataJSON().start).not.toBeUndefined();
   expect(queryRequest.postDataJSON().end).not.toBeUndefined();
-  expect(queryRequest.postDataJSON().percentile).toBe(95);
+  expect(queryRequest.postDataJSON().percentile).toBe(50);
 });
 
 test('should add, edit and delete filters correctly', async ({

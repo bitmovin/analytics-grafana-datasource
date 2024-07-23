@@ -37,6 +37,7 @@ export function OrderByInput(props: Props) {
         width={30}
       />
       <RadioButtonGroup
+        id="query-editor_order-by-button-group"
         options={sortOrderOption}
         value={props.sortOrder}
         onChange={(value) => props.onSortOrderChange(value)}
