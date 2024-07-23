@@ -119,6 +119,7 @@ test('should trigger correct number of queries with correct payload', async ({
   expect(queryRequest.headers()['x-api-client']).toBe('analytics-grafana-datasource');
   expect(queryRequest.postDataJSON().licenseKey).toBe('first-test-license-key');
   expect(queryRequest.postDataJSON().dimension).toBe('IMPRESSION_ID');
+  expect(queryRequest.postDataJSON().filters.length).toBe(1);
   expect(queryRequest.postDataJSON().filters[0].name).toBe('VIDEO_STARTUPTIME');
   expect(queryRequest.postDataJSON().filters[0].operator).toBe('GT');
   expect(queryRequest.postDataJSON().filters[0].value).toBe(0);
@@ -298,7 +299,95 @@ test('should add, edit and delete filters correctly', async ({
   selectors,
   page,
 }) => {
-  //TODOMY implement
+  let queryCounter = 0;
+  await page.route('*/**/analytics/queries/count', (route) => {
+    queryCounter++;
+    route.abort();
+  });
+  // read and select datasource
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+  // select license
+  await page.locator('#query-editor_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select aggregation method
+  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.getByText('count', { exact: true }).click();
+
+  // select dimension
+  await page.locator('#query-editor_dimension-select').click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
+
+  //#region add new filters
+  await page.locator('#query-editor_add-new-filter-button').click();
+  // check that add filter button is not visible anymore
+  await expect(page.locator('#query-editor_add-new-filter-button')).toHaveCount(0);
+
+  // add first filter
+  await page.locator('#query-editor_filter-attribute-select').click();
+  await page.getByText('VIDEO_STARTUPTIME', { exact: true }).click();
+  await page.locator('#query-editor_filter-operator-select').click();
+  await page.getByText('GT', { exact: true }).click();
+  await page.locator('#query-editor_filter-value-input').fill('INVALID');
+  // check that no query was sent with invalid filter value
+  await page.locator('#query-editor_filter-save-button').click(); // no request triggered
+  await page.locator('#query-editor_filter-value-input').fill('0');
+  const queryPromise1 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+  const queryRequest1 = await queryPromise1;
+  expect(queryRequest1.postDataJSON().filters.length).toBe(1);
+  expect(queryRequest1.postDataJSON().filters[0].value).toBe(0);
+
+  // add second filter
+  await page.locator('#query-editor_add-new-filter-button').click();
+  await page.locator('#query-editor_filter-attribute-select').nth(1).click();
+  await page.getByText('BROWSER', { exact: true }).click();
+  await page.locator('#query-editor_filter-operator-select').nth(1).click();
+  await page.getByText('EQ', { exact: true }).click();
+  await page.locator('#query-editor_filter-value-input').nth(1).fill('FIREFOX');
+  const queryPromise2 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+  const queryRequest2 = await queryPromise2;
+  expect(queryRequest2.postDataJSON().filters.length).toBe(2);
+  expect(queryRequest2.postDataJSON().filters[1].value).toBe('FIREFOX');
+  //#endregion
+
+  //#region edit filter
+  // check that revert changes button and save button are not visible
+  await expect(page.locator('#query-editor_filter-revert-changes-button')).toHaveCount(0);
+  await expect(page.locator('#query-editor_filter-save-button')).toHaveCount(0);
+
+  // edit first filter and revert changes
+  await page.locator('#query-editor_filter-operator-select').first().click();
+  await page.getByText('GTE', { exact: true }).click();
+  // check that save filter button is visible again
+  await expect(page.locator('#query-editor_filter-save-button')).toHaveCount(1);
+  // revert changes
+  await page.locator('#query-editor_filter-revert-changes-button').click();
+  await expect(page.locator('#query-editor_filter-operator-select').first()).toHaveText('GT');
+  // check that revert changes button and save button are not visible
+  await expect(page.locator('#query-editor_filter-revert-changes-button')).toHaveCount(0);
+  await expect(page.locator('#query-editor_filter-save-button')).toHaveCount(0);
+
+  // edit first filter and save new value
+  await page.locator('#query-editor_filter-value-input').first().fill('90');
+  const queryPromise3 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+  const queryRequest3 = await queryPromise3;
+  expect(queryRequest3.postDataJSON().filters.length).toBe(2);
+  expect(queryRequest3.postDataJSON().filters[0].value).toBe(90);
+  //#endregion
+
+  // delete first filter
+  const queryPromise4 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_filter-delete-button').first().click(); // request triggered
+  const queryRequest4 = await queryPromise4;
+  expect(queryRequest4.postDataJSON().filters.length).toBe(1);
+  expect(queryRequest4.postDataJSON().filters[0].value).toBe('FIREFOX');
+
+  // check for right amount of queries triggered
+  expect(queryCounter).toBe(5);
 });
 
 test('should add, edit and delete groupBys correctly', async ({
@@ -308,6 +397,7 @@ test('should add, edit and delete groupBys correctly', async ({
   page,
 }) => {
   //TODOMY implement
+  // TODO add two groupBys, change the order of the groupBys, check the request and then delete one of them nd check again
 });
 
 test('should add, edit and delete orderBys correctly', async ({
@@ -317,6 +407,7 @@ test('should add, edit and delete orderBys correctly', async ({
   page,
 }) => {
   //TODOMY implement
+  // TODO add two groupBys, change the order of the groupBys, check the request and then delete one of them nd check again
 });
 
 test('should display data with gauge correctly', async ({
@@ -325,9 +416,5 @@ test('should display data with gauge correctly', async ({
   selectors,
   page,
 }) => {
-  //TODOMY implement
-});
-
-test('should display data alias correctly', async ({ panelEditPage, readProvisionedDataSource, selectors, page }) => {
   //TODOMY implement
 });

@@ -161,7 +161,14 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         />
       </Tooltip>
 
-      <IconButton variant="destructive" name="trash-alt" size="lg" tooltip="Delete Filter" onClick={props.onDelete} />
+      <IconButton
+        id="query-editor_filter-delete-button"
+        variant="destructive"
+        name="trash-alt"
+        size="lg"
+        tooltip="Delete Filter"
+        onClick={props.onDelete}
+      />
       {/* in "create mode" we want to show save icons all the time */}
       {(isCreatingNewOne || derivedQueryFilterState.dirty) && (
         <IconButton
@@ -175,7 +182,14 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       )}
       {/* in "create mode" there is nothing to revert to */}
       {!isCreatingNewOne && derivedQueryFilterState.dirty && (
-        <IconButton variant="secondary" name="history" size="lg" tooltip="Revert changes" onClick={handleRevertClick} />
+        <IconButton
+          id="query-editor_filter-revert-changes-button"
+          variant="secondary"
+          name="history"
+          size="lg"
+          tooltip="Revert changes"
+          onClick={handleRevertClick}
+        />
       )}
     </HorizontalGroup>
   );
