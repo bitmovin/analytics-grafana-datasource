@@ -509,11 +509,155 @@ test('should add, edit and delete orderBys correctly', async ({
   expect(queryCounter).toBe(7);
 });
 
-test('should display data with gauge correctly', async ({
+test('should transform and display fetched table data correctly', async ({
   panelEditPage,
   readProvisionedDataSource,
   selectors,
   page,
 }) => {
-  //TODOMY implement
+  // mock API request data
+  const dataJson = {
+    data: {
+      result: {
+        rowCount: 4,
+        rows: [
+          ['Chrome Mobile', 41],
+          ['Firefox', 93],
+          ['Firefox Mobile', 6],
+          ['Samsung Internet', 3],
+        ],
+        columnLabels: [
+          {
+            key: 'BROWSER',
+            label: 'Browser Name',
+          },
+          {
+            key: 'IMPRESSION_ID',
+            label: 'Impression id / Play id',
+          },
+        ],
+      },
+    },
+  };
+
+  // intercept API call and return mocked data
+  await page.route('*/**/analytics/queries/count', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(dataJson),
+    });
+  });
+
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+  await panelEditPage.setVisualization('Table');
+
+  // select license
+  await page.locator('#query-editor-A_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select aggregation method
+  await page.locator('#query-editor-A_aggregation-method-select').click();
+  await page.getByText('count', { exact: true }).click();
+
+  // The actual input switch element is not in the viewport (because of grafana ui library magic), that's why the
+  // parent element ('..') is fetched here
+  await page.locator('#query-editor-A_format-as-time-series-switch').locator('..').click();
+
+  // select dimension
+  await page.locator('#query-editor-A_dimension-select').click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
+
+  // assert that data is complete and displayed in the right order
+  await expect(panelEditPage.panel.data).toContainText([
+    'Chrome Mobile',
+    '41',
+    'Firefox',
+    '93',
+    'Firefox Mobile',
+    '6',
+    'Samsung Internet',
+    '3',
+  ]);
+  await expect(panelEditPage.panel.fieldNames).toContainText(['Browser Name', 'Impression id / Play id']);
+});
+
+test('should transform and display fetched timeseries data correctly', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  selectors,
+  page,
+}) => {
+  // mock API request data
+  const endTimestamp = new Date(Date.now()).setMinutes(0, 0, 0);
+  const hourInMs = 1000 * 60 * 60;
+  const dataJson = {
+    data: {
+      result: {
+        rowCount: 7,
+        rows: [
+          [endTimestamp - 3 * hourInMs, 'Firefox', 9],
+          [endTimestamp - 3 * hourInMs, 'Chrome', 90],
+          [endTimestamp - hourInMs, 'Chrome', 76],
+          [endTimestamp - hourInMs, 'Firefox', 6],
+          [endTimestamp, 'Firefox Mobile', 4],
+        ],
+        columnLabels: [
+          {
+            key: 'BROWSER',
+            label: 'Browser Name',
+          },
+          {
+            key: 'IMPRESSION_ID',
+            label: 'Impression id / Play id',
+          },
+        ],
+        jobId: '1d9d36ad-9202-4098-8ff1-0f38b513b963',
+        taskCount: 1,
+      },
+    },
+  };
+
+  // intercept API call and return mocked data
+  await page.route('*/**/analytics/queries/count', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(dataJson),
+    });
+  });
+
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+  await panelEditPage.setVisualization('Table');
+
+  // select query interval
+  await panelEditPage.getByGrafanaSelector(selectors.components.TimePicker.openButton).click();
+  await page.getByText('Last 3 hours').click();
+
+  // select license
+  await page.locator('#query-editor-A_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select aggregation method
+  await page.locator('#query-editor-A_aggregation-method-select').click();
+  await page.getByText('count', { exact: true }).click();
+
+  // select group by
+  await page.locator('#query-editor-A_add-group-by-button').click();
+  await page.locator('#query-editor-A_group-by-select').click();
+  await page.getByText('BROWSER', { exact: true }).click();
+
+  // select interval
+  await page.locator('#query-editor-A_interval-select').click();
+  await page.getByText('Hour', { exact: true }).click();
+
+  // select dimension
+  await page.locator('#query-editor-A_dimension-select').click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
+
+  // assert that data is complete and displayed in the right order
+  await expect(panelEditPage.panel.data).toContainText(['9', '90', '0', '0', '0', '0', '6', '76', '0', '0', '0', '4']);
+  await expect(panelEditPage.panel.fieldNames).toContainText(['Time', 'Firefox', 'Chrome', 'Firefox Mobile']);
 });
