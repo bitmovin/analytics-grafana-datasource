@@ -269,10 +269,10 @@ test('should send correct query for percentile selection', async ({
   await page.getByText('IMPRESSION_ID', { exact: true }).click();
 
   // select percentile aggregation && add percentile value
-  const queryPromise = page.waitForRequest('*/**/analytics/queries/percentile');
   await page.locator('#query-editor_aggregation-method-select').click(); // request triggered
   await page.getByText('percentile', { exact: true }).click();
   await page.locator('#query-editor_percentile-value-input').fill('50'); // request triggered
+  const queryPromise = page.waitForRequest('*/**/analytics/queries/percentile');
   await page.locator('#query-editor_percentile-value-input').blur();
   const queryRequest = await queryPromise;
 
