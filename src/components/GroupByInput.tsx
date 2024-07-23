@@ -32,6 +32,7 @@ export function GroupByInput(props: Props) {
         width={30}
       />
       <IconButton
+        id="query-editor_group-by-move-down-button"
         tooltip="Move down"
         onClick={() => props.onReorderGroupBy(REORDER_DIRECTION.DOWN)}
         name="arrow-down"
@@ -43,7 +44,14 @@ export function GroupByInput(props: Props) {
         name="arrow-up"
         disabled={props.isFirst}
       />
-      <IconButton tooltip="Delete Group By" name="trash-alt" onClick={props.onDelete} size="lg" variant="destructive" />
+      <IconButton
+        id="query-editor_delete-group-by-button"
+        tooltip="Delete Group By"
+        name="trash-alt"
+        onClick={props.onDelete}
+        size="lg"
+        variant="destructive"
+      />
     </HorizontalGroup>
   );
 }

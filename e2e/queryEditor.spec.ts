@@ -101,7 +101,7 @@ test('should trigger correct number of queries with correct payload', async ({
   await page.getByText('FUNCTION', { exact: true }).click(); // request triggered
   // The actual button element is not in the right place to be clicked (because of grafana ui library magic), that's why the
   // sibling label element ('+ label') is fetched and clicked here
-  await page.locator('#option-DESC-query-editor_order-by-button-group').locator('+ label').click();
+  await page.locator('#option-DESC-query-editor_order-by-button-group').locator('+ label').click({ force: true });
 
   // add limit
   await page.locator('#query-editor_limit-input').fill('10');
@@ -396,8 +396,58 @@ test('should add, edit and delete groupBys correctly', async ({
   selectors,
   page,
 }) => {
-  //TODOMY implement
-  // TODO add two groupBys, change the order of the groupBys, check the request and then delete one of them nd check again
+  let queryCounter = 0;
+  await page.route('*/**/analytics/queries/count', (route) => {
+    queryCounter++;
+    route.abort();
+  });
+  // read and select datasource
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+
+  // select license
+  await page.locator('#query-editor_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select aggregation method
+  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.getByText('count', { exact: true }).click();
+
+  // select dimension
+  await page.locator('#query-editor_dimension-select').click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
+
+  // add 2 group bys
+  await page.locator('#query-editor_add-group-by-button').click(); // request triggered
+  await page.locator('#query-editor_group-by-select').click();
+  await page.getByText('COUNTRY', { exact: true }).click(); // request triggered
+  await page.locator('#query-editor_add-group-by-button').click(); // request triggered
+  await page.locator('#query-editor_group-by-select').nth(1).click();
+  const queryPromise1 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.getByText('BROWSER', { exact: true }).click(); // request triggered
+  const queryRequest1 = await queryPromise1;
+
+  expect(queryRequest1.postDataJSON().groupBy.length).toBe(2);
+  expect(queryRequest1.postDataJSON().groupBy[0]).toBe('COUNTRY');
+  expect(queryRequest1.postDataJSON().groupBy[1]).toBe('BROWSER');
+
+  // change order of group bys
+  const queryPromise2 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_group-by-move-down-button').first().click();
+  const queryRequest2 = await queryPromise2;
+  expect(queryRequest2.postDataJSON().groupBy.length).toBe(2);
+  expect(queryRequest2.postDataJSON().groupBy[0]).toBe('BROWSER');
+  expect(queryRequest2.postDataJSON().groupBy[1]).toBe('COUNTRY');
+
+  // delete first groupBy
+  const queryPromise3 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_delete-group-by-button').first().click(); // request triggered
+  const queryRequest3 = await queryPromise3;
+  expect(queryRequest3.postDataJSON().groupBy.length).toBe(1);
+  expect(queryRequest3.postDataJSON().groupBy[0]).toBe('COUNTRY');
+
+  // check for right amount of queries triggered
+  expect(queryCounter).toBe(7);
 });
 
 test('should add, edit and delete orderBys correctly', async ({
@@ -406,8 +456,57 @@ test('should add, edit and delete orderBys correctly', async ({
   selectors,
   page,
 }) => {
-  //TODOMY implement
-  // TODO add two groupBys, change the order of the groupBys, check the request and then delete one of them nd check again
+  let queryCounter = 0;
+  await page.route('*/**/analytics/queries/count', (route) => {
+    queryCounter++;
+    route.abort();
+  });
+  // read and select datasource
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+
+  // select license
+  await page.locator('#query-editor_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // select aggregation method
+  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.getByText('count', { exact: true }).click();
+
+  // select dimension
+  await page.locator('#query-editor_dimension-select').click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
+
+  // add 2 order bys
+  await page.locator('#query-editor_add-order-by-button').click(); // request triggered
+  await page.locator('#query-editor_order-by-select').click();
+  await page.getByText('COUNTRY', { exact: true }).click(); // request triggered
+  await page.locator('#query-editor_add-order-by-button').click(); // request triggered
+  await page.locator('#query-editor_order-by-select').nth(1).click();
+  const queryPromise1 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.getByText('BROWSER', { exact: true }).click(); // request triggered
+  const queryRequest1 = await queryPromise1;
+  expect(queryRequest1.postDataJSON().orderBy.length).toBe(2);
+  expect(queryRequest1.postDataJSON().orderBy[0].name).toBe('COUNTRY');
+  expect(queryRequest1.postDataJSON().orderBy[1].name).toBe('BROWSER');
+
+  // change order of order bys
+  const queryPromise2 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_order-by-move-down-button').first().click(); // request triggered
+  const queryRequest2 = await queryPromise2;
+  expect(queryRequest2.postDataJSON().orderBy.length).toBe(2);
+  expect(queryRequest2.postDataJSON().orderBy[0].name).toBe('BROWSER');
+  expect(queryRequest2.postDataJSON().orderBy[1].name).toBe('COUNTRY');
+
+  // delete first orderBy
+  const queryPromise3 = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor_order-by-delete-button').first().click(); // request triggered
+  const queryRequest3 = await queryPromise3;
+  expect(queryRequest3.postDataJSON().orderBy.length).toBe(1);
+  expect(queryRequest3.postDataJSON().orderBy[0].name).toBe('COUNTRY');
+
+  // check for right amount of queries triggered
+  expect(queryCounter).toBe(7);
 });
 
 test('should display data with gauge correctly', async ({
