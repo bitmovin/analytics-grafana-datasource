@@ -59,6 +59,7 @@ export function ConfigEditor(props: Props) {
             value={jsonData.apiKey || ''}
             placeholder="Analytics API Key"
             width={40}
+            id={`config-editor-${props.options.name}_api-key-input`}
           />
         </InlineField>
         <InlineField label="Tenant Org Id" labelWidth={26}>
@@ -67,6 +68,7 @@ export function ConfigEditor(props: Props) {
             value={jsonData.tenantOrgId || ''}
             placeholder="Tenant Org Id"
             width={40}
+            id={`config-editor-${props.options.name}_tenant-org-id-input`}
           />
         </InlineField>
         <InlineField label="Ad Analytics" tooltip={'Check if you want to query ads data'} labelWidth={26}>
