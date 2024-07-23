@@ -13,6 +13,7 @@ type Props = {
   readonly isAdAnalytics: boolean;
   readonly onQueryFilterChange: (newFilters: QueryFilter[]) => void;
   readonly filters: QueryFilter[];
+  readonly queryEditorId: string;
 };
 
 export function FilterRow(props: Props) {
@@ -61,6 +62,7 @@ export function FilterRow(props: Props) {
           onDelete={() => handleQueryFilterDelete(queryFilterIdx)}
           selectedQueryFilters={props.filters}
           key={queryFilterIdx}
+          queryEditorId={props.queryEditorId}
         />
       ))}
 
@@ -72,10 +74,11 @@ export function FilterRow(props: Props) {
             onChange={handleNewQueryFilterChange}
             onDelete={() => setHasNewQueryFilter(false)}
             selectedQueryFilters={props.filters}
+            queryEditorId={props.queryEditorId}
           />
         ) : (
           <IconButton
-            id="query-editor_add-new-filter-button"
+            id={`query-editor-${props.queryEditorId}_add-new-filter-button`}
             name="plus-square"
             tooltip="Add Filter"
             onClick={() => setHasNewQueryFilter(true)}

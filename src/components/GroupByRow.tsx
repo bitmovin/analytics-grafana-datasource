@@ -41,6 +41,7 @@ type Props = {
   readonly isAdAnalytics: boolean;
   readonly onChange: (newGroupBys: Array<QueryAttribute | QueryAdAttribute>) => void;
   readonly groupBys: Array<QueryAttribute | QueryAdAttribute>;
+  readonly queryEditorId: string;
 };
 
 export function GroupByRow(props: Props) {
@@ -87,11 +88,12 @@ export function GroupByRow(props: Props) {
           isFirst={index === 0}
           isLast={index === selectedGroupBysArray.length - 1}
           onReorderGroupBy={(direction: REORDER_DIRECTION) => reorderGroupBy(direction, index)}
+          queryEditorId={props.queryEditorId}
         />
       ))}
       <div style={{ paddingTop }}>
         <IconButton
-          id="query-editor_add-group-by-button"
+          id={`query-editor-${props.queryEditorId}_add-group-by-button`}
           name="plus-square"
           tooltip="Add Group By"
           onClick={() => addGroupByInput()}

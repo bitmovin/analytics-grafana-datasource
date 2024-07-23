@@ -18,6 +18,7 @@ interface QueryFilterInputProps {
   isAdAnalytics: boolean;
   /** Selected query filters are used to filter out used values from attribute select options */
   selectedQueryFilters: QueryFilter[];
+  queryEditorId: string;
 }
 
 export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
@@ -120,7 +121,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         {/* this div wrapper is needed to expose `ref` for Tooltip above */}
         <div>
           <Select
-            id="query-editor_filter-attribute-select"
+            id={`query-editor-${props.queryEditorId}_filter-attribute-select`}
             value={attributeSelectValue}
             onChange={handleAttributeChange}
             options={props.isAdAnalytics ? SELECTABLE_QUERY_AD_ATTRIBUTES : SELECTABLE_QUERY_ATTRIBUTES}
@@ -137,7 +138,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         {/* this div wrapper is needed to expose `ref` for Tooltip above */}
         <div>
           <Select
-            id="query-editor_filter-operator-select"
+            id={`query-editor-${props.queryEditorId}_filter-operator-select`}
             value={operatorSelectValue}
             onChange={handleOperatorChange}
             options={SELECTABLE_QUERY_FILTER_OPERATORS}
@@ -152,7 +153,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         theme="error"
       >
         <Input
-          id="query-editor_filter-value-input"
+          id={`query-editor-${props.queryEditorId}_filter-value-input`}
           value={derivedQueryFilterState.value}
           onChange={(e) => handleInputValueChange(e.currentTarget.value)}
           invalid={derivedQueryFilterState.inputValueError != null}
@@ -162,7 +163,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       </Tooltip>
 
       <IconButton
-        id="query-editor_filter-delete-button"
+        id={`query-editor-${props.queryEditorId}_filter-delete-button`}
         variant="destructive"
         name="trash-alt"
         size="lg"
@@ -172,7 +173,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       {/* in "create mode" we want to show save icons all the time */}
       {(isCreatingNewOne || derivedQueryFilterState.dirty) && (
         <IconButton
-          id="query-editor_filter-save-button"
+          id={`query-editor-${props.queryEditorId}_filter-save-button`}
           variant="primary"
           name={isCreatingNewOne ? 'plus-square' : 'save'}
           size="lg"
@@ -183,7 +184,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       {/* in "create mode" there is nothing to revert to */}
       {!isCreatingNewOne && derivedQueryFilterState.dirty && (
         <IconButton
-          id="query-editor_filter-revert-changes-button"
+          id={`query-editor-${props.queryEditorId}_filter-revert-changes-button`}
           variant="secondary"
           name="history"
           size="lg"

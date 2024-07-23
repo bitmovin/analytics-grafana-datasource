@@ -70,47 +70,47 @@ test('should trigger correct number of queries with correct payload', async ({
   await page.getByText('Last 3 hours').click();
 
   // select license
-  await page.locator('#query-editor_license-select').click();
+  await page.locator('#query-editor-A_license-select').click();
   await page.getByText('First Test License', { exact: true }).click();
 
   // select aggregation method
-  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.locator('#query-editor-A_aggregation-method-select').click();
   await page.getByText('count', { exact: true }).click();
 
   // select dimension
-  await page.locator('#query-editor_dimension-select').click();
+  await page.locator('#query-editor-A_dimension-select').click();
   await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
 
   // add filter
-  await page.locator('#query-editor_add-new-filter-button').click();
-  await page.locator('#query-editor_filter-attribute-select').click();
+  await page.locator('#query-editor-A_add-new-filter-button').click();
+  await page.locator('#query-editor-A_filter-attribute-select').click();
   await page.getByText('VIDEO_STARTUPTIME', { exact: true }).click();
-  await page.locator('#query-editor_filter-operator-select').click();
+  await page.locator('#query-editor-A_filter-operator-select').click();
   await page.getByText('GT', { exact: true }).click();
-  await page.locator('#query-editor_filter-value-input').fill('0');
-  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+  await page.locator('#query-editor-A_filter-value-input').fill('0');
+  await page.locator('#query-editor-A_filter-save-button').click(); // request triggered
 
   // add group by
-  await page.locator('#query-editor_add-group-by-button').click(); // request triggered
-  await page.locator('#query-editor_group-by-select').click();
+  await page.locator('#query-editor-A_add-group-by-button').click(); // request triggered
+  await page.locator('#query-editor-A_group-by-select').click();
   await page.getByText('BROWSER', { exact: true }).click(); // request triggered
 
   // add order by
-  await page.locator('#query-editor_add-order-by-button').click(); // request triggered
-  await page.locator('#query-editor_order-by-select').click();
+  await page.locator('#query-editor-A_add-order-by-button').click(); // request triggered
+  await page.locator('#query-editor-A_order-by-select').click();
   await page.getByText('FUNCTION', { exact: true }).click(); // request triggered
   // The actual button element is not in the right place to be clicked (because of grafana ui library magic), that's why the
   // sibling label element ('+ label') is fetched and clicked here
-  await page.locator('#option-DESC-query-editor_order-by-button-group').locator('+ label').click({ force: true });
+  await page.locator('#option-DESC-query-editor-A_order-by-button-group').locator('+ label').click({ force: true });
 
   // add limit
-  await page.locator('#query-editor_limit-input').fill('10');
-  await page.locator('#query-editor_limit-input').blur(); // request triggered
+  await page.locator('#query-editor-A_limit-input').fill('10');
+  await page.locator('#query-editor-A_limit-input').blur(); // request triggered
 
   // add alias
-  await page.locator('#query-editor_alias-by-input').fill('TestAlias');
+  await page.locator('#query-editor-A_alias-by-input').fill('TestAlias');
   const queryRequestPromise = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_alias-by-input').blur(); // request triggered
+  await page.locator('#query-editor-A_alias-by-input').blur(); // request triggered
 
   // check for right values in last request Payload
   const queryRequest = await queryRequestPromise;
@@ -154,16 +154,16 @@ test('should send correct query if a metric was selected', async ({
   await page.getByText('Last 3 hours').click();
 
   // select license
-  await page.locator('#query-editor_license-select').click();
+  await page.locator('#query-editor-A_license-select').click();
   await page.getByText('First Test License', { exact: true }).click();
 
   // select dimension
   const queryRequestPromise = page.waitForRequest('*/**/analytics/metrics/AVG_CONCURRENTVIEWERS');
-  await page.locator('#query-editor_dimension-select').click();
+  await page.locator('#query-editor-A_dimension-select').click();
   await page.getByText('AVG_CONCURRENTVIEWERS', { exact: true }).click(); // request triggered
 
   // check that aggregation method selection is not visible
-  await expect(page.locator('#query-editor_aggregation-method-select')).toHaveCount(0);
+  await expect(page.locator('#query-editor-A_aggregation-method-select')).toHaveCount(0);
 
   // check for right values in request Payload
   const queryRequest = await queryRequestPromise;
@@ -203,15 +203,15 @@ test('should send correct query for time series and table data', async ({
   await page.getByText('Last 3 hours').click();
 
   // select license
-  await page.locator('#query-editor_license-select').click();
+  await page.locator('#query-editor-A_license-select').click();
   await page.getByText('First Test License', { exact: true }).click();
 
   // select aggregation method
-  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.locator('#query-editor-A_aggregation-method-select').click();
   await page.getByText('count', { exact: true }).click();
 
   // select dimension
-  await page.locator('#query-editor_dimension-select').click();
+  await page.locator('#query-editor-A_dimension-select').click();
   const queryTimeSeriesPromise = page.waitForRequest('*/**/analytics/queries/count');
   await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
   const queryTimeSeriesRequest = await queryTimeSeriesPromise;
@@ -223,17 +223,17 @@ test('should send correct query for time series and table data', async ({
   const queryTablePromise = page.waitForRequest('*/**/analytics/queries/count');
   // The actual input switch element is not in the viewport (because of grafana ui library magic), that's why the
   // parent element ('..') is fetched here
-  await page.locator('#query-editor_format-as-time-series-switch').locator('..').click(); // request triggered
+  await page.locator('#query-editor-A_format-as-time-series-switch').locator('..').click(); // request triggered
   // check that interval selection is not visible anymore
-  await expect(page.locator('#query-editor_interval-select')).toHaveCount(0);
+  await expect(page.locator('#query-editor-A_interval-select')).toHaveCount(0);
   const queryTableRequest = await queryTablePromise;
   // check that interval is not set in request
   expect(queryTableRequest.postDataJSON().interval).toBeUndefined();
 
   // check format as time series option and select DAY interval
-  await page.locator('#query-editor_format-as-time-series-switch').locator('..').click(); // request triggered
+  await page.locator('#query-editor-A_format-as-time-series-switch').locator('..').click(); // request triggered
   const queryTimeSeriesDayPromise = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_interval-select').click();
+  await page.locator('#query-editor-A_interval-select').click();
   await page.getByText('Day', { exact: true }).click(); // request triggered
   const queryTimeSeriesDayRequest = await queryTimeSeriesDayPromise;
   // check that correct interval is set in request
@@ -262,19 +262,19 @@ test('should send correct query for percentile selection', async ({
   await page.getByText('Last 3 hours').click();
 
   // select license
-  await page.locator('#query-editor_license-select').click();
+  await page.locator('#query-editor-A_license-select').click();
   await page.getByText('First Test License', { exact: true }).click();
 
   // select dimension
-  await page.locator('#query-editor_dimension-select').click();
+  await page.locator('#query-editor-A_dimension-select').click();
   await page.getByText('IMPRESSION_ID', { exact: true }).click();
 
   // select percentile aggregation && add percentile value
-  await page.locator('#query-editor_aggregation-method-select').click(); // request triggered
+  await page.locator('#query-editor-A_aggregation-method-select').click(); // request triggered
   await page.getByText('percentile', { exact: true }).click();
-  await page.locator('#query-editor_percentile-value-input').fill('50'); // request triggered
+  await page.locator('#query-editor-A_percentile-value-input').fill('50'); // request triggered
   const queryPromise = page.waitForRequest('*/**/analytics/queries/percentile');
-  await page.locator('#query-editor_percentile-value-input').blur();
+  await page.locator('#query-editor-A_percentile-value-input').blur();
   const queryRequest = await queryPromise;
 
   // check for right values in request Payload
@@ -308,46 +308,46 @@ test('should add, edit and delete filters correctly', async ({
   const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
   await panelEditPage.datasource.set(ds.name);
   // select license
-  await page.locator('#query-editor_license-select').click();
+  await page.locator('#query-editor-A_license-select').click();
   await page.getByText('First Test License', { exact: true }).click();
 
   // select aggregation method
-  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.locator('#query-editor-A_aggregation-method-select').click();
   await page.getByText('count', { exact: true }).click();
 
   // select dimension
-  await page.locator('#query-editor_dimension-select').click();
+  await page.locator('#query-editor-A_dimension-select').click();
   await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
 
   //#region add new filters
-  await page.locator('#query-editor_add-new-filter-button').click();
+  await page.locator('#query-editor-A_add-new-filter-button').click();
   // check that add filter button is not visible anymore
-  await expect(page.locator('#query-editor_add-new-filter-button')).toHaveCount(0);
+  await expect(page.locator('#query-editor-A_add-new-filter-button')).toHaveCount(0);
 
   // add first filter
-  await page.locator('#query-editor_filter-attribute-select').click();
+  await page.locator('#query-editor-A_filter-attribute-select').click();
   await page.getByText('VIDEO_STARTUPTIME', { exact: true }).click();
-  await page.locator('#query-editor_filter-operator-select').click();
+  await page.locator('#query-editor-A_filter-operator-select').click();
   await page.getByText('GT', { exact: true }).click();
-  await page.locator('#query-editor_filter-value-input').fill('INVALID');
+  await page.locator('#query-editor-A_filter-value-input').fill('INVALID');
   // check that no query was sent with invalid filter value
-  await page.locator('#query-editor_filter-save-button').click(); // no request triggered
-  await page.locator('#query-editor_filter-value-input').fill('0');
+  await page.locator('#query-editor-A_filter-save-button').click(); // no request triggered
+  await page.locator('#query-editor-A_filter-value-input').fill('0');
   const queryPromise1 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+  await page.locator('#query-editor-A_filter-save-button').click(); // request triggered
   const queryRequest1 = await queryPromise1;
   expect(queryRequest1.postDataJSON().filters.length).toBe(1);
   expect(queryRequest1.postDataJSON().filters[0].value).toBe(0);
 
   // add second filter
-  await page.locator('#query-editor_add-new-filter-button').click();
-  await page.locator('#query-editor_filter-attribute-select').nth(1).click();
+  await page.locator('#query-editor-A_add-new-filter-button').click();
+  await page.locator('#query-editor-A_filter-attribute-select').nth(1).click();
   await page.getByText('BROWSER', { exact: true }).click();
-  await page.locator('#query-editor_filter-operator-select').nth(1).click();
+  await page.locator('#query-editor-A_filter-operator-select').nth(1).click();
   await page.getByText('EQ', { exact: true }).click();
-  await page.locator('#query-editor_filter-value-input').nth(1).fill('FIREFOX');
+  await page.locator('#query-editor-A_filter-value-input').nth(1).fill('FIREFOX');
   const queryPromise2 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+  await page.locator('#query-editor-A_filter-save-button').click(); // request triggered
   const queryRequest2 = await queryPromise2;
   expect(queryRequest2.postDataJSON().filters.length).toBe(2);
   expect(queryRequest2.postDataJSON().filters[1].value).toBe('FIREFOX');
@@ -355,25 +355,25 @@ test('should add, edit and delete filters correctly', async ({
 
   //#region edit filter
   // check that revert changes button and save button are not visible
-  await expect(page.locator('#query-editor_filter-revert-changes-button')).toHaveCount(0);
-  await expect(page.locator('#query-editor_filter-save-button')).toHaveCount(0);
+  await expect(page.locator('#query-editor-A_filter-revert-changes-button')).toHaveCount(0);
+  await expect(page.locator('#query-editor-A_filter-save-button')).toHaveCount(0);
 
   // edit first filter and revert changes
-  await page.locator('#query-editor_filter-operator-select').first().click();
+  await page.locator('#query-editor-A_filter-operator-select').first().click();
   await page.getByText('GTE', { exact: true }).click();
   // check that save filter button is visible again
-  await expect(page.locator('#query-editor_filter-save-button')).toHaveCount(1);
+  await expect(page.locator('#query-editor-A_filter-save-button')).toHaveCount(1);
   // revert changes
-  await page.locator('#query-editor_filter-revert-changes-button').click();
-  await expect(page.locator('#query-editor_filter-operator-select').first()).toHaveText('GT');
+  await page.locator('#query-editor-A_filter-revert-changes-button').click();
+  await expect(page.locator('#query-editor-A_filter-operator-select').first()).toHaveText('GT');
   // check that revert changes button and save button are not visible
-  await expect(page.locator('#query-editor_filter-revert-changes-button')).toHaveCount(0);
-  await expect(page.locator('#query-editor_filter-save-button')).toHaveCount(0);
+  await expect(page.locator('#query-editor-A_filter-revert-changes-button')).toHaveCount(0);
+  await expect(page.locator('#query-editor-A_filter-save-button')).toHaveCount(0);
 
   // edit first filter and save new value
-  await page.locator('#query-editor_filter-value-input').first().fill('90');
+  await page.locator('#query-editor-A_filter-value-input').first().fill('90');
   const queryPromise3 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_filter-save-button').click(); // request triggered
+  await page.locator('#query-editor-A_filter-save-button').click(); // request triggered
   const queryRequest3 = await queryPromise3;
   expect(queryRequest3.postDataJSON().filters.length).toBe(2);
   expect(queryRequest3.postDataJSON().filters[0].value).toBe(90);
@@ -381,7 +381,7 @@ test('should add, edit and delete filters correctly', async ({
 
   // delete first filter
   const queryPromise4 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_filter-delete-button').first().click(); // request triggered
+  await page.locator('#query-editor-A_filter-delete-button').first().click(); // request triggered
   const queryRequest4 = await queryPromise4;
   expect(queryRequest4.postDataJSON().filters.length).toBe(1);
   expect(queryRequest4.postDataJSON().filters[0].value).toBe('FIREFOX');
@@ -406,23 +406,23 @@ test('should add, edit and delete groupBys correctly', async ({
   await panelEditPage.datasource.set(ds.name);
 
   // select license
-  await page.locator('#query-editor_license-select').click();
+  await page.locator('#query-editor-A_license-select').click();
   await page.getByText('First Test License', { exact: true }).click();
 
   // select aggregation method
-  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.locator('#query-editor-A_aggregation-method-select').click();
   await page.getByText('count', { exact: true }).click();
 
   // select dimension
-  await page.locator('#query-editor_dimension-select').click();
+  await page.locator('#query-editor-A_dimension-select').click();
   await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
 
   // add 2 group bys
-  await page.locator('#query-editor_add-group-by-button').click(); // request triggered
-  await page.locator('#query-editor_group-by-select').click();
+  await page.locator('#query-editor-A_add-group-by-button').click(); // request triggered
+  await page.locator('#query-editor-A_group-by-select').click();
   await page.getByText('COUNTRY', { exact: true }).click(); // request triggered
-  await page.locator('#query-editor_add-group-by-button').click(); // request triggered
-  await page.locator('#query-editor_group-by-select').nth(1).click();
+  await page.locator('#query-editor-A_add-group-by-button').click(); // request triggered
+  await page.locator('#query-editor-A_group-by-select').nth(1).click();
   const queryPromise1 = page.waitForRequest('*/**/analytics/queries/count');
   await page.getByText('BROWSER', { exact: true }).click(); // request triggered
   const queryRequest1 = await queryPromise1;
@@ -433,7 +433,7 @@ test('should add, edit and delete groupBys correctly', async ({
 
   // change order of group bys
   const queryPromise2 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_group-by-move-down-button').first().click();
+  await page.locator('#query-editor-A_group-by-move-down-button').first().click();
   const queryRequest2 = await queryPromise2;
   expect(queryRequest2.postDataJSON().groupBy.length).toBe(2);
   expect(queryRequest2.postDataJSON().groupBy[0]).toBe('BROWSER');
@@ -441,7 +441,7 @@ test('should add, edit and delete groupBys correctly', async ({
 
   // delete first groupBy
   const queryPromise3 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_delete-group-by-button').first().click(); // request triggered
+  await page.locator('#query-editor-A_delete-group-by-button').first().click(); // request triggered
   const queryRequest3 = await queryPromise3;
   expect(queryRequest3.postDataJSON().groupBy.length).toBe(1);
   expect(queryRequest3.postDataJSON().groupBy[0]).toBe('COUNTRY');
@@ -466,23 +466,23 @@ test('should add, edit and delete orderBys correctly', async ({
   await panelEditPage.datasource.set(ds.name);
 
   // select license
-  await page.locator('#query-editor_license-select').click();
+  await page.locator('#query-editor-A_license-select').click();
   await page.getByText('First Test License', { exact: true }).click();
 
   // select aggregation method
-  await page.locator('#query-editor_aggregation-method-select').click();
+  await page.locator('#query-editor-A_aggregation-method-select').click();
   await page.getByText('count', { exact: true }).click();
 
   // select dimension
-  await page.locator('#query-editor_dimension-select').click();
+  await page.locator('#query-editor-A_dimension-select').click();
   await page.getByText('IMPRESSION_ID', { exact: true }).click(); // request triggered
 
   // add 2 order bys
-  await page.locator('#query-editor_add-order-by-button').click(); // request triggered
-  await page.locator('#query-editor_order-by-select').click();
+  await page.locator('#query-editor-A_add-order-by-button').click(); // request triggered
+  await page.locator('#query-editor-A_order-by-select').click();
   await page.getByText('COUNTRY', { exact: true }).click(); // request triggered
-  await page.locator('#query-editor_add-order-by-button').click(); // request triggered
-  await page.locator('#query-editor_order-by-select').nth(1).click();
+  await page.locator('#query-editor-A_add-order-by-button').click(); // request triggered
+  await page.locator('#query-editor-A_order-by-select').nth(1).click();
   const queryPromise1 = page.waitForRequest('*/**/analytics/queries/count');
   await page.getByText('BROWSER', { exact: true }).click(); // request triggered
   const queryRequest1 = await queryPromise1;
@@ -492,7 +492,7 @@ test('should add, edit and delete orderBys correctly', async ({
 
   // change order of order bys
   const queryPromise2 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_order-by-move-down-button').first().click(); // request triggered
+  await page.locator('#query-editor-A_order-by-move-down-button').first().click(); // request triggered
   const queryRequest2 = await queryPromise2;
   expect(queryRequest2.postDataJSON().orderBy.length).toBe(2);
   expect(queryRequest2.postDataJSON().orderBy[0].name).toBe('BROWSER');
@@ -500,7 +500,7 @@ test('should add, edit and delete orderBys correctly', async ({
 
   // delete first orderBy
   const queryPromise3 = page.waitForRequest('*/**/analytics/queries/count');
-  await page.locator('#query-editor_order-by-delete-button').first().click(); // request triggered
+  await page.locator('#query-editor-A_order-by-delete-button').first().click(); // request triggered
   const queryRequest3 = await queryPromise3;
   expect(queryRequest3.postDataJSON().orderBy.length).toBe(1);
   expect(queryRequest3.postDataJSON().orderBy[0].name).toBe('COUNTRY');

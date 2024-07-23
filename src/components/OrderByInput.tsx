@@ -19,6 +19,7 @@ type Props = {
   readonly isFirst: boolean;
   readonly isLast: boolean;
   readonly onReorderOrderBy: (direction: REORDER_DIRECTION) => void;
+  readonly queryEditorId: string;
 };
 
 const sortOrderOption: Array<SelectableValue<QuerySortOrder>> = [
@@ -30,20 +31,20 @@ export function OrderByInput(props: Props) {
   return (
     <HorizontalGroup spacing="xs">
       <Select
-        id="query-editor_order-by-select"
+        id={`query-editor-${props.queryEditorId}_order-by-select`}
         value={isEmpty(props.attribute) ? undefined : props.attribute}
         onChange={(selectableValue) => props.onAttributeChange(selectableValue)}
         options={props.selectableOrderByAttributes}
         width={30}
       />
       <RadioButtonGroup
-        id="query-editor_order-by-button-group"
+        id={`query-editor-${props.queryEditorId}_order-by-button-group`}
         options={sortOrderOption}
         value={props.sortOrder}
         onChange={(value) => props.onSortOrderChange(value)}
       />
       <IconButton
-        id="query-editor_order-by-move-down-button"
+        id={`query-editor-${props.queryEditorId}_order-by-move-down-button`}
         tooltip="Move down"
         onClick={() => props.onReorderOrderBy(REORDER_DIRECTION.DOWN)}
         name="arrow-down"
@@ -56,7 +57,7 @@ export function OrderByInput(props: Props) {
         disabled={props.isFirst}
       />
       <IconButton
-        id="query-editor_order-by-delete-button"
+        id={`query-editor-${props.queryEditorId}_order-by-delete-button`}
         tooltip="Delete Order By"
         name="trash-alt"
         onClick={props.onDelete}
