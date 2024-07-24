@@ -46,7 +46,7 @@ type Props = {
 };
 
 export function OrderByRow(props: Props) {
-  const paddingTop=  props.orderBys.length === 0 ? 4 : 0
+  const paddingTop = props.orderBys.length === 0 ? 4 : 0;
   const deleteOrderByInput = (index: number) => {
     const newOrderBys = [...props.orderBys];
     newOrderBys.splice(index, 1);

@@ -10,8 +10,11 @@ import { convertFilterValueToProperType } from 'utils/filterUtils';
 interface QueryFilterInputProps {
   /** `undefined` when component is used to create new filter (no values yet) */
   value: undefined | QueryFilter;
+
   onChange(queryFilter: QueryFilter): void;
+
   onDelete(): void;
+
   isAdAnalytics: boolean;
   /** Selected query filters are used to filter out used values from attribute select options */
   selectedQueryFilters: QueryFilter[];
