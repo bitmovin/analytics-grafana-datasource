@@ -2,6 +2,9 @@
 
 ## Development
 
+### Fix
+- different query start times with multiple queries due to mutating of grafana start time
+
 ## 1.1.1
 
 ### Added

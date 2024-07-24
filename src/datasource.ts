@@ -11,6 +11,8 @@ import {
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { filter, isEmpty } from 'lodash';
+// eslint-disable-next-line  no-restricted-imports
+import moment from 'moment';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import {
@@ -101,7 +103,9 @@ export class DataSource extends DataSourceApi<
           ? calculateQueryInterval(target.interval, range!.from.valueOf(), range!.to.valueOf())
           : undefined;
 
-      let queryFrom = range!.from;
+      // create new moment object to not mutate the original grafana object with startOf() to not change
+      // the grafana graph as this would change the timeframe for all the following queries
+      let queryFrom = moment(range!.from.valueOf());
       const queryTo = range!.to;
 
       // floor the query start time to improve cache hitting
@@ -113,9 +117,7 @@ export class DataSource extends DataSourceApi<
         }
         const momentTimeUnit = getMomentTimeUnitForQueryInterval(flooringInterval);
         if (momentTimeUnit != null) {
-          // range from is a moment and startOf is mutating moment object so this has a side effect to also change the
-          // grafana selected timeframe value which will adapt the grafana graph as well
-          queryFrom = range!.from.startOf(momentTimeUnit);
+          queryFrom.startOf(momentTimeUnit);
         }
       }
 
