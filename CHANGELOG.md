@@ -2,6 +2,9 @@
 
 ## Development
 
+### Added
+- Default Percentile Value when percentile metric is selected
+
 ## 1.1.1
 
 ### Added
