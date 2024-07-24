@@ -1,0 +1,5 @@
+# Ignore artifacts
+dist
+
+# Ignore files created by `@grafana/create-plugin`
+.config
