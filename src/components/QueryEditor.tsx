@@ -69,7 +69,17 @@ export function QueryEditor(props: Props) {
   };
 
   const handleAggregationChange = (item: SelectableValue) => {
-    props.onChange({ ...query, metric: item.value });
+    // set a default value when percentile is selected and delete percentileValue when percentile is deselected
+    // to not pollute the dashboard.json file
+    let percentile = undefined;
+    if (item.value === 'percentile' && percentileValue == null) {
+      setPercentileValue(95);
+      percentile = 95;
+    } else {
+      setPercentileValue(undefined);
+    }
+
+    props.onChange({ ...query, metric: item.value, percentileValue: percentile });
     props.onRunQuery();
   };
 
