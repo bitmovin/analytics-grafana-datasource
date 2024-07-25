@@ -17,7 +17,7 @@ type Props = {
 
 export function FilterRow(props: Props) {
   const [hasNewQueryFilter, setHasNewQueryFilter] = useState<boolean>(false);
-  const paddingTop= props.filters.length === 0 ? 4 : 0
+  const paddingTop = props.filters.length === 0 ? 4 : 0;
 
   function handleQueryFilterDelete(queryFilterIndex: number) {
     const newQueryFilters = [...props.filters];
