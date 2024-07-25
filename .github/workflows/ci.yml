@@ -1,6 +1,6 @@
 name: CI
 
-on: [ push ]
+on: [push]
 
 permissions: read-all
 
@@ -119,7 +119,7 @@ jobs:
         uses: grafana/plugin-actions/e2e-version@main
 
   playwright-tests:
-    needs: [ resolve-versions, build ]
+    needs: [resolve-versions, build]
     timeout-minutes: 15
     strategy:
       fail-fast: false
