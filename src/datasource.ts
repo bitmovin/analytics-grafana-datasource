@@ -90,6 +90,7 @@ export class DataSource extends DataSourceApi<
   async query(options: DataQueryRequest<BitmovinAnalyticsDataQuery>): Promise<DataQueryResponse> {
     const { range } = options;
     const isRelativeRangeFrom = this.isRelativeRangeFrom(range.raw);
+    let momentTimeUnit = undefined;
 
     //filter disabled queries
     const enabledQueries = (options.targets = filter(options.targets, (t) => !t.hide));
@@ -104,7 +105,7 @@ export class DataSource extends DataSourceApi<
           : undefined;
 
       // create new moment object to not mutate the original grafana object with startOf() to not change
-      // the grafana graph as this would change the timeframe for all the following queries
+      // the grafana graph at this point as this would change the timeframe for all the following queries
       let queryFrom = moment(range!.from.valueOf());
       const queryTo = range!.to;
 
@@ -115,7 +116,7 @@ export class DataSource extends DataSourceApi<
           // to allow higher granularity if interval is selected by user
           flooringInterval = getSmallerInterval(interval, flooringInterval);
         }
-        const momentTimeUnit = getMomentTimeUnitForQueryInterval(flooringInterval);
+        momentTimeUnit = getMomentTimeUnitForQueryInterval(flooringInterval);
         if (momentTimeUnit != null) {
           queryFrom.startOf(momentTimeUnit);
         }
@@ -204,6 +205,11 @@ export class DataSource extends DataSourceApi<
         meta: { notices: metaNotices },
       });
     });
+
+    // round down grafana start time to adjust the grafana graph and show first data point
+    if (momentTimeUnit != null) {
+      range.from.startOf(momentTimeUnit);
+    }
 
     return Promise.all(promises).then((data) => ({ data }));
   }
