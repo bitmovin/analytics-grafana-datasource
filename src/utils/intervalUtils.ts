@@ -51,7 +51,7 @@ export const calculateQueryInterval = (
   }
 
   const intervalInMilliseconds = endTimestamp - startTimestamp;
-  const minuteIntervalLimitInMilliseconds = 3 * 60 * 60 * 1000 + 60000; // MINUTE granularity for timeframes below 3h 1m
+  const minuteIntervalLimitInMilliseconds = 3 * 60 * 60 * 1000; // MINUTE granularity for timeframes below 3h
   const hourIntervalLimitInMilliseconds = 6 * 24 * 60 * 60 * 1000; // HOUR granularity for timeframes below 6d
   const dayIntervalLimitInMilliseconds = 30 * 24 * 60 * 60 * 1000; // DAY granularity for timeframes below 30d
 
