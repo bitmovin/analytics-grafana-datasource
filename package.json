@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --ignore-pattern 'dist/**' --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn run lint --fix",
+    "format": "yarn prettier . --write",
+    "format:check": "yarn prettier --check .",
     "e2e": "yarn playwright test",
     "server": "docker-compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest"

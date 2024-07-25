@@ -16,8 +16,14 @@
       "large": "img/logo.svg"
     },
     "links": [
-      {"name": "Project site", "url": "https://github.com/bitmovin/analytics-grafana-datasource"},
-      {"name": "Apache License", "url": "https://github.com/bitmovin/analytics-grafana-datasource/blob/main/LICENSE"}
+      {
+        "name": "Project site",
+        "url": "https://github.com/bitmovin/analytics-grafana-datasource"
+      },
+      {
+        "name": "Apache License",
+        "url": "https://github.com/bitmovin/analytics-grafana-datasource/blob/main/LICENSE"
+      }
     ],
     "screenshots": [],
     "version": "%VERSION%",

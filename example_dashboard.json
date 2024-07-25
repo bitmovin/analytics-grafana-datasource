@@ -621,9 +621,7 @@
               "value": "0"
             }
           ],
-          "groupBy": [
-            "BROWSER"
-          ],
+          "groupBy": ["BROWSER"],
           "interval": "AUTO",
           "license": "<YOUR-API-KEY>",
           "metric": "count",
@@ -723,9 +721,7 @@
               "value": "0"
             }
           ],
-          "groupBy": [
-            "COUNTRY"
-          ],
+          "groupBy": ["COUNTRY"],
           "interval": "AUTO",
           "license": "<YOUR-API-KEY>",
           "metric": "count",
@@ -781,9 +777,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -800,9 +794,7 @@
               "value": "0"
             }
           ],
-          "groupBy": [
-            "PLAYER_TECH"
-          ],
+          "groupBy": ["PLAYER_TECH"],
           "interval": "AUTO",
           "license": "<YOUR-API-KEY>",
           "metric": "count",
@@ -863,9 +855,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -882,9 +872,7 @@
               "value": "0"
             }
           ],
-          "groupBy": [
-            "OPERATINGSYSTEM"
-          ],
+          "groupBy": ["OPERATINGSYSTEM"],
           "interval": "AUTO",
           "license": "<YOUR-API-KEY>",
           "limit": 10,
@@ -946,9 +934,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -959,9 +945,7 @@
           "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [],
-          "groupBy": [
-            "BROWSER"
-          ],
+          "groupBy": ["BROWSER"],
           "interval": "AUTO",
           "license": "<YOUR-API-KEY>",
           "limit": 10,
@@ -1023,9 +1007,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -1036,9 +1018,7 @@
           "datasource": {},
           "dimension": "IMPRESSION_ID",
           "filter": [],
-          "groupBy": [
-            "COUNTRY"
-          ],
+          "groupBy": ["COUNTRY"],
           "interval": "AUTO",
           "license": "<YOUR-API-KEY>",
           "limit": 10,

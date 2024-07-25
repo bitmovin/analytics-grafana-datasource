@@ -2,6 +2,14 @@
 
 ## Development
 
+### Fix
+
+- different query start times with multiple queries due to mutating of grafana start time
+
+### Added
+
+- Default Percentile Value when percentile metric is selected
+
 ## 1.1.1
 
 ### Added
