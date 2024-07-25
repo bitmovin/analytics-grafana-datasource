@@ -76,9 +76,7 @@ export function QueryEditor(props: Props) {
       setPercentileValue(95);
       percentile = 95;
     } else {
-      if (percentileValue != null) {
-        setPercentileValue(undefined);
-      }
+      setPercentileValue(undefined);
     }
 
     props.onChange({ ...query, metric: item.value, percentileValue: percentile });
