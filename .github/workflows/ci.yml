@@ -25,6 +25,8 @@ jobs:
 
       - name: Check types
         run: yarn run typecheck
+      - name: Check formatting
+        run: yarn run format:check
       - name: Lint
         run: yarn run lint
       - name: Unit tests

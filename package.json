@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --ignore-pattern 'dist/**' --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn run lint --fix",
+    "format": "yarn prettier . --write",
+    "format:check": "yarn prettier --check .",
     "e2e": "yarn exec cypress install && yarn exec grafana-e2e run",
     "e2e:update": "yarn exec cypress install && yarn exec grafana-e2e run --update-screenshots",
     "server": "docker-compose up --build",

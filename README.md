@@ -11,7 +11,7 @@ Add the plugin and acquire your Bitmovin Analytics API key from the [bitmovin da
 Configure the datasource:
 
 | Setting      | Value                                                    |
-|--------------|----------------------------------------------------------|
+| ------------ | -------------------------------------------------------- |
 | URL          | `https://api.bitmovin.com/v1`                            |
 | API Key      | Your API key                                             |
 | Ad Analytics | If checked, the datasource is switched to query ads data |
@@ -27,18 +27,18 @@ See the [example_dashboard.json](example_dashboard.json) for a demo. Configure t
 Add a new panel and select the bitmovin analytics datasource.
 Configure the metric with following settings:
 
-| Setting                | Description                                                                              |
-|------------------------|------------------------------------------------------------------------------------------|
-| License*               | Your analytics license                                                                   |
-| Metric*                | Aggregation method to use, e.g. `count`, `sum`                                           |
-| Dimension*             | Dimension to aggregate over                                                              |
-| Filter                 | Apply filters to the query                                                               |
-| Format as time series* | Check the switch to see time series data                                                 |
-| Group By               | Group query by dimension and plot as individual time series                              |
-| Order By               | Order query ascending or descending by dimension                                         |
-| Limit                  | Limit the result to given number                                                         |
-| Interval*              | Time granularity of queries, select `AUTO` to automatically adapt to selected time range |
-| Alias By               | Set the name of series (only visible with multiple queries in one Graph)                 |
+| Setting                 | Description                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| License\*               | Your analytics license                                                                   |
+| Metric\*                | Aggregation method to use, e.g. `count`, `sum`                                           |
+| Dimension\*             | Dimension to aggregate over                                                              |
+| Filter                  | Apply filters to the query                                                               |
+| Format as time series\* | Check the switch to see time series data                                                 |
+| Group By                | Group query by dimension and plot as individual time series                              |
+| Order By                | Order query ascending or descending by dimension                                         |
+| Limit                   | Limit the result to given number                                                         |
+| Interval\*              | Time granularity of queries, select `AUTO` to automatically adapt to selected time range |
+| Alias By                | Set the name of series (only visible with multiple queries in one Graph)                 |
 
 Settings marked with `*` are required for the time series graph.
 
@@ -52,7 +52,7 @@ Configure the metric as described in [Time Series Graph](#time-series-graph) but
 
 ## Gauges
 
-Configure the Gauge's `Value Options`, depending on your query. 
+Configure the Gauge's `Value Options`, depending on your query.
 
 - For table data (`Format as time series` option **unchecked**) for the `Show` option select `All Values`.
 - For time series data (`Format as time series` option **checked**) for the `Show` option select `Calculate` and choose a reducer function.
@@ -61,7 +61,7 @@ Configure the Gauge's `Value Options`, depending on your query.
 
 Please refer to our [Documentation](https://developer.bitmovin.com/playback/docs/integrating-bitmovin-analytics-with-grafana) and [Analytics Api Reference](https://developer.bitmovin.com/playback/reference/overview) for more information or reach out to us at [bitmovin.com](https://bitmovin.com/contact-bitmovin/).
 
------
+---
 
 ## Development
 

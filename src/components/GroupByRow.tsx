@@ -44,7 +44,7 @@ type Props = {
 };
 
 export function GroupByRow(props: Props) {
-  const paddingTop= props.groupBys.length === 0 ? 4 : 0
+  const paddingTop = props.groupBys.length === 0 ? 4 : 0;
   const deleteGroupByInput = (index: number) => {
     const newSelectedGroupBys = [...props.groupBys];
     newSelectedGroupBys.splice(index, 1);
