@@ -1,7 +1,7 @@
 import { test, expect } from '@grafana/plugin-e2e';
 import { BitmovinDataSourceOptions } from '../src/types/grafanaTypes';
 
-test('"Save & test" should be successful when configuration is valid', async ({
+test('should save and test valid configuration', async ({
   createDataSourceConfigPage,
   readProvisionedDataSource,
   page,
@@ -25,4 +25,23 @@ test('"Save & test" should be successful when configuration is valid', async ({
   expect(queryRequest.headers()['x-tenant-org-id']).toBe('test-tenant-org-id');
 
   expect(configPage).toHaveAlert('success');
+});
+
+test('should not save invalid configuration', async ({
+  createDataSourceConfigPage,
+  readProvisionedDataSource,
+  page,
+  selectors,
+}) => {
+  const ds = await readProvisionedDataSource<BitmovinDataSourceOptions>({ fileName: 'datasources.yml' });
+  const configPage = await createDataSourceConfigPage({ type: ds.type });
+
+  await page.locator(`#config-editor-${configPage.datasource.name}_api-key-input`).fill('grafana-invalid-api-key');
+
+  const responsePromise = page.waitForResponse('*/**/analytics/licenses');
+  await configPage.getByGrafanaSelector(selectors.pages.DataSource.saveAndTest).click();
+  const response = await responsePromise;
+
+  expect(response.status()).toBe(403);
+  expect(configPage).toHaveAlert('error');
 });
