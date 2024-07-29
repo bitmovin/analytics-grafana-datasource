@@ -111,7 +111,7 @@ export function OrderByRow(props: Props) {
 
       <div style={{ paddingTop }}>
         <IconButton
-          id={`query-editor-${props.queryEditorId}_add-order-by-button`}
+          data-testid={`query-editor-${props.queryEditorId}_add-order-by-button`}
           name="plus-square"
           tooltip="Add Order By"
           onClick={() => addOrderByInput()}

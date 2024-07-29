@@ -13,8 +13,8 @@ test('should save and test valid configuration', async ({
   const ds = await readProvisionedDataSource<BitmovinDataSourceOptions>({ fileName: 'datasources.yml' });
   const configPage = await createDataSourceConfigPage({ type: ds.type });
 
-  await page.locator(`#config-editor-${configPage.datasource.name}_api-key-input`).fill('test-api-key');
-  await page.locator(`#config-editor-${configPage.datasource.name}_tenant-org-id-input`).fill('test-tenant-org-id');
+  await page.getByTestId(`config-editor-${configPage.datasource.name}_api-key-input`).fill('test-api-key');
+  await page.getByTestId(`config-editor-${configPage.datasource.name}_tenant-org-id-input`).fill('test-tenant-org-id');
 
   const queryPromise = page.waitForRequest('*/**/analytics/licenses');
   await configPage.getByGrafanaSelector(selectors.pages.DataSource.saveAndTest).click();
@@ -36,7 +36,7 @@ test('should not save invalid configuration', async ({
   const ds = await readProvisionedDataSource<BitmovinDataSourceOptions>({ fileName: 'datasources.yml' });
   const configPage = await createDataSourceConfigPage({ type: ds.type });
 
-  await page.locator(`#config-editor-${configPage.datasource.name}_api-key-input`).fill('grafana-invalid-api-key');
+  await page.getByTestId(`config-editor-${configPage.datasource.name}_api-key-input`).fill('grafana-invalid-api-key');
 
   const responsePromise = page.waitForResponse('*/**/analytics/licenses');
   await configPage.getByGrafanaSelector(selectors.pages.DataSource.saveAndTest).click();

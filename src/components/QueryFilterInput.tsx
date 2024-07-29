@@ -153,7 +153,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         theme="error"
       >
         <Input
-          id={`query-editor-${props.queryEditorId}_filter-value-input`}
+          data-testid={`query-editor-${props.queryEditorId}_filter-value-input`}
           value={derivedQueryFilterState.value}
           onChange={(e) => handleInputValueChange(e.currentTarget.value)}
           invalid={derivedQueryFilterState.inputValueError != null}
@@ -163,7 +163,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       </Tooltip>
 
       <IconButton
-        id={`query-editor-${props.queryEditorId}_filter-delete-button`}
+        data-testid={`query-editor-${props.queryEditorId}_filter-delete-button`}
         variant="destructive"
         name="trash-alt"
         size="lg"
@@ -173,7 +173,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       {/* in "create mode" we want to show save icons all the time */}
       {(isCreatingNewOne || derivedQueryFilterState.dirty) && (
         <IconButton
-          id={`query-editor-${props.queryEditorId}_filter-save-button`}
+          data-testid={`query-editor-${props.queryEditorId}_filter-save-button`}
           variant="primary"
           name={isCreatingNewOne ? 'plus-square' : 'save'}
           size="lg"
@@ -184,7 +184,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
       {/* in "create mode" there is nothing to revert to */}
       {!isCreatingNewOne && derivedQueryFilterState.dirty && (
         <IconButton
-          id={`query-editor-${props.queryEditorId}_filter-revert-changes-button`}
+          data-testid={`query-editor-${props.queryEditorId}_filter-revert-changes-button`}
           variant="secondary"
           name="history"
           size="lg"

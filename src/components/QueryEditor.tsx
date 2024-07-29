@@ -197,7 +197,7 @@ export function QueryEditor(props: Props) {
           )}
           {isPercentileSelected && (
             <Input
-              id={`query-editor-${props.query.refId}_percentile-value-input`}
+              data-testid={`query-editor-${props.query.refId}_percentile-value-input`}
               value={percentileValue}
               onChange={handlePercentileValueChange}
               onBlur={handlePercentileBlur}
@@ -246,7 +246,7 @@ export function QueryEditor(props: Props) {
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
           <Input
-            id={`query-editor-${props.query.refId}_limit-input`}
+            data-testid={`query-editor-${props.query.refId}_limit-input`}
             defaultValue={query.limit}
             type="number"
             onBlur={handleLimitBlur}
@@ -256,7 +256,7 @@ export function QueryEditor(props: Props) {
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
           <InlineSwitch
-            id={`query-editor-${props.query.refId}_format-as-time-series-switch`}
+            data-testid={`query-editor-${props.query.refId}_format-as-time-series-switch`}
             value={isTimeSeries}
             onChange={handleFormatAsTimeSeriesChange}
           ></InlineSwitch>
@@ -264,7 +264,7 @@ export function QueryEditor(props: Props) {
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
           <Input
-            id={`query-editor-${props.query.refId}_alias-by-input`}
+            data-testid={`query-editor-${props.query.refId}_alias-by-input`}
             defaultValue={query.alias}
             placeholder="Naming pattern"
             onBlur={handleAliasByBlur}

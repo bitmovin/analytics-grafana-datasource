@@ -44,7 +44,7 @@ export function OrderByInput(props: Props) {
         onChange={(value) => props.onSortOrderChange(value)}
       />
       <IconButton
-        id={`query-editor-${props.queryEditorId}_order-by-move-down-button`}
+        data-testid={`query-editor-${props.queryEditorId}_order-by-move-down-button`}
         tooltip="Move down"
         onClick={() => props.onReorderOrderBy(REORDER_DIRECTION.DOWN)}
         name="arrow-down"
@@ -57,7 +57,7 @@ export function OrderByInput(props: Props) {
         disabled={props.isFirst}
       />
       <IconButton
-        id={`query-editor-${props.queryEditorId}_order-by-delete-button`}
+        data-testid={`query-editor-${props.queryEditorId}_order-by-delete-button`}
         tooltip="Delete Order By"
         name="trash-alt"
         onClick={props.onDelete}

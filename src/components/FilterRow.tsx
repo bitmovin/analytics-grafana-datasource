@@ -78,7 +78,7 @@ export function FilterRow(props: Props) {
           />
         ) : (
           <IconButton
-            id={`query-editor-${props.queryEditorId}_add-new-filter-button`}
+            data-testid={`query-editor-${props.queryEditorId}_add-new-filter-button`}
             name="plus-square"
             tooltip="Add Filter"
             onClick={() => setHasNewQueryFilter(true)}

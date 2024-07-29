@@ -33,7 +33,7 @@ export function GroupByInput(props: Props) {
         width={30}
       />
       <IconButton
-        id={`query-editor-${props.queryEditorId}_group-by-move-down-button`}
+        data-testid={`query-editor-${props.queryEditorId}_group-by-move-down-button`}
         tooltip="Move down"
         onClick={() => props.onReorderGroupBy(REORDER_DIRECTION.DOWN)}
         name="arrow-down"
@@ -46,7 +46,7 @@ export function GroupByInput(props: Props) {
         disabled={props.isFirst}
       />
       <IconButton
-        id={`query-editor-${props.queryEditorId}_delete-group-by-button`}
+        data-testid={`query-editor-${props.queryEditorId}_delete-group-by-button`}
         tooltip="Delete Group By"
         name="trash-alt"
         onClick={props.onDelete}

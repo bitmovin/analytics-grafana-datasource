@@ -93,7 +93,7 @@ export function GroupByRow(props: Props) {
       ))}
       <div style={{ paddingTop }}>
         <IconButton
-          id={`query-editor-${props.queryEditorId}_add-group-by-button`}
+          data-testid={`query-editor-${props.queryEditorId}_add-group-by-button`}
           name="plus-square"
           tooltip="Add Group By"
           onClick={() => addGroupByInput()}
