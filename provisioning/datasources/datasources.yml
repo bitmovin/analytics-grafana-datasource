@@ -1,0 +1,13 @@
+# Configuration file version
+apiVersion: 1
+
+datasources:
+  - name: 'Bitmovin Analytics Provisioned'
+    type: bitmovin-analytics-datasource
+    access: proxy
+    isDefault: false
+    orgId: 1
+    version: 1
+    editable: true
+    jsonData:
+      apiKey: 'api-key'

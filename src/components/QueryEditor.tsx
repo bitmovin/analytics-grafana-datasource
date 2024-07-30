@@ -149,6 +149,7 @@ export function QueryEditor(props: Props) {
       <>
         <InlineField label="Interval" labelWidth={20}>
           <Select
+            id={`query-editor-${props.query.refId}_interval-select`}
             defaultValue={DEFAULT_SELECTABLE_QUERY_INTERVAL}
             value={query.interval}
             onChange={(item) => handleIntervalChange(item)}
@@ -172,6 +173,7 @@ export function QueryEditor(props: Props) {
           required
         >
           <Select
+            id={`query-editor-${props.query.refId}_license-select`}
             value={query.license}
             onChange={handleLicenseChange}
             width={30}
@@ -189,11 +191,13 @@ export function QueryEditor(props: Props) {
                 onChange={(item) => handleAggregationChange(item)}
                 width={30}
                 options={SELECTABLE_AGGREGATION_METHODS}
+                id={`query-editor-${props.query.refId}_aggregation-method-select`}
               />
             </InlineField>
           )}
           {isPercentileSelected && (
             <Input
+              data-testid={`query-editor-${props.query.refId}_percentile-value-input`}
               value={percentileValue}
               onChange={handlePercentileValueChange}
               onBlur={handlePercentileBlur}
@@ -213,6 +217,7 @@ export function QueryEditor(props: Props) {
                 ? SELECTABLE_QUERY_AD_ATTRIBUTES
                 : SELECTABLE_QUERY_ATTRIBUTES.concat(SELECTABLE_METRICS)
             }
+            id={`query-editor-${props.query.refId}_dimension-select`}
           />
         </InlineField>
         <InlineField label="Filter" labelWidth={20}>
@@ -220,6 +225,7 @@ export function QueryEditor(props: Props) {
             isAdAnalytics={props.datasource.isAdAnalytics ? true : false}
             onQueryFilterChange={handleQueryFilterChange}
             filters={query.filter}
+            queryEditorId={props.query.refId}
           />
         </InlineField>
         <InlineField label="Group By" labelWidth={20}>
@@ -227,6 +233,7 @@ export function QueryEditor(props: Props) {
             isAdAnalytics={props.datasource.isAdAnalytics ? true : false}
             onChange={handleGroupByChange}
             groupBys={query.groupBy}
+            queryEditorId={props.query.refId}
           />
         </InlineField>
         <InlineField label="Order By" labelWidth={20}>
@@ -234,17 +241,34 @@ export function QueryEditor(props: Props) {
             isAdAnalytics={props.datasource.isAdAnalytics ? true : false}
             onChange={handleOrderByChange}
             orderBys={query.orderBy}
+            queryEditorId={props.query.refId}
           />
         </InlineField>
         <InlineField label="Limit" labelWidth={20}>
-          <Input defaultValue={query.limit} type="number" onBlur={handleLimitBlur} width={30} placeholder="No limit" />
+          <Input
+            data-testid={`query-editor-${props.query.refId}_limit-input`}
+            defaultValue={query.limit}
+            type="number"
+            onBlur={handleLimitBlur}
+            width={30}
+            placeholder="No limit"
+          />
         </InlineField>
         <InlineField label="Format as time series" labelWidth={20}>
-          <InlineSwitch value={isTimeSeries} onChange={handleFormatAsTimeSeriesChange}></InlineSwitch>
+          <InlineSwitch
+            data-testid={`query-editor-${props.query.refId}_format-as-time-series-switch`}
+            value={isTimeSeries}
+            onChange={handleFormatAsTimeSeriesChange}
+          ></InlineSwitch>
         </InlineField>
         {isTimeSeries && renderTimeSeriesOption()}
         <InlineField label="Alias By" labelWidth={20}>
-          <Input defaultValue={query.alias} placeholder="Naming pattern" onBlur={handleAliasByBlur} />
+          <Input
+            data-testid={`query-editor-${props.query.refId}_alias-by-input`}
+            defaultValue={query.alias}
+            placeholder="Naming pattern"
+            onBlur={handleAliasByBlur}
+          />
         </InlineField>
       </FieldSet>
     </div>

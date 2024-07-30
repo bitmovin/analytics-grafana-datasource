@@ -43,6 +43,7 @@ type Props = {
   readonly isAdAnalytics: boolean;
   readonly onChange: (newOrderBy: QueryOrderBy[]) => void;
   readonly orderBys: QueryOrderBy[];
+  readonly queryEditorId: string;
 };
 
 export function OrderByRow(props: Props) {
@@ -104,11 +105,18 @@ export function OrderByRow(props: Props) {
           isFirst={index === 0}
           isLast={index === selectedOrderBys.length - 1}
           onReorderOrderBy={(direction: REORDER_DIRECTION) => reorderOrderBy(direction, index)}
+          queryEditorId={props.queryEditorId}
         />
       ))}
 
       <div style={{ paddingTop }}>
-        <IconButton name="plus-square" tooltip="Add Order By" onClick={() => addOrderByInput()} size="xl" />
+        <IconButton
+          data-testid={`query-editor-${props.queryEditorId}_add-order-by-button`}
+          name="plus-square"
+          tooltip="Add Order By"
+          onClick={() => addOrderByInput()}
+          size="xl"
+        />
       </div>
     </VerticalGroup>
   );
