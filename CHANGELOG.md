@@ -11,6 +11,7 @@
 ### Added
 
 - Default Percentile Value when percentile metric is selected
+- e2e testing with Playwright
 
 ## 1.1.1
 
