@@ -13,7 +13,7 @@
     "format": "yarn prettier . --write",
     "format:check": "yarn prettier --check .",
     "e2e": "yarn playwright test",
-    "server": "docker-compose up --build",
+    "server": "docker compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest"
   },
   "author": "Bitmovin",
