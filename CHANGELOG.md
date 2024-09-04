@@ -2,6 +2,8 @@
 
 ## Development
 
+## 1.2.0
+
 ### Fix
 
 - different query start times with multiple queries due to mutating of grafana start time
@@ -9,6 +11,7 @@
 ### Added
 
 - Default Percentile Value when percentile metric is selected
+- e2e testing with Playwright
 
 ## 1.1.1
 
