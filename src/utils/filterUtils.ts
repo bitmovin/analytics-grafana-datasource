@@ -6,6 +6,7 @@ import { QueryAttribute } from '../types/queryAttributes';
 
 const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
   switch (filterAttribute) {
+    case 'AD_TYPE':
     case 'CDN_PROVIDER':
     case 'CUSTOM_DATA_1':
     case 'CUSTOM_DATA_2':
