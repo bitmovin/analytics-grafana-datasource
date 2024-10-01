@@ -2,6 +2,10 @@
 
 ## Development
 
+### Added
+
+- SSAI attributes
+
 ## 1.2.0
 
 ### Fix
