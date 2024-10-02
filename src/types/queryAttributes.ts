@@ -2,6 +2,10 @@ import { SelectableValue } from '@grafana/data';
 
 const QUERY_ATTRIBUTES = [
   'AD',
+  'AD_ID',
+  'AD_INDEX',
+  'AD_POSITION',
+  'AD_SYSTEM',
   'ANALYTICS_VERSION',
   'AUDIO_BITRATE',
   'AUDIO_CODEC',

@@ -6,6 +6,7 @@ import { QueryAttribute } from '../types/queryAttributes';
 
 const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
   switch (filterAttribute) {
+    case 'AD_TYPE':
     case 'CDN_PROVIDER':
     case 'CUSTOM_DATA_1':
     case 'CUSTOM_DATA_2':
@@ -63,6 +64,8 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
     case 'IS_LINEAR':
       return rawValue === 'true';
 
+    case 'AD_INDEX':
+    case 'AD_TYPE':
     case 'AD_STARTUP_TIME':
     case 'AD_WRAPPER_ADS_COUNT':
     case 'AUDIO_BITRATE':
@@ -114,6 +117,7 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
       return rawValue === 'true';
 
     case 'AUDIO_BITRATE':
+    case 'AD_INDEX':
     case 'BUFFERED':
     case 'CLIENT_TIME':
     case 'DOWNLOAD_SPEED':
