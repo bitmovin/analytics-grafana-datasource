@@ -2,6 +2,12 @@
 
 ## Development
 
+## 1.3.0
+
+### Added
+
+- SSAI attributes
+
 ## 1.2.0
 
 ### Fix
@@ -11,6 +17,7 @@
 ### Added
 
 - Default Percentile Value when percentile metric is selected
+- e2e testing with Playwright
 
 ## 1.1.1
 
