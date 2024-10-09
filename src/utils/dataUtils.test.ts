@@ -22,14 +22,14 @@ describe('calculateTimeSeriesStartTimestamp', () => {
 
   it('should return correct timestamp for HOUR interval', () => {
     //arrange
-    const referenceDataTimestamp = 1720598400000; // Wednesday, 10 July 2024 08:00:00
-    const intervalStartTimestamp = 1720591381300; // Wednesday, 10 July 2024 03:03:01.300
+    const referenceDataTimestamp = 1720600200000; // Wednesday, 10 July 2024 08:30:00
+    const intervalStartTimestamp = 1720591381300; // Wednesday, 10 July 2024 06:03:01.300
 
     //act
     const result = calculateTimeSeriesStartTimestamp(referenceDataTimestamp, intervalStartTimestamp, 'HOUR');
 
     //assert
-    expect(result).toEqual(1720591200000); // Wednesday, 10 July 2024 06:00:00
+    expect(result).toEqual(1720593000000); // Wednesday, 10 July 2024 06:00:00
   });
 
   it('should return correct timestamp for DAY interval', () => {
