@@ -29,7 +29,7 @@ describe('calculateTimeSeriesStartTimestamp', () => {
     const result = calculateTimeSeriesStartTimestamp(referenceDataTimestamp, intervalStartTimestamp, 'HOUR');
 
     //assert
-    expect(result).toEqual(1720593000000); // Wednesday, 10 July 2024 06:00:00
+    expect(result).toEqual(1720593000000); // Wednesday, 10 July 2024 06:30:00
   });
 
   it('should return correct timestamp for DAY interval', () => {
