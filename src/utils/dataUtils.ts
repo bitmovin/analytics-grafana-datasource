@@ -32,7 +32,8 @@ export function calculateTimeSeriesStartTimestamp(
     case 'MINUTE':
       return intervalStartDate.setSeconds(0, 0);
     case 'HOUR':
-      return intervalStartDate.setMinutes(0, 0, 0);
+      // minutes set because of timezones that have a minutes offset
+      return intervalStartDate.setMinutes(referenceDataDate.getMinutes(), 0, 0);
     case 'DAY':
       return intervalStartDate.setHours(referenceDataDate.getHours(), referenceDataDate.getMinutes(), 0, 0);
     case 'MONTH':
