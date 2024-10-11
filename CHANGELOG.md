@@ -2,6 +2,8 @@
 
 ## Development
 
+## 1.3.1
+
 ### Fix
 
 - wrong padding of timeseries data for `HOUR` interval for timezones with minute offsets
