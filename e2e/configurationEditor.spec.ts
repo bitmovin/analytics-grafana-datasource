@@ -42,6 +42,6 @@ test('should not save invalid configuration', async ({
   await configPage.getByGrafanaSelector(selectors.pages.DataSource.saveAndTest).click();
   const response = await responsePromise;
 
-  expect(response.status()).toBe(403);
+  expect(response.status()).toBe(400);
   expect(configPage).toHaveAlert('error');
 });
