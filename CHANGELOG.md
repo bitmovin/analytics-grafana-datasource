@@ -2,6 +2,8 @@
 
 ## Development
 
+## 1.4.0
+
 ### Added
 
 - support for additional customData fields 31 to 50
