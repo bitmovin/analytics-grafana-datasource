@@ -38,6 +38,26 @@ const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boole
     case 'CUSTOM_DATA_28':
     case 'CUSTOM_DATA_29':
     case 'CUSTOM_DATA_30':
+    case 'CUSTOM_DATA_31':
+    case 'CUSTOM_DATA_32':
+    case 'CUSTOM_DATA_33':
+    case 'CUSTOM_DATA_34':
+    case 'CUSTOM_DATA_35':
+    case 'CUSTOM_DATA_36':
+    case 'CUSTOM_DATA_37':
+    case 'CUSTOM_DATA_38':
+    case 'CUSTOM_DATA_39':
+    case 'CUSTOM_DATA_40':
+    case 'CUSTOM_DATA_41':
+    case 'CUSTOM_DATA_42':
+    case 'CUSTOM_DATA_43':
+    case 'CUSTOM_DATA_44':
+    case 'CUSTOM_DATA_45':
+    case 'CUSTOM_DATA_46':
+    case 'CUSTOM_DATA_47':
+    case 'CUSTOM_DATA_48':
+    case 'CUSTOM_DATA_49':
+    case 'CUSTOM_DATA_50':
     case 'CUSTOM_USER_ID':
     case 'ERROR_CODE':
     case 'EXPERIMENT_NAME':
