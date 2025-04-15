@@ -214,9 +214,13 @@ export class DataSource extends DataSourceApi<
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  /** Checks if the selected grafana Timerange From is relative or absolute */
+  /** Checks if the selected grafana Timerange From is relative (e.g. now-2h) or absolute (actual date) */
   private isRelativeRangeFrom(range: RawTimeRange) {
-    return typeof range.from === 'string';
+    if (typeof range.from === 'string') {
+      return !moment(range.from).isValid();
+    }
+
+    return false;
   }
 
   /** needed because of old plugin logic where limit was saved as string and not as number */
