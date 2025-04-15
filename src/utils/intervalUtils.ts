@@ -50,8 +50,11 @@ export const calculateQueryInterval = (
     return interval as QueryInterval;
   }
 
+  console.log('Myriam from:', new Date(startTimestamp));
+  console.log('Myriam to:', new Date(endTimestamp));
+
   const intervalInMilliseconds = endTimestamp - startTimestamp;
-  const minuteIntervalLimitInMilliseconds = 3 * 60 * 60 * 1000 + 60000; // MINUTE granularity for timeframes below 3h1m
+  const minuteIntervalLimitInMilliseconds = 3 * 60 * 60 * 1000 + 60000; // MINUTE granularity for timeframes below 3h1m -> 1 minute because of https://github.com/bitmovin/analytics-grafana-datasource/pull/111
   const hourIntervalLimitInMilliseconds = 6 * 24 * 60 * 60 * 1000; // HOUR granularity for timeframes below 6d
   const dayIntervalLimitInMilliseconds = 30 * 24 * 60 * 60 * 1000; // DAY granularity for timeframes below 30d
 

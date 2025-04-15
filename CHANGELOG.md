@@ -2,6 +2,10 @@
 
 ## Development
 
+### Fixed
+
+- `AUTO` interval calculation for grafana versions >= `11.3.0`
+
 ## 1.4.0
 
 ### Added
