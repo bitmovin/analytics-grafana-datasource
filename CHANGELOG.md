@@ -2,6 +2,10 @@
 
 ## Development
 
+### Fix
+
+- wrong value conversion for `AD` filter
+
 ## 1.4.0
 
 ### Added
