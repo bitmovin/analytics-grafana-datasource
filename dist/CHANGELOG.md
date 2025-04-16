@@ -2,6 +2,18 @@
 
 ## Development
 
+## 1.4.1
+
+### Changed
+
+- [Internal] dependency update
+
+### Fixed
+
+- wrong value conversion for `AD` filter
+- `AUTO` interval calculation for grafana versions >= `11.3.0`
+- typo in `example_dashboard.json`
+
 ## 1.4.0
 
 ### Added
