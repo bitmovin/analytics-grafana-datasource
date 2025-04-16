@@ -2,8 +2,9 @@
 
 ## Development
 
-### Fixed
+### Fix
 
+- wrong value conversion for `AD` filter
 - `AUTO` interval calculation for grafana versions >= `11.3.0`
 
 ## 1.4.0

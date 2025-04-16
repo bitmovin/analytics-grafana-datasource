@@ -136,6 +136,7 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
     case 'IS_MUTED':
       return rawValue === 'true';
 
+    case 'AD':
     case 'AUDIO_BITRATE':
     case 'AD_INDEX':
     case 'BUFFERED':
