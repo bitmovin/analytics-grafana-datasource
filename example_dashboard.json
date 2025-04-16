@@ -104,8 +104,8 @@
         {
           "alias": "Total",
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -125,8 +125,8 @@
         {
           "alias": "Error",
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -155,8 +155,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -235,8 +235,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "ERROR_PERCENTAGE",
           "filter": [
             {
@@ -259,8 +259,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -339,8 +339,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "REBUFFER_PERCENTAGE",
           "filter": [],
           "groupBy": [],
@@ -357,8 +357,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -437,8 +437,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "PLAYED",
           "filter": [
             {
@@ -461,8 +461,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -540,8 +540,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "MAX_CONCURRENTVIEWERS",
           "filter": [],
           "groupBy": [],
@@ -557,8 +557,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -636,8 +636,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -660,8 +660,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -740,8 +740,8 @@
         {
           "alias": "",
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -764,8 +764,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -817,8 +817,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -846,8 +846,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -899,8 +899,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -929,8 +929,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -982,8 +982,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [],
           "groupBy": ["BROWSER"],
@@ -1006,8 +1006,8 @@
     },
     {
       "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1059,8 +1059,8 @@
       "targets": [
         {
           "datasource": {
-          "type": "bitmovin-analytics-datasource"
-        },
+            "type": "bitmovin-analytics-datasource"
+          },
           "dimension": "IMPRESSION_ID",
           "filter": [],
           "groupBy": ["COUNTRY"],
