@@ -52,10 +52,10 @@ describe('calculateQueryInterval', () => {
     expect(result).toEqual('MINUTE');
   });
 
-  it('should return HOUR interval if interval is AUTO and time interval bigger 3 hours and than below 6 hours', () => {
+  it('should return HOUR interval if interval is AUTO and time interval is bigger 3 hours and 1 minute but below 6 hours', () => {
     //arrange
     const startTimestamp = 1713345420000; //Wednesday, 17 April 2024 09:17:00
-    const endTimestamp = 1713356280000; //Wednesday, 17 April 2024 12:18:00
+    const endTimestamp = 1713356340000; //Wednesday, 17 April 2024 12:18:00
 
     // act
     const result = calculateQueryInterval('AUTO', startTimestamp, endTimestamp);
