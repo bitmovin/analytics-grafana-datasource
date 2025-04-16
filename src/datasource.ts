@@ -10,7 +10,7 @@ import {
   RawTimeRange,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { filter, isEmpty } from 'lodash';
+import { cloneDeep, filter, isEmpty } from 'lodash';
 // eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
 import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
@@ -208,7 +208,8 @@ export class DataSource extends DataSourceApi<
 
     // round down grafana start time to adjust the grafana graph and show first data point
     if (momentTimeUnit != null) {
-      range.from.startOf(momentTimeUnit);
+      let fromClone = cloneDeep(range.from);
+      range.from = fromClone.startOf(momentTimeUnit);
     }
 
     return Promise.all(promises).then((data) => ({ data }));
