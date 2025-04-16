@@ -4,8 +4,7 @@
       {
         "builtIn": 1,
         "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
+          "type": "bitmovin-analytics-datasource"
         },
         "enable": true,
         "hide": true,
@@ -24,7 +23,9 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": {},
+      "datasource": {
+        "type": "bitmovin-analytics-datasource"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -102,7 +103,9 @@
       "targets": [
         {
           "alias": "Total",
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -113,7 +116,7 @@
           ],
           "groupBy": [],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "count",
           "orderBy": [],
           "refId": "A",
@@ -121,7 +124,9 @@
         },
         {
           "alias": "Error",
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -138,7 +143,7 @@
           "groupBy": [],
           "hide": false,
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "count",
           "orderBy": [],
           "refId": "B",
@@ -149,7 +154,9 @@
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -227,7 +234,9 @@
       },
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "ERROR_PERCENTAGE",
           "filter": [
             {
@@ -238,7 +247,7 @@
           ],
           "groupBy": [],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "avg",
           "orderBy": [],
           "refId": "A",
@@ -249,7 +258,9 @@
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -327,12 +338,14 @@
       },
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "REBUFFER_PERCENTAGE",
           "filter": [],
           "groupBy": [],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "avg",
           "orderBy": [],
           "refId": "A",
@@ -343,7 +356,9 @@
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -421,7 +436,9 @@
       },
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "PLAYED",
           "filter": [
             {
@@ -432,7 +449,7 @@
           ],
           "groupBy": [],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "sum",
           "orderBy": [],
           "refId": "A",
@@ -443,7 +460,9 @@
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -520,12 +539,14 @@
       },
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "MAX_CONCURRENTVIEWERS",
           "filter": [],
           "groupBy": [],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "orderBy": [],
           "refId": "A",
           "resultFormat": "time_series"
@@ -535,7 +556,9 @@
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -612,7 +635,9 @@
       },
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -623,7 +648,7 @@
           ],
           "groupBy": ["BROWSER"],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "count",
           "orderBy": [],
           "refId": "A",
@@ -634,7 +659,9 @@
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -712,7 +739,9 @@
       "targets": [
         {
           "alias": "",
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -723,7 +752,7 @@
           ],
           "groupBy": ["COUNTRY"],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "count",
           "orderBy": [],
           "refId": "A",
@@ -734,7 +763,9 @@
       "type": "timeseries"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -785,7 +816,9 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -796,7 +829,7 @@
           ],
           "groupBy": ["PLAYER_TECH"],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "metric": "count",
           "orderBy": [
             {
@@ -812,7 +845,9 @@
       "type": "table"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -863,7 +898,9 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [
             {
@@ -874,7 +911,7 @@
           ],
           "groupBy": ["OPERATINGSYSTEM"],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "limit": 10,
           "metric": "count",
           "orderBy": [
@@ -891,7 +928,9 @@
       "type": "table"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -942,12 +981,14 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [],
           "groupBy": ["BROWSER"],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "limit": 10,
           "metric": "count",
           "orderBy": [
@@ -964,7 +1005,9 @@
       "type": "table"
     },
     {
-      "datasource": {},
+      "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1015,12 +1058,14 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {},
+          "datasource": {
+          "type": "bitmovin-analytics-datasource"
+        },
           "dimension": "IMPRESSION_ID",
           "filter": [],
           "groupBy": ["COUNTRY"],
           "interval": "AUTO",
-          "license": "<YOUR-API-KEY>",
+          "license": "<YOUR-LICENSE-KEY>",
           "limit": 10,
           "metric": "count",
           "orderBy": [
@@ -1038,7 +1083,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 39,
+  "schemaVersion": 1,
   "tags": [],
   "templating": {
     "list": []
