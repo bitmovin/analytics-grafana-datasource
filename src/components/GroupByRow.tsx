@@ -4,7 +4,11 @@ import { IconButton, VerticalGroup } from '@grafana/ui';
 import { differenceWith } from 'lodash';
 
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
-import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from '../types/queryAttributes';
+import {
+  QueryAttribute,
+  SELECTABLE_QUERY_ATTRIBUTES,
+  SELECTABLE_QUERY_FILTER_ATTRIBUTES,
+} from '../types/queryAttributes';
 import { GroupByInput, REORDER_DIRECTION } from './GroupByInput';
 
 const getSelectableGroupByOptions = (

@@ -179,8 +179,9 @@ export const SELECTABLE_QUERY_ATTRIBUTES: Array<SelectableValue<QueryAttribute>>
   })
 );
 
-export const SELECTABLE_QUERY_FILTER_ATTRIBUTES: Array<SelectableValue<QueryAttribute>> =
-  QUERY_FILTER_ATTRIBUTES.map((queryAttribute) => ({
+export const SELECTABLE_QUERY_FILTER_ATTRIBUTES: Array<SelectableValue<QueryAttribute>> = QUERY_FILTER_ATTRIBUTES.map(
+  (queryAttribute) => ({
     value: queryAttribute,
     label: queryAttribute,
-  }));
+  })
+);

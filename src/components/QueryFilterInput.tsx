@@ -3,7 +3,11 @@ import { HorizontalGroup, IconButton, Input, Select, Tooltip } from '@grafana/ui
 
 import { QueryFilter, QueryFilterOperator, SELECTABLE_QUERY_FILTER_OPERATORS } from '../types/queryFilter';
 import type { SelectableValue } from '@grafana/data';
-import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from '../types/queryAttributes';
+import {
+  QueryAttribute,
+  SELECTABLE_QUERY_ATTRIBUTES,
+  SELECTABLE_QUERY_FILTER_ATTRIBUTES,
+} from '../types/queryAttributes';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { convertFilterValueToProperType } from 'utils/filterUtils';
 

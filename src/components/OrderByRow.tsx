@@ -4,7 +4,11 @@ import type { SelectableValue } from '@grafana/data';
 import { differenceWith } from 'lodash';
 
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
-import { QueryAttribute, SELECTABLE_QUERY_ATTRIBUTES, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from '../types/queryAttributes';
+import {
+  QueryAttribute,
+  SELECTABLE_QUERY_ATTRIBUTES,
+  SELECTABLE_QUERY_FILTER_ATTRIBUTES,
+} from '../types/queryAttributes';
 import type { QueryOrderBy, QuerySortOrder } from '../types/queryOrderBy';
 import { OrderByInput } from './OrderByInput';
 import { REORDER_DIRECTION } from './GroupByInput';
