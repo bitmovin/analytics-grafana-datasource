@@ -1,6 +1,7 @@
 import { SelectableValue } from '@grafana/data';
 
-const QUERY_ATTRIBUTES = [
+/** Attributes that can be used for filtering, grouping, and ordering. */
+const QUERY_FILTER_ATTRIBUTES = [
   'AD',
   'AD_ID',
   'AD_INDEX',
@@ -78,14 +79,12 @@ const QUERY_ATTRIBUTES = [
   'DEVICE_CLASS',
   'DEVICE_TYPE',
   'DOMAIN',
-  'DOWNLOAD_SPEED',
   'DRM_LOAD_TIME',
   'DRM_TYPE',
   'DROPPED_FRAMES',
   'DURATION',
   'ERROR_CODE',
   'ERROR_MESSAGE',
-  'ERROR_PERCENTAGE',
   'EXPERIMENT_NAME',
   'FUNCTION',
   'HOUR',
@@ -116,20 +115,15 @@ const QUERY_ATTRIBUTES = [
   'PLATFORM',
   'PLAYED',
   'PLAYER',
-  'PLAYER_STARTUPTIME',
   'PLAYER_TECH',
   'PLAYER_VERSION',
-  'PLAY_ATTEMPTS',
   'PROG_URL',
-  'REBUFFER_PERCENTAGE',
   'REGION',
-  'SCALE_FACTOR',
   'SCREEN_HEIGHT',
   'SCREEN_ORIENTATION',
   'SCREEN_WIDTH',
   'SEEKED',
   'SIZE',
-  'STARTUPTIME',
   'STATE',
   'STREAM_FORMAT',
   'SUBTITLE_ENABLED',
@@ -157,13 +151,35 @@ const QUERY_ATTRIBUTES = [
   'VIDEO_TITLE',
   'VIDEO_WINDOW_HEIGHT',
   'VIDEO_WINDOW_WIDTH',
-  'VIEWTIME',
   'YEAR',
 ] as const;
+
+/** Attributes that are only available as query dimensions, not for filtering, grouping, or ordering. */
+const QUERY_ONLY_ATTRIBUTES = [
+  'DOWNLOAD_SPEED',
+  'ERROR_PERCENTAGE',
+  'PLAYBACK_SCORE',
+  'PLAY_ATTEMPTS',
+  'REBUFFER_PERCENTAGE',
+  'SCALE_FACTOR',
+  'SMOOTHNESS_SCORE',
+  'STARTUP_SCORE',
+  'SUCCESS_FACTOR',
+  'VIEWTIME',
+] as const;
+
+const QUERY_ATTRIBUTES = [...QUERY_FILTER_ATTRIBUTES, ...QUERY_ONLY_ATTRIBUTES] as const;
 
 export type QueryAttribute = (typeof QUERY_ATTRIBUTES)[number];
 
 export const SELECTABLE_QUERY_ATTRIBUTES: Array<SelectableValue<QueryAttribute>> = QUERY_ATTRIBUTES.map(
+  (queryAttribute) => ({
+    value: queryAttribute,
+    label: queryAttribute,
+  })
+);
+
+export const SELECTABLE_QUERY_FILTER_ATTRIBUTES: Array<SelectableValue<QueryAttribute>> = QUERY_FILTER_ATTRIBUTES.map(
   (queryAttribute) => ({
     value: queryAttribute,
     label: queryAttribute,

@@ -95,7 +95,6 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
     case 'MANIFEST_DOWNLOAD_TIME':
     case 'MIN_SUGGESTED_DURATION':
     case 'PAGE_LOAD_TIME':
-    case 'PLAYER_STARTUPTIME':
     case 'SCREEN_HEIGHT':
     case 'SCREEN_WIDTH':
     case 'SKIP_POSITION':
@@ -150,11 +149,9 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
     case 'PAGE_LOAD_TYPE':
     case 'PAUSED':
     case 'PLAYED':
-    case 'PLAYER_STARTUPTIME':
     case 'SCREEN_HEIGHT':
     case 'SCREEN_WIDTH':
     case 'SEEKED':
-    case 'STARTUPTIME':
     case 'VIDEO_BITRATE':
     case 'VIDEO_DURATION':
     case 'VIDEO_PLAYBACK_HEIGHT':
