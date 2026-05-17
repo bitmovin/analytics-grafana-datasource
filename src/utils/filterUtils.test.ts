@@ -1,4 +1,22 @@
-import { convertFilterValueToProperType } from './filterUtils';
+import { convertFilterValueToProperType, normalizeMultiValueFilter } from './filterUtils';
+
+describe('normalizeMultiValueFilter', () => {
+  it('converts Grafana glob format {val1,val2} to JSON array', () => {
+    expect(normalizeMultiValueFilter('{Firefox,Chrome}')).toBe('["Firefox","Chrome"]');
+  });
+
+  it('converts CSV format val1,val2 to JSON array', () => {
+    expect(normalizeMultiValueFilter('Firefox,Chrome')).toBe('["Firefox","Chrome"]');
+  });
+
+  it('passes through an existing JSON array unchanged', () => {
+    expect(normalizeMultiValueFilter('["Firefox","Chrome"]')).toBe('["Firefox","Chrome"]');
+  });
+
+  it('returns a single value unchanged', () => {
+    expect(normalizeMultiValueFilter('Firefox')).toBe('Firefox');
+  });
+});
 
 describe('convertFilterValueToProperType', () => {
   it('should return null if rawValue is empty and attribute a NullFilter', () => {
@@ -12,7 +30,7 @@ describe('convertFilterValueToProperType', () => {
   it('should throw an error if value for IN filter is not a json array', () => {
     //arrange & act && assert
     expect(() => convertFilterValueToProperType('Firefox', 'BROWSER', 'IN', false)).toThrow(
-      new Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).')
+      new Error('Couldn\'t parse IN filter. Provide a JSON array (e.g.: ["Firefox", "Chrome"]) or select multiple values from a Grafana variable.')
     );
   });
 

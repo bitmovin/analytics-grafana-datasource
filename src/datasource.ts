@@ -39,7 +39,7 @@ import {
 import { isMetric, Metric } from './types/metric';
 import { AggregationMethod } from './types/aggregationMethod';
 import { ProperTypedQueryFilter } from './types/queryFilter';
-import { QueryAttribute } from './types/queryAttributes';
+import { QueryAttribute, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
 import { convertFilterValueToProperType } from './utils/filterUtils';
@@ -316,6 +316,74 @@ export class DataSource extends DataSourceApi<
     };
 
     return getBackendSrv().fetch(options);
+  }
+
+  async getTagKeys(): Promise<Array<{ text: string }>> {
+    return SELECTABLE_QUERY_FILTER_ATTRIBUTES.map((attr) => ({ text: attr.value! }));
+  }
+
+  async getTagValues(options: { key: string }): Promise<Array<{ text: string }>> {
+    const licenseKey = await this.getFirstLicenseKey();
+    if (!licenseKey) {
+      return [];
+    }
+    return this.metricFindQuery(`dimension:${options.key} license:${licenseKey}`);
+  }
+
+  async metricFindQuery(queryText: string): Promise<MetricFindValue[]> {
+    if (!queryText?.trim()) {
+      return [];
+    }
+
+    const dimensionMatch = queryText.match(/dimension:(\S+)/);
+    const licenseMatch = queryText.match(/license:(\S+)/);
+
+    if (!dimensionMatch) {
+      return [];
+    }
+
+    const dimension = dimensionMatch[1] as QueryAttribute;
+    const licenseKey = licenseMatch ? licenseMatch[1] : await this.getFirstLicenseKey();
+
+    if (!licenseKey) {
+      return [];
+    }
+
+    const end = new Date();
+    const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+
+    const query = {
+      licenseKey,
+      start,
+      end,
+      dimension: 'IMPRESSION_ID' as QueryAttribute,
+      groupBy: [dimension],
+      orderBy: [],
+      filters: [],
+      limit: 200,
+    };
+
+    try {
+      const response = await lastValueFrom(
+        this.request('/analytics/queries/count', 'POST', query)
+      );
+      const rows: MixedDataRowList = response.data.data.result.rows;
+      return rows
+        .map((row) => row[0])
+        .filter((v) => v != null && v !== '')
+        .map((v) => ({ text: String(v), value: String(v) }));
+    } catch {
+      return [];
+    }
+  }
+
+  private async getFirstLicenseKey(): Promise<string | undefined> {
+    try {
+      const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+      return response.data.data.result.licenses?.[0]?.licenseKey;
+    } catch {
+      return undefined;
+    }
   }
 
   async testDatasource() {

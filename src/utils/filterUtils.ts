@@ -183,6 +183,19 @@ const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
   }
 };
 
+export function normalizeMultiValueFilter(value: string): string {
+  if (value.trimStart().startsWith('[')) {
+    return value;
+  }
+  const globMatch = value.match(/^\{(.+)\}$/);
+  const csv = globMatch ? globMatch[1] : value;
+  const parts = csv.split(',').map((v) => v.trim()).filter(Boolean);
+  if (parts.length > 1) {
+    return JSON.stringify(parts);
+  }
+  return value;
+}
+
 /**
  * Transforms the string filter Value from the UI to the appropriate type for our API.
  *
@@ -204,10 +217,10 @@ export const convertFilterValueToProperType = (
 
   if (filterOperator === 'IN') {
     try {
-      return parseValueForInFilter(rawValue);
+      return parseValueForInFilter(normalizeMultiValueFilter(rawValue));
     } catch (e) {
       throw new Error(
-        'Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).'
+        'Couldn\'t parse IN filter. Provide a JSON array (e.g.: ["Firefox", "Chrome"]) or select multiple values from a Grafana variable.'
       );
     }
   }
