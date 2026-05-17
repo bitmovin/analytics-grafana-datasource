@@ -6,10 +6,12 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   Field,
+  MetricFindValue,
   QueryResultMetaNotice,
   RawTimeRange,
+  ScopedVars,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { cloneDeep, filter, isEmpty } from 'lodash';
 // eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
@@ -78,6 +80,21 @@ export class DataSource extends DataSourceApi<
     return DEFAULT_QUERY;
   }
 
+  applyTemplateVariables(
+    query: BitmovinAnalyticsDataQuery,
+    scopedVars: ScopedVars
+  ): BitmovinAnalyticsDataQuery {
+    return {
+      ...query,
+      license: getTemplateSrv().replace(query.license, scopedVars),
+      alias: getTemplateSrv().replace(query.alias ?? '', scopedVars),
+      filter: query.filter.map((f) => ({
+        ...f,
+        value: getTemplateSrv().replace(f.value, scopedVars),
+      })),
+    };
+  }
+
   /**
    * The Bitmovin API Response follows these rules:
    * - If the interval property is provided in the request query, time series data is returned and the first value of each row is a timestamp in milliseconds.
@@ -135,13 +152,31 @@ export class DataSource extends DataSourceApi<
         }
       }
 
-      const filters: ProperTypedQueryFilter[] = target.filter.map((filter) => {
-        return {
-          name: filter.name,
-          operator: filter.operator,
-          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.isAdAnalytics),
-        };
-      });
+      const filters = target.filter
+        .map((filter) => {
+          const interpolatedValue = getTemplateSrv().replace(filter.value, options.scopedVars);
+
+          if (interpolatedValue === '$__all' || interpolatedValue === '.*' || interpolatedValue === '') {
+            return null;
+          }
+
+          // Grafana resolves "All" to a glob like {AR,CO,EC,MX} when no custom all-value is set.
+          // Skip for non-IN operators — EQ with multiple values is never valid.
+          // IN keeps the glob so T-02 can normalize it to a JSON array.
+          if (filter.operator !== 'IN' && /^\{.+\}$/.test(interpolatedValue)) {
+            return null;
+          }
+
+          return {
+            name: filter.name,
+            operator: filter.operator,
+            value: convertFilterValueToProperType(interpolatedValue, filter.name, filter.operator, !!this.isAdAnalytics),
+          };
+        })
+        .filter((f) => f !== null) as ProperTypedQueryFilter[];
+
+      const alias = getTemplateSrv().replace(target.alias ?? '', options.scopedVars);
+      const licenseKey = getTemplateSrv().replace(target.license, options.scopedVars);
 
       const query: BitmovinAnalyticsRequestQuery = {
         filters: filters,
@@ -151,7 +186,7 @@ export class DataSource extends DataSourceApi<
         metric: metric,
         start: queryFrom.toDate(),
         end: queryTo.toDate(),
-        licenseKey: target.license,
+        licenseKey: licenseKey,
         interval: interval,
         limit: this.parseLimit(target.limit),
         percentile: percentileValue,
@@ -200,7 +235,7 @@ export class DataSource extends DataSourceApi<
       }
 
       return createDataFrame({
-        name: target.alias,
+        name: alias,
         fields: fields,
         meta: { notices: metaNotices },
       });
