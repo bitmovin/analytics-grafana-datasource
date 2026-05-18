@@ -2,6 +2,8 @@
 
 ## Development
 
+## 1.5.0
+
 ### Added
 
 - PLAYBACK_SCORE, SMOOTHNESS_SCORE, STARTUP_SCORE, and SUCCESS_FACTOR
