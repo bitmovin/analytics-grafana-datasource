@@ -335,11 +335,13 @@ export class DataSource extends DataSourceApi<
   }
 
   async metricFindQuery(queryText: string): Promise<MetricFindValue[]> {
-    if (!queryText?.trim()) {
+const interpolated = getTemplateSrv().replace(queryText);
+
+    if (!interpolated?.trim()) {
       return [];
     }
 
-    if (queryText.trim().toLowerCase() === 'licenses') {
+    if (interpolated.trim().toLowerCase() === 'licenses') {
       try {
         const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
         const items: Array<{ licenseKey: string; name?: string }> = response.data.data.result.items ?? [];
@@ -351,15 +353,19 @@ export class DataSource extends DataSourceApi<
       }
     }
 
-    const dimensionMatch = queryText.match(/dimension:(\S+)/);
-    const licenseMatch = queryText.match(/license:(\S+)/);
+    const dimensionMatch = interpolated.match(/dimension:(\S+)/);
+    const licenseMatch = interpolated.match(/license:(\S+)/);
 
     if (!dimensionMatch) {
       return [];
     }
 
     const dimension = dimensionMatch[1] as QueryAttribute;
-    const licenseKey = licenseMatch ? licenseMatch[1] : await this.getFirstLicenseKey();
+    const rawLicenseKey = licenseMatch?.[1];
+    const licenseKey =
+      rawLicenseKey && !/^\$/.test(rawLicenseKey)
+        ? rawLicenseKey
+        : await this.getFirstLicenseKey();
 
     if (!licenseKey) {
       return [];

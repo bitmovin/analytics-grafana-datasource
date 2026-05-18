@@ -4,15 +4,19 @@ import { BitmovinDataSourceOptions } from './types/grafanaTypes';
 import { of } from 'rxjs';
 
 const mockRequest = jest.fn();
+const mockDashboardVars: Record<string, string> = {};
 
 jest.mock('@grafana/runtime', () => ({
   getBackendSrv: () => ({ fetch: mockRequest }),
   getTemplateSrv: () => ({
     replace: (value: string, scopedVars?: Record<string, { value: string }>) => {
-      if (!value || !scopedVars) {
+      if (!value) {
         return value;
       }
-      return value.replace(/\$\{(\w+)\}/g, (_, key) => scopedVars[key]?.value ?? `\${${key}}`);
+      const vars = scopedVars
+        ? Object.fromEntries(Object.entries(scopedVars).map(([k, v]) => [k, v.value]))
+        : mockDashboardVars;
+      return value.replace(/\$\{(\w+)\}/g, (_, key) => vars[key] ?? `\${${key}}`);
     },
   }),
 }));
@@ -246,6 +250,21 @@ describe('DataSource.metricFindQuery', () => {
     const result = await ds.metricFindQuery('licenses');
 
     expect(result).toEqual([]);
+  });
+
+  it('interpolates dashboard variables in query text before parsing', async () => {
+    const ds = createDataSource();
+    mockDashboardVars['licenseVar'] = 'resolved-license';
+    mockRequest.mockReturnValueOnce(makeCountResponse(['DE', 'US']));
+
+    const result = await ds.metricFindQuery('dimension:COUNTRY license:${licenseVar}');
+
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+    expect(result).toEqual([
+      { text: 'DE', value: 'DE' },
+      { text: 'US', value: 'US' },
+    ]);
+    delete mockDashboardVars['licenseVar'];
   });
 });
 
