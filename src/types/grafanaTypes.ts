@@ -15,6 +15,7 @@ type ResultFormat = 'table' | 'time_series';
  * */
 export interface BitmovinAnalyticsDataQuery extends DataQuery {
   license: string;
+  useVariableForLicense?: boolean;
   interval?: QueryInterval | 'AUTO';
   metric?: AggregationMethod;
   dimension?: QueryAttribute | QueryAdAttribute | Metric;

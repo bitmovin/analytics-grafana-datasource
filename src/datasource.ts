@@ -86,7 +86,9 @@ export class DataSource extends DataSourceApi<
   ): BitmovinAnalyticsDataQuery {
     return {
       ...query,
-      license: getTemplateSrv().replace(query.license, scopedVars),
+      license: query.useVariableForLicense
+        ? getTemplateSrv().replace(query.license, scopedVars)
+        : query.license,
       alias: getTemplateSrv().replace(query.alias ?? '', scopedVars),
       filter: query.filter.map((f) => ({
         ...f,
@@ -176,7 +178,9 @@ export class DataSource extends DataSourceApi<
         .filter((f) => f !== null) as ProperTypedQueryFilter[];
 
       const alias = getTemplateSrv().replace(target.alias ?? '', options.scopedVars);
-      const licenseKey = getTemplateSrv().replace(target.license, options.scopedVars);
+      const licenseKey = target.useVariableForLicense
+        ? getTemplateSrv().replace(target.license, options.scopedVars)
+        : target.license;
 
       const query: BitmovinAnalyticsRequestQuery = {
         filters: filters,
@@ -335,6 +339,18 @@ export class DataSource extends DataSourceApi<
       return [];
     }
 
+    if (queryText.trim().toLowerCase() === 'licenses') {
+      try {
+        const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+        const items: Array<{ licenseKey: string; name?: string }> = response.data.data.result.items ?? [];
+        return items
+          .filter((l) => l.licenseKey != null)
+          .map((l) => ({ text: l.name || l.licenseKey, value: l.licenseKey }));
+      } catch {
+        return [];
+      }
+    }
+
     const dimensionMatch = queryText.match(/dimension:(\S+)/);
     const licenseMatch = queryText.match(/license:(\S+)/);
 
@@ -380,7 +396,7 @@ export class DataSource extends DataSourceApi<
   private async getFirstLicenseKey(): Promise<string | undefined> {
     try {
       const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
-      return response.data.data.result.licenses?.[0]?.licenseKey;
+      return response.data.data.result.items?.[0]?.licenseKey;
     } catch {
       return undefined;
     }

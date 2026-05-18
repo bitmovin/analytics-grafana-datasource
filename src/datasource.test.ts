@@ -72,11 +72,12 @@ describe('DataSource.applyTemplateVariables', () => {
     expect(result.alias).toBe('Panel DE');
   });
 
-  it('replaces a template variable in license', () => {
+  it('replaces a template variable in license when useVariableForLicense is true', () => {
     const ds = createDataSource();
     const query = {
       refId: 'A',
       license: '${licenseKey}',
+      useVariableForLicense: true,
       alias: '',
       filter: [],
       groupBy: [],
@@ -88,6 +89,24 @@ describe('DataSource.applyTemplateVariables', () => {
     const result = ds.applyTemplateVariables(query, scopedVars);
 
     expect(result.license).toBe('abc-123');
+  });
+
+  it('does not interpolate license when useVariableForLicense is false', () => {
+    const ds = createDataSource();
+    const query = {
+      refId: 'A',
+      license: 'static-license-key',
+      useVariableForLicense: false,
+      alias: '',
+      filter: [],
+      groupBy: [],
+      orderBy: [],
+      resultFormat: 'time_series' as const,
+    };
+
+    const result = ds.applyTemplateVariables(query, { licenseKey: { text: 'abc-123', value: 'abc-123' } });
+
+    expect(result.license).toBe('static-license-key');
   });
 
   it('leaves values unchanged when no matching scopedVars', () => {
@@ -134,7 +153,7 @@ describe('DataSource.metricFindQuery', () => {
       data: {
         data: {
           result: {
-            licenses: [{ licenseKey }],
+            items: [{ licenseKey }],
           },
         },
       },
@@ -193,6 +212,41 @@ describe('DataSource.metricFindQuery', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('returns licenses list for "licenses" keyword', async () => {
+    const ds = createDataSource();
+    mockRequest.mockReturnValueOnce(of({ data: { data: { result: { items: [
+      { licenseKey: 'key-1', name: 'My App' },
+      { licenseKey: 'key-2', name: 'Other App' },
+    ] } } } }));
+
+    const result = await ds.metricFindQuery('licenses');
+
+    expect(result).toEqual([
+      { text: 'My App', value: 'key-1' },
+      { text: 'Other App', value: 'key-2' },
+    ]);
+  });
+
+  it('handles "LICENSES" keyword case-insensitively', async () => {
+    const ds = createDataSource();
+    mockRequest.mockReturnValueOnce(of({ data: { data: { result: { items: [
+      { licenseKey: 'key-1', name: 'My App' },
+    ] } } } }));
+
+    const result = await ds.metricFindQuery('LICENSES');
+
+    expect(result).toEqual([{ text: 'My App', value: 'key-1' }]);
+  });
+
+  it('returns empty array for "licenses" keyword on API error', async () => {
+    const ds = createDataSource();
+    mockRequest.mockReturnValueOnce({ subscribe: (obs: any) => obs.error(new Error('API error')) });
+
+    const result = await ds.metricFindQuery('licenses');
+
+    expect(result).toEqual([]);
+  });
 });
 
 describe('DataSource.getTagKeys', () => {
@@ -215,7 +269,7 @@ describe('DataSource.getTagValues', () => {
     const ds = createDataSource();
     mockRequest
       .mockReturnValueOnce(of({
-        data: { data: { result: { licenses: [{ licenseKey: 'test-license' }] } } },
+        data: { data: { result: { items: [{ licenseKey: 'test-license' }] } } },
       }))
       .mockReturnValueOnce(of({
         data: { data: { result: { rows: [['DE', 1], ['US', 1]], rowCount: 2, columnLabels: [] } } },
@@ -232,7 +286,7 @@ describe('DataSource.getTagValues', () => {
   it('returns empty array when no license is available', async () => {
     const ds = createDataSource();
     mockRequest.mockReturnValueOnce(of({
-      data: { data: { result: { licenses: [] } } },
+      data: { data: { result: { items: [] } } },
     }));
 
     const result = await ds.getTagValues({ key: 'COUNTRY' });
