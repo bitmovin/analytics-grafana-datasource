@@ -10,6 +10,7 @@ import {
 } from '../types/queryAttributes';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
 import { convertFilterValueToProperType } from 'utils/filterUtils';
+import { inferFieldValueType } from '../utils/fieldTypes';
 
 interface QueryFilterInputProps {
   /** `undefined` when component is used to create new filter (no values yet) */
@@ -156,14 +157,33 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         show={derivedQueryFilterState.inputValueError != null}
         theme="error"
       >
-        <Input
-          data-testid={`query-editor-${props.queryEditorId}_filter-value-input`}
-          value={derivedQueryFilterState.value}
-          onChange={(e) => handleInputValueChange(e.currentTarget.value)}
-          invalid={derivedQueryFilterState.inputValueError != null}
-          type="text"
-          width={VALUE_COMPONENT_WIDTH}
-        />
+        {derivedQueryFilterState.attribute &&
+        inferFieldValueType(derivedQueryFilterState.attribute as QueryAttribute | QueryAdAttribute) === 'boolean' &&
+        derivedQueryFilterState.operator !== 'IN' ? (
+          <div>
+            <Select
+              data-testid={`query-editor-${props.queryEditorId}_filter-value-input`}
+              value={derivedQueryFilterState.value}
+              options={[
+                { label: 'true', value: 'true' },
+                { label: 'false', value: 'false' },
+              ]}
+              onChange={(v) => handleInputValueChange(v.value ?? '')}
+              invalid={derivedQueryFilterState.inputValueError != null}
+              width={VALUE_COMPONENT_WIDTH}
+            />
+          </div>
+        ) : (
+          <Input
+            data-testid={`query-editor-${props.queryEditorId}_filter-value-input`}
+            value={derivedQueryFilterState.value}
+            onChange={(e) => handleInputValueChange(e.currentTarget.value)}
+            invalid={derivedQueryFilterState.inputValueError != null}
+            placeholder={derivedQueryFilterState.operator === 'IN' ? '["value1", "value2"] or use a multi-value Grafana variable' : undefined}
+            type="text"
+            width={VALUE_COMPONENT_WIDTH}
+          />
+        )}
       </Tooltip>
 
       <IconButton

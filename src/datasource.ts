@@ -81,6 +81,30 @@ export class DataSource extends DataSourceApi<
     return DEFAULT_QUERY;
   }
 
+  getQueryDisplayText(query: BitmovinAnalyticsDataQuery): string {
+    const parts: string[] = [];
+
+    if (query.metric && query.dimension) {
+      parts.push(`${query.metric}(${query.dimension})`);
+    } else if (query.dimension) {
+      parts.push(query.dimension);
+    }
+
+    if (query.groupBy?.length > 0) {
+      parts.push(`by ${query.groupBy.join(', ')}`);
+    }
+
+    if (query.filter?.length > 0) {
+      const filterSummary = query.filter
+        .slice(0, 2)
+        .map((f) => `${f.name} ${f.operator} ${f.value}`)
+        .join(', ');
+      parts.push(`where ${filterSummary}${query.filter.length > 2 ? ' ...' : ''}`);
+    }
+
+    return parts.join(' · ') || 'Bitmovin Analytics';
+  }
+
   applyTemplateVariables(
     query: BitmovinAnalyticsDataQuery,
     scopedVars: ScopedVars
@@ -245,7 +269,10 @@ export class DataSource extends DataSourceApi<
       return createDataFrame({
         name: alias,
         fields: fields,
-        meta: { notices: metaNotices },
+        meta: {
+          notices: metaNotices,
+          preferredVisualisationType: query.interval ? 'graph' : 'table',
+        },
       });
     });
 
