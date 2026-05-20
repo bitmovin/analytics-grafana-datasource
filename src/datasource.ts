@@ -43,6 +43,7 @@ import { QueryAttribute, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from './types/quer
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
 import { convertFilterValueToProperType } from './utils/filterUtils';
+import { inferFieldConfig } from './utils/fieldConfig';
 
 type BitmovinAnalyticsRequestQuery = {
   licenseKey: string;
@@ -154,6 +155,8 @@ export class DataSource extends DataSourceApi<
         }
       }
 
+      const fieldConfig = inferFieldConfig(dimension ?? metric);
+
       const filters = target.filter
         .map((filter) => {
           const interpolatedValue = getTemplateSrv().replace(filter.value, options.scopedVars);
@@ -208,7 +211,7 @@ export class DataSource extends DataSourceApi<
       if (query.interval && query.groupBy?.length > 0) {
         // If the query has an interval and group by columns, transform the data as grouped time series
         fields.push(
-          ...transformGroupedTimeSeriesData(dataRows, queryFrom.valueOf(), queryTo.valueOf(), query.interval)
+          ...transformGroupedTimeSeriesData(dataRows, queryFrom.valueOf(), queryTo.valueOf(), query.interval, fieldConfig)
         );
       } else {
         if (query.interval) {
@@ -219,12 +222,13 @@ export class DataSource extends DataSourceApi<
               columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
               queryFrom.valueOf(),
               queryTo.valueOf(),
-              query.interval
+              query.interval,
+              fieldConfig
             )
           );
         } else {
           // If no interval is specified, transform the data as table data
-          fields.push(...transformTableData(dataRows, columnLabels));
+          fields.push(...transformTableData(dataRows, columnLabels, fieldConfig));
         }
       }
 
