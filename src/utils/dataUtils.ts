@@ -1,6 +1,6 @@
 import { differenceWith, sortBy, zip } from 'lodash';
 import { getMomentTimeUnitForQueryInterval, QueryInterval } from './intervalUtils';
-import { Field, FieldType } from '@grafana/data';
+import { Field, FieldConfig, FieldType } from '@grafana/data';
 // eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
 import type { DurationInputArg2 } from 'moment/moment';
@@ -116,7 +116,8 @@ export function transformGroupedTimeSeriesData(
   dataRows: MixedDataRowList,
   startTimestamp: number,
   endTimestamp: number,
-  interval: QueryInterval
+  interval: QueryInterval,
+  fieldConfig?: FieldConfig
 ): Array<Partial<Field>> {
   if (dataRows.length === 0) {
     return [];
@@ -165,6 +166,7 @@ export function transformGroupedTimeSeriesData(
       name: name,
       values: valueColumn[0] as NumberDataRow,
       type: FieldType.number,
+      config: fieldConfig ?? {},
     });
   });
 
@@ -186,7 +188,8 @@ export function transformSimpleTimeSeries(
   columnName: string,
   startTimestamp: number,
   endTimestamp: number,
-  interval: QueryInterval
+  interval: QueryInterval,
+  fieldConfig?: FieldConfig
 ): Array<Partial<Field>> {
   if (dataRows.length === 0) {
     return [];
@@ -206,6 +209,7 @@ export function transformSimpleTimeSeries(
     name: columnName,
     values: columns[columns.length - 1] as NumberDataRow,
     type: FieldType.number,
+    config: fieldConfig ?? {},
   });
 
   return fields;
@@ -220,7 +224,8 @@ export function transformSimpleTimeSeries(
  */
 export function transformTableData(
   dataRows: MixedDataRowList,
-  columnLabels: Array<{ key: string; label: string }>
+  columnLabels: Array<{ key: string; label: string }>,
+  fieldConfig?: FieldConfig
 ): Array<Partial<Field>> {
   if (dataRows.length === 0) {
     return [];
@@ -256,6 +261,7 @@ export function transformTableData(
     name: columnNames[columnNames.length - 1],
     values: columns[columns.length - 1] as NumberDataRow,
     type: FieldType.number,
+    config: fieldConfig ?? {},
   });
 
   return fields;

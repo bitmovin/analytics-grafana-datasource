@@ -2,6 +2,7 @@ import { DataSourcePlugin } from '@grafana/data';
 import { DataSource } from './datasource';
 import { ConfigEditor } from './components/ConfigEditor';
 import { QueryEditor } from './components/QueryEditor';
+import { VariableQueryEditor } from './components/VariableQueryEditor';
 import {
   BitmovinAnalyticsDataQuery,
   BitmovinDataSourceOptions,
@@ -14,4 +15,5 @@ export const plugin = new DataSourcePlugin<
   BitmovinDataSourceOptions
 >(DataSource)
   .setConfigEditor(ConfigEditor)
-  .setQueryEditor(QueryEditor);
+  .setQueryEditor(QueryEditor)
+  .setVariableQueryEditor(VariableQueryEditor);

@@ -6,10 +6,12 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   Field,
+  MetricFindValue,
   QueryResultMetaNotice,
   RawTimeRange,
+  ScopedVars,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { cloneDeep, filter, isEmpty } from 'lodash';
 // eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
@@ -37,10 +39,11 @@ import {
 import { isMetric, Metric } from './types/metric';
 import { AggregationMethod } from './types/aggregationMethod';
 import { ProperTypedQueryFilter } from './types/queryFilter';
-import { QueryAttribute } from './types/queryAttributes';
+import { QueryAttribute, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
 import { convertFilterValueToProperType } from './utils/filterUtils';
+import { inferFieldConfig } from './utils/fieldConfig';
 
 type BitmovinAnalyticsRequestQuery = {
   licenseKey: string;
@@ -76,6 +79,47 @@ export class DataSource extends DataSourceApi<
 
   getDefaultQuery(_: CoreApp): Partial<BitmovinAnalyticsDataQuery> {
     return DEFAULT_QUERY;
+  }
+
+  getQueryDisplayText(query: BitmovinAnalyticsDataQuery): string {
+    const parts: string[] = [];
+
+    if (query.metric && query.dimension) {
+      parts.push(`${query.metric}(${query.dimension})`);
+    } else if (query.dimension) {
+      parts.push(query.dimension);
+    }
+
+    if (query.groupBy?.length > 0) {
+      parts.push(`by ${query.groupBy.join(', ')}`);
+    }
+
+    if (query.filter?.length > 0) {
+      const filterSummary = query.filter
+        .slice(0, 2)
+        .map((f) => `${f.name} ${f.operator} ${f.value}`)
+        .join(', ');
+      parts.push(`where ${filterSummary}${query.filter.length > 2 ? ' ...' : ''}`);
+    }
+
+    return parts.join(' · ') || 'Bitmovin Analytics';
+  }
+
+  applyTemplateVariables(
+    query: BitmovinAnalyticsDataQuery,
+    scopedVars: ScopedVars
+  ): BitmovinAnalyticsDataQuery {
+    return {
+      ...query,
+      license: query.useVariableForLicense
+        ? getTemplateSrv().replace(query.license, scopedVars)
+        : query.license,
+      alias: getTemplateSrv().replace(query.alias ?? '', scopedVars),
+      filter: query.filter.map((f) => ({
+        ...f,
+        value: getTemplateSrv().replace(f.value, scopedVars),
+      })),
+    };
   }
 
   /**
@@ -135,13 +179,35 @@ export class DataSource extends DataSourceApi<
         }
       }
 
-      const filters: ProperTypedQueryFilter[] = target.filter.map((filter) => {
-        return {
-          name: filter.name,
-          operator: filter.operator,
-          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.isAdAnalytics),
-        };
-      });
+      const fieldConfig = inferFieldConfig(dimension ?? metric);
+
+      const filters = target.filter
+        .map((filter) => {
+          const interpolatedValue = getTemplateSrv().replace(filter.value, options.scopedVars);
+
+          if (interpolatedValue === '$__all' || interpolatedValue === '.*' || interpolatedValue === '') {
+            return null;
+          }
+
+          // Grafana resolves "All" to a glob like {AR,CO,EC,MX} when no custom all-value is set.
+          // Skip for non-IN operators — EQ with multiple values is never valid.
+          // IN keeps the glob so T-02 can normalize it to a JSON array.
+          if (filter.operator !== 'IN' && /^\{.+\}$/.test(interpolatedValue)) {
+            return null;
+          }
+
+          return {
+            name: filter.name,
+            operator: filter.operator,
+            value: convertFilterValueToProperType(interpolatedValue, filter.name, filter.operator, !!this.isAdAnalytics),
+          };
+        })
+        .filter((f) => f !== null) as ProperTypedQueryFilter[];
+
+      const alias = getTemplateSrv().replace(target.alias ?? '', options.scopedVars);
+      const licenseKey = target.useVariableForLicense
+        ? getTemplateSrv().replace(target.license, options.scopedVars)
+        : target.license;
 
       const query: BitmovinAnalyticsRequestQuery = {
         filters: filters,
@@ -151,7 +217,7 @@ export class DataSource extends DataSourceApi<
         metric: metric,
         start: queryFrom.toDate(),
         end: queryTo.toDate(),
-        licenseKey: target.license,
+        licenseKey: licenseKey,
         interval: interval,
         limit: this.parseLimit(target.limit),
         percentile: percentileValue,
@@ -169,7 +235,7 @@ export class DataSource extends DataSourceApi<
       if (query.interval && query.groupBy?.length > 0) {
         // If the query has an interval and group by columns, transform the data as grouped time series
         fields.push(
-          ...transformGroupedTimeSeriesData(dataRows, queryFrom.valueOf(), queryTo.valueOf(), query.interval)
+          ...transformGroupedTimeSeriesData(dataRows, queryFrom.valueOf(), queryTo.valueOf(), query.interval, fieldConfig)
         );
       } else {
         if (query.interval) {
@@ -180,12 +246,13 @@ export class DataSource extends DataSourceApi<
               columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
               queryFrom.valueOf(),
               queryTo.valueOf(),
-              query.interval
+              query.interval,
+              fieldConfig
             )
           );
         } else {
           // If no interval is specified, transform the data as table data
-          fields.push(...transformTableData(dataRows, columnLabels));
+          fields.push(...transformTableData(dataRows, columnLabels, fieldConfig));
         }
       }
 
@@ -200,9 +267,12 @@ export class DataSource extends DataSourceApi<
       }
 
       return createDataFrame({
-        name: target.alias,
+        name: alias,
         fields: fields,
-        meta: { notices: metaNotices },
+        meta: {
+          notices: metaNotices,
+          preferredVisualisationType: query.interval ? 'graph' : 'table',
+        },
       });
     });
 
@@ -281,6 +351,92 @@ export class DataSource extends DataSourceApi<
     };
 
     return getBackendSrv().fetch(options);
+  }
+
+  async getTagKeys(): Promise<Array<{ text: string }>> {
+    return SELECTABLE_QUERY_FILTER_ATTRIBUTES.map((attr) => ({ text: attr.value! }));
+  }
+
+  async getTagValues(options: { key: string }): Promise<Array<{ text: string }>> {
+    const licenseKey = await this.getFirstLicenseKey();
+    if (!licenseKey) {
+      return [];
+    }
+    return this.metricFindQuery(`dimension:${options.key} license:${licenseKey}`);
+  }
+
+  async metricFindQuery(queryText: string): Promise<MetricFindValue[]> {
+const interpolated = getTemplateSrv().replace(queryText);
+
+    if (!interpolated?.trim()) {
+      return [];
+    }
+
+    if (interpolated.trim().toLowerCase() === 'licenses') {
+      try {
+        const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+        const items: Array<{ licenseKey: string; name?: string }> = response.data.data.result.items ?? [];
+        return items
+          .filter((l) => l.licenseKey != null)
+          .map((l) => ({ text: l.name || l.licenseKey, value: l.licenseKey }));
+      } catch {
+        return [];
+      }
+    }
+
+    const dimensionMatch = interpolated.match(/dimension:(\S+)/);
+    const licenseMatch = interpolated.match(/license:(\S+)/);
+
+    if (!dimensionMatch) {
+      return [];
+    }
+
+    const dimension = dimensionMatch[1] as QueryAttribute;
+    const rawLicenseKey = licenseMatch?.[1];
+    const licenseKey =
+      rawLicenseKey && !/^\$/.test(rawLicenseKey)
+        ? rawLicenseKey
+        : await this.getFirstLicenseKey();
+
+    if (!licenseKey) {
+      return [];
+    }
+
+    const end = new Date();
+    const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+
+    const query = {
+      licenseKey,
+      start,
+      end,
+      dimension: 'IMPRESSION_ID' as QueryAttribute,
+      groupBy: [dimension],
+      orderBy: [],
+      filters: [],
+      limit: 200,
+    };
+
+    try {
+      const response = await lastValueFrom(
+        this.request('/analytics/queries/count', 'POST', query)
+      );
+      const rows: MixedDataRowList = response.data.data.result.rows;
+      return rows
+        .map((row) => row[0])
+        .filter((v) => v != null && v !== '')
+        .map((v) => ({ text: String(v), value: String(v) }));
+    } catch {
+      return [];
+    }
+  }
+
+  private async getFirstLicenseKey(): Promise<string | undefined> {
+    try {
+      const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+      return response.data.data.result.items?.[0]?.licenseKey;
+    } catch {
+      return undefined;
+    }
   }
 
   async testDatasource() {
