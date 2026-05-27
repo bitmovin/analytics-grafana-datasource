@@ -9,7 +9,7 @@ import {
   QueryResultMetaNotice,
   RawTimeRange,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { cloneDeep, filter, isEmpty } from 'lodash';
 // eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
@@ -135,13 +135,48 @@ export class DataSource extends DataSourceApi<
         }
       }
 
-      const filters: ProperTypedQueryFilter[] = target.filter.map((filter) => {
-        return {
-          name: filter.name,
-          operator: filter.operator,
-          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.isAdAnalytics),
-        };
-      });
+      const filters: ProperTypedQueryFilter[] = (target.filter ?? [])
+        .map((filterEntry) => {
+          // Capture the resolved values so we can tell a multi-value variable apart from a plain
+          // string. Multi-value variables arrive in the format callback as an array.
+          let multiValues: string[] | undefined;
+          const interpolatedValue = getTemplateSrv().replace(
+            filterEntry.value,
+            options.scopedVars,
+            (value: string | string[]) => {
+              if (Array.isArray(value)) {
+                multiValues = value;
+                return JSON.stringify(value);
+              }
+              return value;
+            }
+          );
+          return { filterEntry, interpolatedValue, multiValues };
+        })
+        // When a multi-value variable is set to "All" with the default all-value, Grafana
+        // interpolates to the "$__all" sentinel. Drop the filter so the query matches all data
+        // instead of filtering on the literal string. Empty values are intentionally NOT dropped:
+        // convertFilterValueToProperType maps them to a null ("IS NULL") filter for the relevant
+        // attributes.
+        .filter(({ interpolatedValue }) => interpolatedValue !== '$__all')
+        .map(({ filterEntry, interpolatedValue, multiValues }) => {
+          let value = interpolatedValue;
+          // A multi-value variable only has a well-defined meaning for the IN operator. For any
+          // other operator we apply just the first selected value so the behaviour is predictable
+          // rather than silently empty. The query editor warns the user about this inline.
+          if (filterEntry.operator !== 'IN' && multiValues !== undefined) {
+            value = multiValues[0] ?? '';
+          }
+          return {
+            name: filterEntry.name,
+            operator: filterEntry.operator,
+            value: convertFilterValueToProperType(value, filterEntry.name, filterEntry.operator, !!this.isAdAnalytics),
+          };
+        });
+
+      // Interpolate the alias so dashboard variables can be used in series names. Fall back to
+      // undefined (not '') for an unset alias so Grafana keeps deriving the name from the column.
+      const alias = getTemplateSrv().replace(target.alias ?? '', options.scopedVars) || undefined;
 
       const query: BitmovinAnalyticsRequestQuery = {
         filters: filters,
@@ -189,18 +224,16 @@ export class DataSource extends DataSourceApi<
         }
       }
 
-      let metaNotices: QueryResultMetaNotice[] = [];
+      const metaNotices: QueryResultMetaNotice[] = [];
       if (dataRowCount >= 200) {
-        metaNotices = [
-          {
-            severity: 'warning',
-            text: 'Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval, or too big of a time range.',
-          },
-        ];
+        metaNotices.push({
+          severity: 'warning',
+          text: 'Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval, or too big of a time range.',
+        });
       }
 
       return createDataFrame({
-        name: target.alias,
+        name: alias,
         fields: fields,
         meta: { notices: metaNotices },
       });

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { HorizontalGroup, IconButton, Input, Select, Tooltip } from '@grafana/ui';
+import { HorizontalGroup, Icon, IconButton, Input, Select, Tooltip } from '@grafana/ui';
+import { getTemplateSrv } from '@grafana/runtime';
 
 import { QueryFilter, QueryFilterOperator, SELECTABLE_QUERY_FILTER_OPERATORS } from '../types/queryFilter';
 import type { SelectableValue } from '@grafana/data';
@@ -9,7 +10,7 @@ import {
   SELECTABLE_QUERY_FILTER_ATTRIBUTES,
 } from '../types/queryAttributes';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
-import { convertFilterValueToProperType } from 'utils/filterUtils';
+import { convertFilterValueToProperType, getMultiValueOperatorWarning, VariableLike } from 'utils/filterUtils';
 
 interface QueryFilterInputProps {
   /** `undefined` when component is used to create new filter (no values yet) */
@@ -44,6 +45,17 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
   const operatorSelectValue = useMemo(
     () => findOperatorSelectableValue(derivedQueryFilterState.operator),
     [derivedQueryFilterState.operator]
+  );
+
+  /** Warn inline when a multi-value variable is used with a non-IN operator (only the first value applies). */
+  const multiValueWarning = useMemo(
+    () =>
+      getMultiValueOperatorWarning(
+        derivedQueryFilterState.value,
+        derivedQueryFilterState.operator,
+        getTemplateSrv().getVariables() as VariableLike[]
+      ),
+    [derivedQueryFilterState.value, derivedQueryFilterState.operator]
   );
 
   function handleAttributeChange(selectedValue: SelectableValue<QueryAttribute | QueryAdAttribute>) {
@@ -165,6 +177,17 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
           width={VALUE_COMPONENT_WIDTH}
         />
       </Tooltip>
+
+      {multiValueWarning != null && (
+        <Tooltip content={multiValueWarning} theme="info">
+          <span
+            data-testid={`query-editor-${props.queryEditorId}_filter-multi-value-warning`}
+            style={{ display: 'inline-flex', color: 'orange', cursor: 'help' }}
+          >
+            <Icon name="exclamation-triangle" size="lg" />
+          </span>
+        </Tooltip>
+      )}
 
       <IconButton
         data-testid={`query-editor-${props.queryEditorId}_filter-delete-button`}

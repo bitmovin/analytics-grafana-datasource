@@ -79,6 +79,34 @@ const parseValueForInFilter = (rawValue: string) => {
   return value;
 };
 
+/**
+ * Normalises the raw value of an `IN` filter into a JSON array string that
+ * {@link parseValueForInFilter} can parse.
+ *
+ * Accepts the three shapes an `IN` value can arrive in:
+ * - an explicit JSON array typed by the user: `["Firefox","Chrome"]` (passed through unchanged)
+ * - a Grafana multi-value variable glob: `{Firefox,Chrome}`
+ * - a comma separated list or a single value (e.g. when a multi-value variable resolves to a
+ *   single selection): `Firefox,Chrome` or `Firefox`
+ *
+ * A single value is wrapped into a one-element array so a one-item variable selection
+ * stays a valid `IN` filter instead of throwing.
+ */
+export function normalizeInFilterValue(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.startsWith('[')) {
+    // Already a JSON array (user-typed or produced by the multi-value format callback).
+    return trimmed;
+  }
+  // Strip Grafana's multi-value glob braces ({a,b,c}) if present, then split on commas.
+  const inner = trimmed.replace(/^\{(.*)\}$/, '$1');
+  const parts = inner
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+  return JSON.stringify(parts);
+}
+
 const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute) => {
   switch (filterAttribute) {
     case 'IS_LINEAR':
@@ -204,10 +232,10 @@ export const convertFilterValueToProperType = (
 
   if (filterOperator === 'IN') {
     try {
-      return parseValueForInFilter(rawValue);
+      return parseValueForInFilter(normalizeInFilterValue(rawValue));
     } catch (e) {
       throw new Error(
-        'Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).'
+        `Couldn't parse IN filter. Provide a JSON array (e.g.: ["Firefox", "Chrome"]) or select values from a multi-value Grafana variable.`
       );
     }
   }
@@ -217,3 +245,36 @@ export const convertFilterValueToProperType = (
   }
   return convertFilter(rawValue, filterAttribute as QueryAttribute);
 };
+
+/** Minimal shape of a Grafana template variable needed for the multi-value check. */
+export interface VariableLike {
+  name: string;
+  /** True for variables configured to allow selecting multiple values. */
+  multi?: boolean;
+}
+
+const MULTI_VALUE_WARNING =
+  'This is a multi-value variable but the operator is not "IN". Only the first selected value will be applied — use the "IN" operator to match all selected values.';
+
+/**
+ * Returns a warning when a non-IN filter references a multi-value variable, otherwise `undefined`.
+ * A multi-value variable can resolve to several values, but the Bitmovin API only accepts a single
+ * value for non-IN operators (only the first selected value is applied at query time) — this
+ * surfaces that in the query editor. The warning is shown for any multi-value variable, regardless
+ * of how many values are currently selected (a multi-value variable's value is always an array).
+ */
+export function getMultiValueOperatorWarning(
+  value: string | undefined,
+  operator: QueryFilterOperator | undefined,
+  variables: VariableLike[]
+): string | undefined {
+  if (!value || !operator || operator === 'IN') {
+    return undefined;
+  }
+
+  const usesMultiValueVariable = variables.some(
+    (v) => v.multi === true && (value.includes(`$${v.name}`) || value.includes(`\${${v.name}}`))
+  );
+
+  return usesMultiValueVariable ? MULTI_VALUE_WARNING : undefined;
+}

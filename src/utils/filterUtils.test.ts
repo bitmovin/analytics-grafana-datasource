@@ -1,4 +1,31 @@
-import { convertFilterValueToProperType } from './filterUtils';
+import {
+  convertFilterValueToProperType,
+  getMultiValueOperatorWarning,
+  normalizeInFilterValue,
+  VariableLike,
+} from './filterUtils';
+
+describe('normalizeInFilterValue', () => {
+  it('passes an explicit JSON array through unchanged', () => {
+    expect(normalizeInFilterValue('["Firefox","Chrome"]')).toBe('["Firefox","Chrome"]');
+  });
+
+  it('converts a Grafana multi-value glob to a JSON array', () => {
+    expect(normalizeInFilterValue('{Firefox,Chrome}')).toBe('["Firefox","Chrome"]');
+  });
+
+  it('converts a comma separated list to a JSON array', () => {
+    expect(normalizeInFilterValue('Firefox, Chrome')).toBe('["Firefox","Chrome"]');
+  });
+
+  it('wraps a single value into a one-element array', () => {
+    expect(normalizeInFilterValue('Firefox')).toBe('["Firefox"]');
+  });
+
+  it('returns an empty array for an empty string', () => {
+    expect(normalizeInFilterValue('')).toBe('[]');
+  });
+});
 
 describe('convertFilterValueToProperType', () => {
   it('should return null if rawValue is empty and attribute a NullFilter', () => {
@@ -9,10 +36,36 @@ describe('convertFilterValueToProperType', () => {
     expect(result).toBeNull();
   });
 
-  it('should throw an error if value for IN filter is not a json array', () => {
+  it('should normalize a single value into a one-element array for IN filter', () => {
+    //arrange & act
+    const result = convertFilterValueToProperType('Firefox', 'BROWSER', 'IN', false);
+
+    //assert
+    expect(result).toEqual(['Firefox']);
+  });
+
+  it('should normalize a Grafana multi-value glob into an array for IN filter', () => {
+    //arrange & act
+    const result = convertFilterValueToProperType('{Firefox,Chrome}', 'BROWSER', 'IN', false);
+
+    //assert
+    expect(result).toEqual(['Firefox', 'Chrome']);
+  });
+
+  it('should normalize a comma separated list into an array for IN filter', () => {
+    //arrange & act
+    const result = convertFilterValueToProperType('Firefox,Chrome', 'BROWSER', 'IN', false);
+
+    //assert
+    expect(result).toEqual(['Firefox', 'Chrome']);
+  });
+
+  it('should throw an error if value for IN filter is a malformed JSON array', () => {
     //arrange & act && assert
-    expect(() => convertFilterValueToProperType('Firefox', 'BROWSER', 'IN', false)).toThrow(
-      new Error('Couldn\'t parse IN filter, please provide data in JSON array form (e.g.: ["Firefox", "Chrome"]).')
+    expect(() => convertFilterValueToProperType('["Firefox"', 'BROWSER', 'IN', false)).toThrow(
+      new Error(
+        'Couldn\'t parse IN filter. Provide a JSON array (e.g.: ["Firefox", "Chrome"]) or select values from a multi-value Grafana variable.'
+      )
     );
   });
 
@@ -98,5 +151,39 @@ describe('convertFilterValueToProperType', () => {
     expect(() => convertFilterValueToProperType('two', 'ERROR_PERCENTAGE', 'EQ', false)).toThrow(
       new Error(`Couldn't parse filter value, please provide data as a floating point number`)
     );
+  });
+});
+
+describe('getMultiValueOperatorWarning', () => {
+  const multiVar: VariableLike = { name: 'browsers', multi: true };
+  const singleValueVar: VariableLike = { name: 'country', multi: false };
+
+  it('warns for a non-IN operator referencing a multi-value variable (${name} syntax)', () => {
+    expect(getMultiValueOperatorWarning('${browsers}', 'EQ', [multiVar])).toContain('IN');
+  });
+
+  it('warns for the $name syntax too', () => {
+    expect(getMultiValueOperatorWarning('$browsers', 'NE', [multiVar])).toContain('IN');
+  });
+
+  it('does not warn for the IN operator', () => {
+    expect(getMultiValueOperatorWarning('${browsers}', 'IN', [multiVar])).toBeUndefined();
+  });
+
+  it('does not warn for a single-value (non-multi) variable', () => {
+    expect(getMultiValueOperatorWarning('${country}', 'EQ', [singleValueVar])).toBeUndefined();
+  });
+
+  it('does not warn for a literal value with no variable', () => {
+    expect(getMultiValueOperatorWarning('Firefox', 'EQ', [multiVar])).toBeUndefined();
+  });
+
+  it('does not warn when the referenced variable is not defined', () => {
+    expect(getMultiValueOperatorWarning('${unknown}', 'EQ', [multiVar])).toBeUndefined();
+  });
+
+  it('returns undefined for an empty value or missing operator', () => {
+    expect(getMultiValueOperatorWarning('', 'EQ', [multiVar])).toBeUndefined();
+    expect(getMultiValueOperatorWarning('${browsers}', undefined, [multiVar])).toBeUndefined();
   });
 });
