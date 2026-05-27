@@ -2,6 +2,10 @@
 
 ## Development
 
+### Added
+
+- grafana template variable support for filter, alias and license selection
+
 ## 1.5.0
 
 ### Added

@@ -1,19 +1,23 @@
 import {
   CoreApp,
   createDataFrame,
+  CustomVariableSupport,
   DataQueryRequest,
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
   Field,
+  FieldType,
+  MetricFindValue,
   QueryResultMetaNotice,
   RawTimeRange,
+  ScopedVars,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { cloneDeep, filter, isEmpty } from 'lodash';
 // eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
-import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
+import { catchError, from, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import {
   BitmovinAnalyticsDataQuery,
@@ -41,6 +45,8 @@ import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
 import { convertFilterValueToProperType } from './utils/filterUtils';
+import { VariableQueryEditor } from './components/VariableQueryEditor';
+import { BitmovinVariableQuery } from './types/variableQuery';
 
 type BitmovinAnalyticsRequestQuery = {
   licenseKey: string;
@@ -72,6 +78,9 @@ export class DataSource extends DataSourceApi<
     this.tenantOrgId = instanceSettings.jsonData.tenantOrgId;
     this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
     this.baseUrl = instanceSettings.url!;
+
+    // Enables "Query" template variables backed by this datasource (see metricFindQuery).
+    this.variables = new BitmovinVariableSupport(this);
   }
 
   getDefaultQuery(_: CoreApp): Partial<BitmovinAnalyticsDataQuery> {
@@ -135,13 +144,54 @@ export class DataSource extends DataSourceApi<
         }
       }
 
-      const filters: ProperTypedQueryFilter[] = target.filter.map((filter) => {
-        return {
-          name: filter.name,
-          operator: filter.operator,
-          value: convertFilterValueToProperType(filter.value, filter.name, filter.operator, !!this.isAdAnalytics),
-        };
-      });
+      const filters: ProperTypedQueryFilter[] = (target.filter ?? [])
+        .map((filterEntry) => {
+          // Capture the resolved values so we can tell a multi-value variable apart from a plain
+          // string. Multi-value variables arrive in the format callback as an array.
+          let multiValues: string[] | undefined;
+          const interpolatedValue = getTemplateSrv().replace(
+            filterEntry.value,
+            options.scopedVars,
+            (value: string | string[]) => {
+              if (Array.isArray(value)) {
+                multiValues = value;
+                return JSON.stringify(value);
+              }
+              return value;
+            }
+          );
+          return { filterEntry, interpolatedValue, multiValues };
+        })
+        // When a multi-value variable is set to "All" with the default all-value, Grafana
+        // interpolates to the "$__all" sentinel. Drop the filter so the query matches all data
+        // instead of filtering on the literal string. Empty values are intentionally NOT dropped:
+        // convertFilterValueToProperType maps them to a null ("IS NULL") filter for the relevant
+        // attributes.
+        .filter(({ interpolatedValue }) => interpolatedValue !== '$__all')
+        .map(({ filterEntry, interpolatedValue, multiValues }) => {
+          let value = interpolatedValue;
+          // A multi-value variable only has a well-defined meaning for the IN operator. For any
+          // other operator we apply just the first selected value so the behaviour is predictable
+          // rather than silently empty. The query editor warns the user about this inline.
+          if (filterEntry.operator !== 'IN' && multiValues !== undefined) {
+            value = multiValues[0] ?? '';
+          }
+          return {
+            name: filterEntry.name,
+            operator: filterEntry.operator,
+            value: convertFilterValueToProperType(value, filterEntry.name, filterEntry.operator, !!this.isAdAnalytics),
+          };
+        });
+
+      // Interpolate the alias so dashboard variables can be used in series names. Fall back to
+      // undefined (not '') for an unset alias so Grafana keeps deriving the name from the column.
+      const alias = getTemplateSrv().replace(target.alias ?? '', options.scopedVars) || undefined;
+
+      // When the license is provided via a dashboard variable, interpolate it; otherwise it's a
+      // picked license key and is used verbatim.
+      const licenseKey = target.useVariableForLicense
+        ? getTemplateSrv().replace(target.license, options.scopedVars)
+        : target.license;
 
       const query: BitmovinAnalyticsRequestQuery = {
         filters: filters,
@@ -151,7 +201,7 @@ export class DataSource extends DataSourceApi<
         metric: metric,
         start: queryFrom.toDate(),
         end: queryTo.toDate(),
-        licenseKey: target.license,
+        licenseKey: licenseKey,
         interval: interval,
         limit: this.parseLimit(target.limit),
         percentile: percentileValue,
@@ -189,18 +239,16 @@ export class DataSource extends DataSourceApi<
         }
       }
 
-      let metaNotices: QueryResultMetaNotice[] = [];
+      const metaNotices: QueryResultMetaNotice[] = [];
       if (dataRowCount >= 200) {
-        metaNotices = [
-          {
-            severity: 'warning',
-            text: 'Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval, or too big of a time range.',
-          },
-        ];
+        metaNotices.push({
+          severity: 'warning',
+          text: 'Your request reached the max row limit of the API. You might see incomplete data. This problem might be caused by the use of high cardinality columns in group by, too small interval, or too big of a time range.',
+        });
       }
 
       return createDataFrame({
-        name: target.alias,
+        name: alias,
         fields: fields,
         meta: { notices: metaNotices },
       });
@@ -265,6 +313,115 @@ export class DataSource extends DataSourceApi<
     return url + '/queries/' + aggregation;
   }
 
+  /**
+   * Populates Grafana "Query" template variables. The query text uses the following syntax:
+   *   `licenses`                               -> the account's licenses (text = name, value = key)
+   *   `dimension:COUNTRY`                      -> distinct values of COUNTRY for the first license
+   *   `dimension:BROWSER license:<licenseKey>` -> distinct values of BROWSER for a specific license
+   *
+   * Template variables in the query text are interpolated first, so one variable can feed another
+   * (e.g. `dimension:COUNTRY license:${licenseVar}`).
+   * When no `license:` is given the first available license is used.
+   */
+  async metricFindQuery(query: string, options?: { scopedVars?: ScopedVars }): Promise<MetricFindValue[]> {
+    const interpolated = getTemplateSrv()
+      .replace(query ?? '', options?.scopedVars)
+      ?.trim();
+    if (!interpolated) {
+      return [];
+    }
+
+    // `licenses` lists the account's licenses (text = name, value = license key) so a variable can
+    // drive the license picker / a `license:${var}` in other variable queries.
+    if (interpolated.toLowerCase() === 'licenses') {
+      try {
+        const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+        const items: Array<{ licenseKey: string; name?: string }> = response.data.data.result?.items ?? [];
+        return items
+          .filter((license) => license.licenseKey != null)
+          .map((license) => ({ text: license.name || license.licenseKey, value: license.licenseKey }));
+      } catch (err) {
+        throw this.toApiError(err, 'Failed to load licenses');
+      }
+    }
+
+    const dimensionMatch = interpolated.match(/dimension:(\S+)/);
+    if (!dimensionMatch) {
+      return [];
+    }
+    const dimension = dimensionMatch[1] as QueryAttribute;
+
+    const rawLicenseKey = interpolated.match(/license:(\S+)/)?.[1];
+    let licenseKey: string | undefined;
+    if (rawLicenseKey != null) {
+      // An explicit license was requested. If it's an unresolved variable reference, surface an error.
+      if (this.isUnresolvedVariable(rawLicenseKey)) {
+        throw new Error(
+          `Could not resolve the license in the variable query ("${rawLicenseKey}"). Make sure the referenced dashboard variable exists and has a value.`
+        );
+      }
+      licenseKey = rawLicenseKey;
+    } else {
+      // No license given: fall back to the first available license.
+      licenseKey = await this.getFirstLicenseKey();
+    }
+    if (!licenseKey) {
+      return [];
+    }
+
+    // query a fixed 24h worth of data
+    const end = new Date();
+    const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+
+    const requestQuery = {
+      licenseKey,
+      start,
+      end,
+      // Count distinct values of `dimension` by grouping a count aggregation over impressions.
+      dimension: 'IMPRESSION_ID' as QueryAttribute,
+      groupBy: [dimension],
+      orderBy: [],
+      filters: [],
+    };
+
+    try {
+      const response = await lastValueFrom(this.request('/analytics/queries/count', 'POST', requestQuery));
+      const rows: MixedDataRowList = response.data.data.result?.rows ?? [];
+      return rows
+        .map((row) => row[0])
+        .filter((value) => value != null && value !== '')
+        .map((value) => ({ text: String(value), value: String(value) }));
+    } catch (err) {
+      // Surface the failure in the variable editor instead of silently returning no options.
+      throw this.toApiError(err, 'Failed to load variable values');
+    }
+  }
+
+  /**
+   * Returns true if `getTemplateSrv().replace` left an unresolved variable reference in place
+   * (`${var}`, `$var` or `[[var]]`).
+   */
+  private isUnresolvedVariable(value: string): boolean {
+    return /\$\{?\w+\}?|\[\[\w+\]\]/.test(value);
+  }
+
+  private async getFirstLicenseKey(): Promise<string | undefined> {
+    try {
+      const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+      return response.data.data.result?.items?.[0]?.licenseKey;
+    } catch (err) {
+      throw this.toApiError(err, 'Failed to load licenses');
+    }
+  }
+
+  /** Builds a readable Error from a Bitmovin API failure so it can be shown to the user. */
+  private toApiError(err: unknown, context: string): Error {
+    const e = err as { status?: number; statusText?: string; data?: { message?: string; data?: { message?: string } } };
+    const detail = e?.data?.message ?? e?.data?.data?.message ?? e?.statusText ?? 'request failed';
+    const status = e?.status ? `${e.status} ` : '';
+    return new Error(`${context}: ${status}${detail}`);
+  }
+
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
     const headers: Record<string, string> = {
       'X-Api-Key': this.apiKey,
@@ -319,6 +476,38 @@ export class DataSource extends DataSourceApi<
           });
         })
       )
+    );
+  }
+}
+
+/**
+ * Variable support for "Query" template variables. Delegates to {@link DataSource.metricFindQuery}
+ * and wraps the result in a data frame with `text`/`value` fields, which Grafana turns into the
+ * variable's dropdown options.
+ */
+export class BitmovinVariableSupport extends CustomVariableSupport<DataSource, BitmovinVariableQuery> {
+  constructor(private readonly datasource: DataSource) {
+    super();
+    // Bind so the method keeps its `this` when Grafana invokes it detached.
+    this.query = this.query.bind(this);
+  }
+
+  editor = VariableQueryEditor;
+
+  query(request: DataQueryRequest<BitmovinVariableQuery>): Observable<DataQueryResponse> {
+    const queryText = request.targets[0]?.query ?? '';
+
+    return from(this.datasource.metricFindQuery(queryText, { scopedVars: request.scopedVars })).pipe(
+      map((values) => ({
+        data: [
+          createDataFrame({
+            fields: [
+              { name: 'text', type: FieldType.string, values: values.map((v) => String(v.text)) },
+              { name: 'value', type: FieldType.string, values: values.map((v) => String(v.value ?? v.text)) },
+            ],
+          }),
+        ],
+      }))
     );
   }
 }

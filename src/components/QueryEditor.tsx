@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
-import { FieldSet, HorizontalGroup, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
+import { Button, FieldSet, HorizontalGroup, InlineField, InlineSwitch, Input, Select } from '@grafana/ui';
 import type { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { defaults } from 'lodash';
 
@@ -66,6 +66,15 @@ export function QueryEditor(props: Props) {
   const handleLicenseChange = (item: SelectableValue) => {
     props.onChange({ ...query, license: item.value });
     props.onRunQuery();
+  };
+
+  const handleLicenseModeToggle = () => {
+    props.onChange({ ...query, useVariableForLicense: !query.useVariableForLicense, license: '' });
+    props.onRunQuery();
+  };
+
+  const handleLicenseVariableChange = (event: ChangeEvent<HTMLInputElement>) => {
+    props.onChange({ ...query, license: event.target.value });
   };
 
   const handleAggregationChange = (item: SelectableValue) => {
@@ -167,21 +176,46 @@ export function QueryEditor(props: Props) {
         <InlineField
           label="License"
           labelWidth={20}
-          invalid={licenseLoadingState === LoadingState.Error}
+          invalid={!query.useVariableForLicense && licenseLoadingState === LoadingState.Error}
           error={`Error when fetching Analytics Licenses: ${licenseErrorMessage}`}
-          disabled={licenseLoadingState === LoadingState.Error}
+          disabled={!query.useVariableForLicense && licenseLoadingState === LoadingState.Error}
           required
         >
-          <Select
-            id={`query-editor-${props.query.refId}_license-select`}
-            value={query.license}
-            onChange={handleLicenseChange}
-            width={30}
-            options={selectableLicenses}
-            noOptionsMessage="No Analytics Licenses found"
-            isLoading={licenseLoadingState === LoadingState.Loading}
-            placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
-          />
+          <HorizontalGroup spacing="xs">
+            {query.useVariableForLicense ? (
+              <Input
+                id={`query-editor-${props.query.refId}_license-variable-input`}
+                value={query.license}
+                onChange={handleLicenseVariableChange}
+                onBlur={() => props.onRunQuery()}
+                width={30}
+                placeholder="${your_license_variable}"
+              />
+            ) : (
+              <Select
+                id={`query-editor-${props.query.refId}_license-select`}
+                value={query.license}
+                onChange={handleLicenseChange}
+                width={30}
+                options={selectableLicenses}
+                noOptionsMessage="No Analytics Licenses found"
+                isLoading={licenseLoadingState === LoadingState.Loading}
+                placeholder={licenseLoadingState === LoadingState.Loading ? 'Loading Licenses' : 'Choose License'}
+              />
+            )}
+            <Button
+              data-testid={`query-editor-${props.query.refId}_license-variable-toggle-button`}
+              variant="secondary"
+              onClick={handleLicenseModeToggle}
+              tooltip={
+                query.useVariableForLicense
+                  ? 'Switch back to picking a license from the list'
+                  : 'Use any dashboard variable for the license, e.g. ${prod_license}'
+              }
+            >
+              {query.useVariableForLicense ? 'Pick license' : 'Use variable'}
+            </Button>
+          </HorizontalGroup>
         </InlineField>
         <HorizontalGroup spacing="xs">
           {!isMetricSelected && (

@@ -15,6 +15,9 @@ type ResultFormat = 'table' | 'time_series';
  * */
 export interface BitmovinAnalyticsDataQuery extends DataQuery {
   license: string;
+  /** When true, `license` holds a dashboard-variable expression (e.g. `${licenseVar}`) that is
+   * interpolated at query time instead of being a picked license key. */
+  useVariableForLicense?: boolean;
   interval?: QueryInterval | 'AUTO';
   metric?: AggregationMethod;
   dimension?: QueryAttribute | QueryAdAttribute | Metric;
