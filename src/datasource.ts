@@ -1,19 +1,23 @@
 import {
   CoreApp,
   createDataFrame,
+  CustomVariableSupport,
   DataQueryRequest,
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
   Field,
+  FieldType,
+  MetricFindValue,
   QueryResultMetaNotice,
   RawTimeRange,
+  ScopedVars,
 } from '@grafana/data';
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { cloneDeep, filter, isEmpty } from 'lodash';
 // eslint-disable-next-line  no-restricted-imports
 import moment from 'moment';
-import { catchError, lastValueFrom, map, Observable, of } from 'rxjs';
+import { catchError, from, lastValueFrom, map, Observable, of } from 'rxjs';
 
 import {
   BitmovinAnalyticsDataQuery,
@@ -41,6 +45,8 @@ import { QueryAttribute } from './types/queryAttributes';
 import { QueryAdAttribute } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
 import { convertFilterValueToProperType } from './utils/filterUtils';
+import { VariableQueryEditor } from './components/VariableQueryEditor';
+import { BitmovinVariableQuery } from './types/variableQuery';
 
 type BitmovinAnalyticsRequestQuery = {
   licenseKey: string;
@@ -72,6 +78,9 @@ export class DataSource extends DataSourceApi<
     this.tenantOrgId = instanceSettings.jsonData.tenantOrgId;
     this.isAdAnalytics = instanceSettings.jsonData.isAdAnalytics;
     this.baseUrl = instanceSettings.url!;
+
+    // Enables "Query" template variables backed by this datasource (see metricFindQuery).
+    this.variables = new BitmovinVariableSupport(this);
   }
 
   getDefaultQuery(_: CoreApp): Partial<BitmovinAnalyticsDataQuery> {
@@ -298,6 +307,100 @@ export class DataSource extends DataSourceApi<
     return url + '/queries/' + aggregation;
   }
 
+  /**
+   * Populates Grafana "Query" template variables. The query text uses the following syntax:
+   *   `dimension:COUNTRY`                      -> distinct values of COUNTRY for the first license
+   *   `dimension:BROWSER license:<licenseKey>` -> distinct values of BROWSER for a specific license
+   *
+   * Template variables in the query text are interpolated first, so one variable can feed another
+   * (e.g. `dimension:COUNTRY license:${licenseVar}`).
+   * When no `license:` is given the first available license is used.
+   */
+  async metricFindQuery(query: string, options?: { scopedVars?: ScopedVars }): Promise<MetricFindValue[]> {
+    const interpolated = getTemplateSrv()
+      .replace(query ?? '', options?.scopedVars)
+      ?.trim();
+    if (!interpolated) {
+      return [];
+    }
+
+    const dimensionMatch = interpolated.match(/dimension:(\S+)/);
+    if (!dimensionMatch) {
+      return [];
+    }
+    const dimension = dimensionMatch[1] as QueryAttribute;
+
+    const rawLicenseKey = interpolated.match(/license:(\S+)/)?.[1];
+    let licenseKey: string | undefined;
+    if (rawLicenseKey != null) {
+      // An explicit license was requested. If it's an unresolved variable reference, surface an error.
+      if (this.isUnresolvedVariable(rawLicenseKey)) {
+        throw new Error(
+          `Could not resolve the license in the variable query ("${rawLicenseKey}"). Make sure the referenced dashboard variable exists and has a value.`
+        );
+      }
+      licenseKey = rawLicenseKey;
+    } else {
+      // No license given: fall back to the first available license.
+      licenseKey = await this.getFirstLicenseKey();
+    }
+    if (!licenseKey) {
+      return [];
+    }
+
+    // query a fixed 24h worth of data
+    const end = new Date();
+    const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+
+    const requestQuery = {
+      licenseKey,
+      start,
+      end,
+      // Count distinct values of `dimension` by grouping a count aggregation over impressions.
+      dimension: 'IMPRESSION_ID' as QueryAttribute,
+      groupBy: [dimension],
+      orderBy: [],
+      filters: [],
+    };
+
+    try {
+      const response = await lastValueFrom(this.request('/analytics/queries/count', 'POST', requestQuery));
+      const rows: MixedDataRowList = response.data.data.result?.rows ?? [];
+      return rows
+        .map((row) => row[0])
+        .filter((value) => value != null && value !== '')
+        .map((value) => ({ text: String(value), value: String(value) }));
+    } catch (err) {
+      // Surface the failure in the variable editor instead of silently returning no options.
+      throw this.toApiError(err, 'Failed to load variable values');
+    }
+  }
+
+  /**
+   * Returns true if `getTemplateSrv().replace` left an unresolved variable reference in place
+   * (`${var}`, `$var` or `[[var]]`).
+   */
+  private isUnresolvedVariable(value: string): boolean {
+    return /\$\{?\w+\}?|\[\[\w+\]\]/.test(value);
+  }
+
+  private async getFirstLicenseKey(): Promise<string | undefined> {
+    try {
+      const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+      return response.data.data.result?.items?.[0]?.licenseKey;
+    } catch (err) {
+      throw this.toApiError(err, 'Failed to load licenses');
+    }
+  }
+
+  /** Builds a readable Error from a Bitmovin API failure so it can be shown to the user. */
+  private toApiError(err: unknown, context: string): Error {
+    const e = err as { status?: number; statusText?: string; data?: { message?: string; data?: { message?: string } } };
+    const detail = e?.data?.message ?? e?.data?.data?.message ?? e?.statusText ?? 'request failed';
+    const status = e?.status ? `${e.status} ` : '';
+    return new Error(`${context}: ${status}${detail}`);
+  }
+
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
     const headers: Record<string, string> = {
       'X-Api-Key': this.apiKey,
@@ -352,6 +455,38 @@ export class DataSource extends DataSourceApi<
           });
         })
       )
+    );
+  }
+}
+
+/**
+ * Variable support for "Query" template variables. Delegates to {@link DataSource.metricFindQuery}
+ * and wraps the result in a data frame with `text`/`value` fields, which Grafana turns into the
+ * variable's dropdown options.
+ */
+export class BitmovinVariableSupport extends CustomVariableSupport<DataSource, BitmovinVariableQuery> {
+  constructor(private readonly datasource: DataSource) {
+    super();
+    // Bind so the method keeps its `this` when Grafana invokes it detached.
+    this.query = this.query.bind(this);
+  }
+
+  editor = VariableQueryEditor;
+
+  query(request: DataQueryRequest<BitmovinVariableQuery>): Observable<DataQueryResponse> {
+    const queryText = request.targets[0]?.query ?? '';
+
+    return from(this.datasource.metricFindQuery(queryText, { scopedVars: request.scopedVars })).pipe(
+      map((values) => ({
+        data: [
+          createDataFrame({
+            fields: [
+              { name: 'text', type: FieldType.string, values: values.map((v) => String(v.text)) },
+              { name: 'value', type: FieldType.string, values: values.map((v) => String(v.value ?? v.text)) },
+            ],
+          }),
+        ],
+      }))
     );
   }
 }
