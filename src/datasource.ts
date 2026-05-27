@@ -1,4 +1,5 @@
 import {
+  AdHocVariableFilter,
   CoreApp,
   createDataFrame,
   CustomVariableSupport,
@@ -12,6 +13,7 @@ import {
   QueryResultMetaNotice,
   RawTimeRange,
   ScopedVars,
+  SelectableValue,
 } from '@grafana/data';
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { cloneDeep, filter, isEmpty } from 'lodash';
@@ -40,11 +42,11 @@ import {
 } from './utils/intervalUtils';
 import { isMetric, Metric } from './types/metric';
 import { AggregationMethod } from './types/aggregationMethod';
-import { ProperTypedQueryFilter } from './types/queryFilter';
-import { QueryAttribute } from './types/queryAttributes';
-import { QueryAdAttribute } from './types/queryAdAttributes';
+import { ProperTypedQueryFilter, QueryFilterOperator } from './types/queryFilter';
+import { QueryAttribute, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from './types/queryAttributes';
+import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
-import { convertFilterValueToProperType } from './utils/filterUtils';
+import { convertFilterValueToProperType, isNullFilter } from './utils/filterUtils';
 import { VariableQueryEditor } from './components/VariableQueryEditor';
 import { BitmovinVariableQuery } from './types/variableQuery';
 
@@ -61,6 +63,29 @@ type BitmovinAnalyticsRequestQuery = {
   limit?: number;
   percentile?: number;
 };
+
+/**
+ * Maps Grafana ad-hoc filter operators to the Bitmovin API filter operators. Operators without a
+ * Bitmovin equivalent — notably the multi-value "one of" (`=|`) / "not one of" (`!=|`) variants —
+ * are intentionally absent, so filters using them are skipped.
+ */
+const AD_HOC_OPERATOR_MAP: Record<string, QueryFilterOperator> = {
+  '=': 'EQ',
+  '!=': 'NE',
+  '>': 'GT',
+  '<': 'LT',
+  '>=': 'GTE',
+  '<=': 'LTE',
+  '=~': 'CONTAINS',
+  '!~': 'NOTCONTAINS',
+};
+
+/**
+ * Sentinel value for the "(empty)" ad-hoc option used to filter for null/missing values. It must be
+ * non-empty because Grafana drops ad-hoc filters whose value is an empty string before they reach
+ * the datasource. We map it back to an empty value (i.e. a null "IS NULL" filter) at query time.
+ */
+export const AD_HOC_NULL_VALUE = '__null__';
 
 export class DataSource extends DataSourceApi<
   BitmovinAnalyticsDataQuery | OldBitmovinAnalyticsDataQuery,
@@ -183,6 +208,9 @@ export class DataSource extends DataSourceApi<
           };
         });
 
+      // Dashboard-wide ad-hoc filters apply to every query against this datasource.
+      const adHocFilters = this.resolveAdHocFilters(options);
+
       // Interpolate the alias so dashboard variables can be used in series names. Fall back to
       // undefined (not '') for an unset alias so Grafana keeps deriving the name from the column.
       const alias = getTemplateSrv().replace(target.alias ?? '', options.scopedVars) || undefined;
@@ -194,7 +222,7 @@ export class DataSource extends DataSourceApi<
         : target.license;
 
       const query: BitmovinAnalyticsRequestQuery = {
-        filters: filters,
+        filters: [...filters, ...adHocFilters],
         groupBy: target.groupBy,
         orderBy: target.orderBy,
         dimension: dimension,
@@ -378,14 +406,15 @@ export class DataSource extends DataSourceApi<
       start,
       end,
       // Count distinct values of `dimension` by grouping a count aggregation over impressions.
-      dimension: 'IMPRESSION_ID' as QueryAttribute,
+      // Ad analytics uses the ad impression id and the ads count endpoint.
+      dimension: (this.isAdAnalytics ? 'AD_IMPRESSION_ID' : 'IMPRESSION_ID') as QueryAttribute,
       groupBy: [dimension],
       orderBy: [],
       filters: [],
     };
 
     try {
-      const response = await lastValueFrom(this.request('/analytics/queries/count', 'POST', requestQuery));
+      const response = await lastValueFrom(this.request(this.getRequestUrl(undefined, 'count'), 'POST', requestQuery));
       const rows: MixedDataRowList = response.data.data.result?.rows ?? [];
       return rows
         .map((row) => row[0])
@@ -420,6 +449,64 @@ export class DataSource extends DataSourceApi<
     const detail = e?.data?.message ?? e?.data?.data?.message ?? e?.statusText ?? 'request failed';
     const status = e?.status ? `${e.status} ` : '';
     return new Error(`${context}: ${status}${detail}`);
+  }
+
+  /** Keys offered in Grafana's ad-hoc filter UI: the filterable attributes for this datasource. */
+  async getTagKeys(): Promise<MetricFindValue[]> {
+    const attributes: Array<SelectableValue<string>> = this.isAdAnalytics
+      ? SELECTABLE_QUERY_AD_ATTRIBUTES
+      : SELECTABLE_QUERY_FILTER_ATTRIBUTES;
+    return attributes.filter((attr) => attr.value != null).map((attr) => ({ text: attr.value as string }));
+  }
+
+  /** Values offered for a chosen ad-hoc filter key: the distinct values of that dimension. */
+  async getTagValues(options: { key: string }): Promise<MetricFindValue[]> {
+    const values = await this.metricFindQuery(`dimension:${options.key}`);
+    // For attributes that support an "IS NULL" filter, offer an explicit empty option so users can
+    // filter for missing values. Selecting it yields an empty value, which convertFilterValueToProperType
+    // turns into a null filter (same mechanism as the panel filters).
+    if (isNullFilter(options.key as QueryAttribute | QueryAdAttribute)) {
+      return [{ text: '(empty)', value: AD_HOC_NULL_VALUE }, ...values];
+    }
+    return values;
+  }
+
+  /**
+   * Resolves the dashboard's ad-hoc filters in a version-safe way:
+   * - Grafana v11+ injects them on the query request (`options.filters`).
+   * - Older Grafana exposes them via the template service (`getAdhocFilters`).
+   * Neither is present in the `@grafana/data` version we build against, so both are read defensively.
+   * When neither exists (older Grafana without ad-hoc support), an empty list is returned and the
+   * query is unchanged — so ad-hoc support degrades gracefully rather than breaking.
+   */
+  private resolveAdHocFilters(options: DataQueryRequest<BitmovinAnalyticsDataQuery>): ProperTypedQueryFilter[] {
+    const fromRequest = (options as { filters?: AdHocVariableFilter[] }).filters;
+    const legacyGetter = (getTemplateSrv() as { getAdhocFilters?: (dsName: string) => AdHocVariableFilter[] })
+      .getAdhocFilters;
+    const rawFilters = Array.isArray(fromRequest)
+      ? fromRequest
+      : typeof legacyGetter === 'function'
+      ? legacyGetter.call(getTemplateSrv(), this.name) ?? []
+      : [];
+
+    return rawFilters
+      .map((adHoc): ProperTypedQueryFilter | null => {
+        const operator = AD_HOC_OPERATOR_MAP[adHoc.operator];
+        if (operator == null) {
+          // Unsupported ad-hoc operator (e.g. the multi-value =| / !=| variants) — skip rather than guess.
+          return null;
+        }
+        const name = adHoc.key as QueryAttribute | QueryAdAttribute;
+        // The "(empty)" option uses a non-empty sentinel (Grafana drops empty-value filters); map it
+        // back to an empty value so convertFilterValueToProperType produces a null ("IS NULL") filter.
+        const rawValue = adHoc.value === AD_HOC_NULL_VALUE ? '' : adHoc.value;
+        return {
+          name,
+          operator,
+          value: convertFilterValueToProperType(rawValue, name, operator, !!this.isAdAnalytics),
+        };
+      })
+      .filter((filter): filter is ProperTypedQueryFilter => filter !== null);
   }
 
   request(url: string, method: string, payload?: any): Observable<Record<any, any>> {
