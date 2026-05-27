@@ -24,13 +24,13 @@ export function VariableQueryEditor({ query, onChange }: Props) {
     <InlineField
       label="Query"
       labelWidth={20}
-      tooltip="e.g. 'dimension:COUNTRY' or 'dimension:BROWSER license:YOUR_LICENSE_KEY'. Without a license the first available one is used. Values are fetched from the last 24 hours."
+      tooltip="e.g. 'licenses' or 'dimension:COUNTRY' or 'dimension:BROWSER license:YOUR_LICENSE_KEY'. Without a license the first available one is used. Values are fetched from the last 24 hours."
       grow
     >
       <Input
         aria-label="Variable query"
         value={value}
-        placeholder="dimension:COUNTRY or dimension:BROWSER license:YOUR_LICENSE_KEY"
+        placeholder="licenses or dimension:COUNTRY or dimension:BROWSER license:YOUR_LICENSE_KEY"
         onChange={(e) => setValue(e.currentTarget.value)}
         onBlur={commit}
       />

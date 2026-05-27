@@ -187,6 +187,12 @@ export class DataSource extends DataSourceApi<
       // undefined (not '') for an unset alias so Grafana keeps deriving the name from the column.
       const alias = getTemplateSrv().replace(target.alias ?? '', options.scopedVars) || undefined;
 
+      // When the license is provided via a dashboard variable, interpolate it; otherwise it's a
+      // picked license key and is used verbatim.
+      const licenseKey = target.useVariableForLicense
+        ? getTemplateSrv().replace(target.license, options.scopedVars)
+        : target.license;
+
       const query: BitmovinAnalyticsRequestQuery = {
         filters: filters,
         groupBy: target.groupBy,
@@ -195,7 +201,7 @@ export class DataSource extends DataSourceApi<
         metric: metric,
         start: queryFrom.toDate(),
         end: queryTo.toDate(),
-        licenseKey: target.license,
+        licenseKey: licenseKey,
         interval: interval,
         limit: this.parseLimit(target.limit),
         percentile: percentileValue,
@@ -309,6 +315,7 @@ export class DataSource extends DataSourceApi<
 
   /**
    * Populates Grafana "Query" template variables. The query text uses the following syntax:
+   *   `licenses`                               -> the account's licenses (text = name, value = key)
    *   `dimension:COUNTRY`                      -> distinct values of COUNTRY for the first license
    *   `dimension:BROWSER license:<licenseKey>` -> distinct values of BROWSER for a specific license
    *
@@ -322,6 +329,20 @@ export class DataSource extends DataSourceApi<
       ?.trim();
     if (!interpolated) {
       return [];
+    }
+
+    // `licenses` lists the account's licenses (text = name, value = license key) so a variable can
+    // drive the license picker / a `license:${var}` in other variable queries.
+    if (interpolated.toLowerCase() === 'licenses') {
+      try {
+        const response = await lastValueFrom(this.request('/analytics/licenses', 'GET'));
+        const items: Array<{ licenseKey: string; name?: string }> = response.data.data.result?.items ?? [];
+        return items
+          .filter((license) => license.licenseKey != null)
+          .map((license) => ({ text: license.name || license.licenseKey, value: license.licenseKey }));
+      } catch (err) {
+        throw this.toApiError(err, 'Failed to load licenses');
+      }
     }
 
     const dimensionMatch = interpolated.match(/dimension:(\S+)/);
