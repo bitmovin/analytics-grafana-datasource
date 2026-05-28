@@ -4,7 +4,7 @@ import { QueryAdAttribute } from '../types/queryAdAttributes';
 import { QueryFilterOperator, OutputQueryFilterValue } from '../types/queryFilter';
 import { QueryAttribute } from '../types/queryAttributes';
 
-const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
+export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
   switch (filterAttribute) {
     case 'AD_TYPE':
     case 'CDN_PROVIDER':
