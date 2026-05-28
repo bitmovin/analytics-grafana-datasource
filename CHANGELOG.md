@@ -5,6 +5,7 @@
 ### Added
 
 - grafana template variable support for filter, alias and license selection
+- ad-hoc filter support
 
 ## 1.5.0
 
