@@ -47,6 +47,7 @@ import { QueryAttribute, SELECTABLE_QUERY_FILTER_ATTRIBUTES } from './types/quer
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from './types/queryAdAttributes';
 import { QueryOrderBy } from './types/queryOrderBy';
 import { convertFilterValueToProperType, isNullFilter } from './utils/filterUtils';
+import { inferFieldConfig } from './utils/fieldConfig';
 import { VariableQueryEditor } from './components/VariableQueryEditor';
 import { BitmovinVariableQuery } from './types/variableQuery';
 
@@ -242,12 +243,19 @@ export class DataSource extends DataSourceApi<
       const columnLabels: Array<{ key: string; label: string }> = response.data.data.result.columnLabels;
 
       const fields: Array<Partial<Field>> = [];
+      const fieldConfig = inferFieldConfig(dimension ?? metric, aggregationMethod);
 
       // Determine the appropriate transformation based on query parameters
       if (query.interval && query.groupBy?.length > 0) {
         // If the query has an interval and group by columns, transform the data as grouped time series
         fields.push(
-          ...transformGroupedTimeSeriesData(dataRows, queryFrom.valueOf(), queryTo.valueOf(), query.interval)
+          ...transformGroupedTimeSeriesData(
+            dataRows,
+            queryFrom.valueOf(),
+            queryTo.valueOf(),
+            query.interval,
+            fieldConfig
+          )
         );
       } else {
         if (query.interval) {
@@ -258,12 +266,13 @@ export class DataSource extends DataSourceApi<
               columnLabels.length > 0 ? columnLabels[columnLabels.length - 1].label : 'Column 1',
               queryFrom.valueOf(),
               queryTo.valueOf(),
-              query.interval
+              query.interval,
+              fieldConfig
             )
           );
         } else {
           // If no interval is specified, transform the data as table data
-          fields.push(...transformTableData(dataRows, columnLabels));
+          fields.push(...transformTableData(dataRows, columnLabels, fieldConfig));
         }
       }
 
