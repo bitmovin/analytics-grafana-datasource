@@ -4,6 +4,7 @@ apiVersion: 1
 datasources:
   - name: 'Bitmovin Analytics Provisioned'
     type: bitmovin-analytics-datasource
+    uid: bitmovin-analytics-test
     access: proxy
     isDefault: false
     orgId: 1

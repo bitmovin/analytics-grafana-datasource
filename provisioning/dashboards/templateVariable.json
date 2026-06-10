@@ -1,0 +1,114 @@
+{
+  "uid": "templatevar-e2e",
+  "title": "Template Variable E2E",
+  "schemaVersion": 1,
+  "editable": true,
+  "time": { "from": "now-3h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "country",
+        "type": "custom",
+        "query": "DE,US",
+        "multi": false,
+        "includeAll": false,
+        "hide": 0,
+        "current": { "selected": true, "text": "DE", "value": "DE" },
+        "options": [
+          { "selected": true, "text": "DE", "value": "DE" },
+          { "selected": false, "text": "US", "value": "US" }
+        ]
+      },
+      {
+        "name": "browsers",
+        "type": "custom",
+        "query": "Firefox,Chrome,Safari",
+        "multi": true,
+        "includeAll": false,
+        "hide": 0,
+        "current": { "selected": true, "text": ["Firefox", "Chrome"], "value": ["Firefox", "Chrome"] },
+        "options": [
+          { "selected": true, "text": "Firefox", "value": "Firefox" },
+          { "selected": true, "text": "Chrome", "value": "Chrome" },
+          { "selected": false, "text": "Safari", "value": "Safari" }
+        ]
+      },
+      {
+        "name": "licenseVar",
+        "type": "custom",
+        "query": "my-resolved-license-key",
+        "multi": false,
+        "includeAll": false,
+        "hide": 0,
+        "current": {
+          "selected": true,
+          "text": "my-resolved-license-key",
+          "value": "my-resolved-license-key"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "my-resolved-license-key",
+            "value": "my-resolved-license-key"
+          }
+        ]
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Template variable filters",
+      "type": "table",
+      "datasource": { "type": "bitmovin-analytics-datasource", "uid": "bitmovin-analytics-test" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "bitmovin-analytics-datasource", "uid": "bitmovin-analytics-test" },
+          "license": "first-test-license-key",
+          "dimension": "IMPRESSION_ID",
+          "metric": "count",
+          "resultFormat": "table",
+          "filter": [{ "name": "COUNTRY", "operator": "EQ", "value": "$country" }],
+          "groupBy": [],
+          "orderBy": []
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "bitmovin-analytics-datasource", "uid": "bitmovin-analytics-test" },
+          "license": "first-test-license-key",
+          "dimension": "IMPRESSION_ID",
+          "metric": "count",
+          "resultFormat": "table",
+          "filter": [{ "name": "BROWSER", "operator": "IN", "value": "$browsers" }],
+          "groupBy": [],
+          "orderBy": []
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "bitmovin-analytics-datasource", "uid": "bitmovin-analytics-test" },
+          "license": "first-test-license-key",
+          "dimension": "IMPRESSION_ID",
+          "metric": "count",
+          "resultFormat": "table",
+          "filter": [{ "name": "BROWSER", "operator": "EQ", "value": "$browsers" }],
+          "groupBy": [],
+          "orderBy": []
+        },
+        {
+          "refId": "D",
+          "datasource": { "type": "bitmovin-analytics-datasource", "uid": "bitmovin-analytics-test" },
+          "license": "$licenseVar",
+          "useVariableForLicense": true,
+          "dimension": "IMPRESSION_ID",
+          "metric": "count",
+          "resultFormat": "table",
+          "filter": [],
+          "groupBy": [],
+          "orderBy": []
+        }
+      ]
+    }
+  ]
+}
