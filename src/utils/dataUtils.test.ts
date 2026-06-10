@@ -354,10 +354,10 @@ describe('transformGroupedTimeSeriesData', () => {
         values: [1712919540000, 1712919600000, 1712919660000, 1712919720000, 1712919780000],
         type: FieldType.time,
       },
-      { name: 'Firefox, Mac', values: [3, 0, 9, 0, 0], type: FieldType.number },
-      { name: 'Safari, Mac', values: [3, 10, 0, 0, 0], type: FieldType.number },
-      { name: 'Safari, iPhone', values: [6, 0, 0, 10, 0], type: FieldType.number },
-      { name: 'Chrome Mobile, iPhone', values: [0, 0, 0, 0, 1], type: FieldType.number },
+      { name: 'Firefox, Mac', values: [3, 0, 9, 0, 0], type: FieldType.number, config: {} },
+      { name: 'Safari, Mac', values: [3, 10, 0, 0, 0], type: FieldType.number, config: {} },
+      { name: 'Safari, iPhone', values: [6, 0, 0, 10, 0], type: FieldType.number, config: {} },
+      { name: 'Chrome Mobile, iPhone', values: [0, 0, 0, 0, 1], type: FieldType.number, config: {} },
     ]);
   });
 
@@ -418,7 +418,7 @@ describe('transformSimpleTimeSeries', () => {
         values: [1712919540000, 1712919600000, 1712919660000, 1712919720000, 1712919780000],
         type: FieldType.time,
       },
-      { name: 'Impression Id', values: [3, 10, 0, 0, 1], type: FieldType.number },
+      { name: 'Impression Id', values: [3, 10, 0, 0, 1], type: FieldType.number, config: {} },
     ]);
   });
 
@@ -485,7 +485,7 @@ describe('transformTableData', () => {
         values: ['Mac', 'iPhone', 'iPhone', 'Pixel 7'],
         type: FieldType.string,
       },
-      { name: 'Impression Id', values: [3, 10, 1, 4], type: FieldType.number },
+      { name: 'Impression Id', values: [3, 10, 1, 4], type: FieldType.number, config: {} },
     ]);
   });
 
@@ -522,7 +522,7 @@ describe('transformTableData', () => {
         values: ['Mac', 'iPhone', 'iPhone', 'Pixel 7'],
         type: FieldType.string,
       },
-      { name: 'Column 3', values: [3, 10, 1, 4], type: FieldType.number },
+      { name: 'Column 3', values: [3, 10, 1, 4], type: FieldType.number, config: {} },
     ]);
   });
 });

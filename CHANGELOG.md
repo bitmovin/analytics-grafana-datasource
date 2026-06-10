@@ -8,6 +8,7 @@
 
 ### Added
 
+- automatic axis units (ms, bps, bytes, percentunit) inferred from the dimension or metric being aggregated
 - true/false dropdown for boolean filter attributes
 - helpful placeholder for the `IN` filter operator
 
