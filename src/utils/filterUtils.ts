@@ -4,72 +4,95 @@ import { QueryAdAttribute } from '../types/queryAdAttributes';
 import { QueryFilterOperator, OutputQueryFilterValue } from '../types/queryFilter';
 import { QueryAttribute } from '../types/queryAttributes';
 
-export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
-  switch (filterAttribute) {
-    case 'AD_TYPE':
-    case 'CDN_PROVIDER':
-    case 'CUSTOM_DATA_1':
-    case 'CUSTOM_DATA_2':
-    case 'CUSTOM_DATA_3':
-    case 'CUSTOM_DATA_4':
-    case 'CUSTOM_DATA_5':
-    case 'CUSTOM_DATA_6':
-    case 'CUSTOM_DATA_7':
-    case 'CUSTOM_DATA_8':
-    case 'CUSTOM_DATA_9':
-    case 'CUSTOM_DATA_10':
-    case 'CUSTOM_DATA_11':
-    case 'CUSTOM_DATA_12':
-    case 'CUSTOM_DATA_13':
-    case 'CUSTOM_DATA_14':
-    case 'CUSTOM_DATA_15':
-    case 'CUSTOM_DATA_16':
-    case 'CUSTOM_DATA_17':
-    case 'CUSTOM_DATA_18':
-    case 'CUSTOM_DATA_19':
-    case 'CUSTOM_DATA_20':
-    case 'CUSTOM_DATA_21':
-    case 'CUSTOM_DATA_22':
-    case 'CUSTOM_DATA_23':
-    case 'CUSTOM_DATA_24':
-    case 'CUSTOM_DATA_25':
-    case 'CUSTOM_DATA_26':
-    case 'CUSTOM_DATA_27':
-    case 'CUSTOM_DATA_28':
-    case 'CUSTOM_DATA_29':
-    case 'CUSTOM_DATA_30':
-    case 'CUSTOM_DATA_31':
-    case 'CUSTOM_DATA_32':
-    case 'CUSTOM_DATA_33':
-    case 'CUSTOM_DATA_34':
-    case 'CUSTOM_DATA_35':
-    case 'CUSTOM_DATA_36':
-    case 'CUSTOM_DATA_37':
-    case 'CUSTOM_DATA_38':
-    case 'CUSTOM_DATA_39':
-    case 'CUSTOM_DATA_40':
-    case 'CUSTOM_DATA_41':
-    case 'CUSTOM_DATA_42':
-    case 'CUSTOM_DATA_43':
-    case 'CUSTOM_DATA_44':
-    case 'CUSTOM_DATA_45':
-    case 'CUSTOM_DATA_46':
-    case 'CUSTOM_DATA_47':
-    case 'CUSTOM_DATA_48':
-    case 'CUSTOM_DATA_49':
-    case 'CUSTOM_DATA_50':
-    case 'CUSTOM_USER_ID':
-    case 'ERROR_CODE':
-    case 'EXPERIMENT_NAME':
-    case 'ISP':
-    case 'PLAYER_TECH':
-    case 'PLAYER_VERSION':
-    case 'VIDEO_ID':
-      return true;
-    default:
-      return false;
-  }
-};
+const NULL_FILTER_ATTRIBUTES = new Set<QueryAttribute | QueryAdAttribute>([
+  'AD_TYPE',
+  'CDN_PROVIDER',
+  'CUSTOM_DATA_1',
+  'CUSTOM_DATA_2',
+  'CUSTOM_DATA_3',
+  'CUSTOM_DATA_4',
+  'CUSTOM_DATA_5',
+  'CUSTOM_DATA_6',
+  'CUSTOM_DATA_7',
+  'CUSTOM_DATA_8',
+  'CUSTOM_DATA_9',
+  'CUSTOM_DATA_10',
+  'CUSTOM_DATA_11',
+  'CUSTOM_DATA_12',
+  'CUSTOM_DATA_13',
+  'CUSTOM_DATA_14',
+  'CUSTOM_DATA_15',
+  'CUSTOM_DATA_16',
+  'CUSTOM_DATA_17',
+  'CUSTOM_DATA_18',
+  'CUSTOM_DATA_19',
+  'CUSTOM_DATA_20',
+  'CUSTOM_DATA_21',
+  'CUSTOM_DATA_22',
+  'CUSTOM_DATA_23',
+  'CUSTOM_DATA_24',
+  'CUSTOM_DATA_25',
+  'CUSTOM_DATA_26',
+  'CUSTOM_DATA_27',
+  'CUSTOM_DATA_28',
+  'CUSTOM_DATA_29',
+  'CUSTOM_DATA_30',
+  'CUSTOM_DATA_31',
+  'CUSTOM_DATA_32',
+  'CUSTOM_DATA_33',
+  'CUSTOM_DATA_34',
+  'CUSTOM_DATA_35',
+  'CUSTOM_DATA_36',
+  'CUSTOM_DATA_37',
+  'CUSTOM_DATA_38',
+  'CUSTOM_DATA_39',
+  'CUSTOM_DATA_40',
+  'CUSTOM_DATA_41',
+  'CUSTOM_DATA_42',
+  'CUSTOM_DATA_43',
+  'CUSTOM_DATA_44',
+  'CUSTOM_DATA_45',
+  'CUSTOM_DATA_46',
+  'CUSTOM_DATA_47',
+  'CUSTOM_DATA_48',
+  'CUSTOM_DATA_49',
+  'CUSTOM_DATA_50',
+  'CUSTOM_USER_ID',
+  'ERROR_CODE',
+  'EXPERIMENT_NAME',
+  'ISP',
+  'PLAYER_TECH',
+  'PLAYER_VERSION',
+  'VIDEO_ID',
+]);
+
+export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean =>
+  NULL_FILTER_ATTRIBUTES.has(filterAttribute);
+
+const BOOLEAN_ATTRIBUTES = new Set<QueryAttribute>([
+  'IS_CASTING',
+  'IS_LIVE',
+  'IS_MUTED',
+  'AUTOPLAY',
+  'BROWSER_IS_BOT',
+  'IS_LOW_LATENCY',
+  'SUBTITLE_ENABLED',
+  'VIDEOSTART_FAILED',
+]);
+
+const BOOLEAN_AD_ATTRIBUTES = new Set<QueryAdAttribute>([
+  'IS_LINEAR',
+  'AD_IS_PERSISTENT',
+  'AD_SKIPPABLE',
+  'AUTOPLAY',
+  'BROWSER_IS_BOT',
+]);
+
+export function isBooleanFilter(attribute: QueryAttribute | QueryAdAttribute, isAdAnalytics: boolean): boolean {
+  return isAdAnalytics
+    ? BOOLEAN_AD_ATTRIBUTES.has(attribute as QueryAdAttribute)
+    : BOOLEAN_ATTRIBUTES.has(attribute as QueryAttribute);
+}
 
 const parseValueForInFilter = (rawValue: string) => {
   const value: string[] = JSON.parse(rawValue);
@@ -108,10 +131,10 @@ export function normalizeInFilterValue(value: string): string {
 }
 
 const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute) => {
+  if (BOOLEAN_AD_ATTRIBUTES.has(filterAttribute)) {
+    return rawValue === 'true';
+  }
   switch (filterAttribute) {
-    case 'IS_LINEAR':
-      return rawValue === 'true';
-
     case 'AD_INDEX':
     case 'AD_TYPE':
     case 'AD_STARTUP_TIME':
@@ -157,12 +180,10 @@ const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute
 };
 
 const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
+  if (BOOLEAN_ATTRIBUTES.has(filterAttribute)) {
+    return rawValue === 'true';
+  }
   switch (filterAttribute) {
-    case 'IS_CASTING':
-    case 'IS_LIVE':
-    case 'IS_MUTED':
-      return rawValue === 'true';
-
     case 'AD':
     case 'AUDIO_BITRATE':
     case 'AD_INDEX':

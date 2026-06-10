@@ -2,6 +2,15 @@
 
 ## Development
 
+### Changed
+
+- operator selection for boolean filter attributes restricted to `EQ`/`NE`
+
+### Added
+
+- true/false dropdown for boolean filter attributes
+- helpful placeholder for the `IN` filter operator
+
 ## 1.6.0
 
 ### Added

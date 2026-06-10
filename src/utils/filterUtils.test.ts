@@ -1,6 +1,7 @@
 import {
   convertFilterValueToProperType,
   getMultiValueOperatorWarning,
+  isBooleanFilter,
   normalizeInFilterValue,
   VariableLike,
 } from './filterUtils';
@@ -185,5 +186,28 @@ describe('getMultiValueOperatorWarning', () => {
   it('returns undefined for an empty value or missing operator', () => {
     expect(getMultiValueOperatorWarning('', 'EQ', [multiVar])).toBeUndefined();
     expect(getMultiValueOperatorWarning('${browsers}', undefined, [multiVar])).toBeUndefined();
+  });
+});
+
+describe('isBooleanFilter', () => {
+  it('returns true for non-ad boolean attribute', () => {
+    expect(isBooleanFilter('IS_CASTING', false)).toBe(true);
+    expect(isBooleanFilter('AUTOPLAY', false)).toBe(true);
+  });
+
+  it('returns true for ad boolean attribute', () => {
+    expect(isBooleanFilter('IS_LINEAR', true)).toBe(true);
+    expect(isBooleanFilter('AUTOPLAY', true)).toBe(true);
+  });
+
+  it('returns false for non-boolean attributes', () => {
+    expect(isBooleanFilter('BROWSER', false)).toBe(false);
+  });
+
+  it('respects the isAdAnalytics flag (different boolean sets)', () => {
+    // IS_LINEAR is an ad-only boolean.
+    expect(isBooleanFilter('IS_LINEAR', false)).toBe(false);
+    // IS_LIVE is a non-ad-only boolean
+    expect(isBooleanFilter('IS_CASTING', true)).toBe(false);
   });
 });
