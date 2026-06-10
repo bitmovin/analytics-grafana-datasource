@@ -1,0 +1,12 @@
+# Configuration file version
+apiVersion: 1
+
+providers:
+  - name: 'E2E Test Dashboards'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      # Same directory this provider file lives in; Grafana only loads *.json dashboards.
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false
