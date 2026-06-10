@@ -65,11 +65,11 @@ The plugin supports Grafana's [template variables](https://grafana.com/docs/graf
 
 Add a variable of type **Query**, choose the Bitmovin Analytics datasource, and write one of:
 
-| Query                                          | What it returns                                                              |
-| ---------------------------------------------- | ---------------------------------------------------------------------------- |
-| `licenses`                                     | All licenses on your account (label = name, value = license key)             |
-| `dimension:<DIMENSION>`                        | Distinct values of the dimension over the last 24h, for the first license    |
-| `dimension:<DIMENSION> license:<LICENSE_KEY>`  | Distinct values of the dimension over the last 24h, for a specific license   |
+| Query                                         | What it returns                                                            |
+| --------------------------------------------- | -------------------------------------------------------------------------- |
+| `licenses`                                    | All licenses on your account (label = name, value = license key)           |
+| `dimension:<DIMENSION>`                       | Distinct values of the dimension over the last 24h, for the first license  |
+| `dimension:<DIMENSION> license:<LICENSE_KEY>` | Distinct values of the dimension over the last 24h, for a specific license |
 
 The license can itself be a variable, e.g. `dimension:COUNTRY license:${license}`.
 
