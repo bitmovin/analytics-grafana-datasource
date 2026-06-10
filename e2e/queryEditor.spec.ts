@@ -661,3 +661,107 @@ test('should transform and display fetched timeseries data correctly', async ({
   await expect(panelEditPage.panel.data).toContainText(['9', '90', '0', '0', '0', '0', '6', '76', '0', '0', '0', '4']);
   await expect(panelEditPage.panel.fieldNames).toContainText(['Time', 'Firefox', 'Chrome', 'Firefox Mobile']);
 });
+
+test('should send the license from the variable input when the toggle is enabled', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  page,
+}) => {
+  await page.route('*/**/analytics/queries/count', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ data: { result: { rowCount: 0, rows: [], columnLabels: [] } } }),
+    });
+  });
+
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+
+  // Click "Use variable" — the picker is replaced by a text input.
+  await page.getByTestId('query-editor-A_license-variable-toggle-button').click();
+  await expect(page.locator('#query-editor-A_license-variable-input')).toBeVisible();
+  // A literal value interpolates to itself, so it lands in the request as the licenseKey.
+  await page.locator('#query-editor-A_license-variable-input').fill('my-variable-license');
+
+  // Complete the query so it fires.
+  await page.locator('#query-editor-A_aggregation-method-select').click();
+  await page.getByText('count', { exact: true }).click();
+  const countRequestPromise = page.waitForRequest('*/**/analytics/queries/count');
+  await page.locator('#query-editor-A_dimension-select').click();
+  await page.getByText('IMPRESSION_ID', { exact: true }).click();
+  const countRequest = await countRequestPromise;
+
+  expect(countRequest.postDataJSON().licenseKey).toBe('my-variable-license');
+});
+
+test('should clear the license when toggling between picker and variable mode', async ({
+  panelEditPage,
+  readProvisionedDataSource,
+  page,
+}) => {
+  await page.route('*/**/analytics/queries/count', (route) => route.abort());
+
+  const ds = await readProvisionedDataSource({ fileName: 'datasources.yml' });
+  await panelEditPage.datasource.set(ds.name);
+
+  // Pick a license from the dropdown.
+  await page.locator('#query-editor-A_license-select').click();
+  await page.getByText('First Test License', { exact: true }).click();
+
+  // Toggle to variable mode: the input starts blank — the picked key is not carried over.
+  await page.getByTestId('query-editor-A_license-variable-toggle-button').click();
+  await expect(page.locator('#query-editor-A_license-variable-input')).toHaveValue('');
+
+  // Type a variable, toggle back to the picker: the dropdown is blank again, not the typed value.
+  await page.locator('#query-editor-A_license-variable-input').fill('${prod_license}');
+  await page.getByTestId('query-editor-A_license-variable-toggle-button').click();
+  await expect(page.locator('#query-editor-A_license-select')).not.toContainText('${prod_license}');
+});
+
+test('should interpolate single- and multi-value dashboard variables in filter values and license input', async ({
+  gotoDashboardPage,
+  readProvisionedDashboard,
+  page,
+}) => {
+  // Capture every count request payload, returning empty (but valid) data so the panel renders.
+  const payloads: any[] = [];
+  await page.route('*/**/analytics/queries/count', (route) => {
+    payloads.push(route.request().postDataJSON());
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ data: { result: { rowCount: 0, rows: [], columnLabels: [] } } }),
+    });
+  });
+
+  // The provisioned dashboard defines $country (single value = DE), $browsers (multi = Firefox, Chrome)
+  // and $licenseVar (= my-resolved-license-key), plus four targets that filter / select the license
+  // via those variables.
+  const dashboard = await readProvisionedDashboard({ fileName: 'templateVariable.json' });
+  await gotoDashboardPage(dashboard);
+
+  // Four targets fire a count request; wait until we've seen all of them.
+  await expect.poll(() => payloads.length, { timeout: 10000 }).toBeGreaterThanOrEqual(4);
+
+  const allFilters = payloads.flatMap((payload) => payload.filters ?? []);
+
+  // Single-value variable -> resolved string value.
+  const countryFilter = allFilters.find((f) => f.name === 'COUNTRY');
+  expect(countryFilter).toBeDefined();
+  expect(countryFilter.operator).toBe('EQ');
+  expect(countryFilter.value).toBe('DE');
+
+  // Multi-value variable in an IN filter -> JSON array of the selected values.
+  const browserInFilter = allFilters.find((f) => f.name === 'BROWSER' && f.operator === 'IN');
+  expect(browserInFilter).toBeDefined();
+  expect(browserInFilter.value).toEqual(['Firefox', 'Chrome']);
+
+  // Multi-value variable in a non-IN filter -> only the first selected value is applied.
+  const browserEqFilter = allFilters.find((f) => f.name === 'BROWSER' && f.operator === 'EQ');
+  expect(browserEqFilter).toBeDefined();
+  expect(browserEqFilter.value).toBe('Firefox');
+
+  // License variable interpolation -> the resolved license reaches the API as licenseKey.
+  expect(payloads.some((p) => p.licenseKey === 'my-resolved-license-key')).toBe(true);
+});
