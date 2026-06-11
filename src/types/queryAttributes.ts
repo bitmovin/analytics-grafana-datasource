@@ -1,26 +1,73 @@
 import { SelectableValue } from '@grafana/data';
 
-/** Attributes that can be used for filtering, grouping, and ordering. */
-const QUERY_FILTER_ATTRIBUTES = [
+/** Boolean value attributes that can be used for filtering, grouping, and ordering. */
+export const BOOLEAN_QUERY_FILTER_ATTRIBUTES = [
+  'IS_CASTING',
+  'IS_LIVE',
+  'IS_MUTED',
+  'AUTOPLAY',
+  'BROWSER_IS_BOT',
+  'IS_LOW_LATENCY',
+  'SUBTITLE_ENABLED',
+  'VIDEOSTART_FAILED',
+] as const;
+
+/** Integer value attributes that can be used for filtering, grouping, and ordering. */
+export const INTEGER_QUERY_FILTER_ATTRIBUTES = [
   'AD',
-  'AD_ID',
+  'AUDIO_BITRATE',
   'AD_INDEX',
+  'BUFFERED',
+  'CLIENT_TIME',
+  'DAY',
+  'DAYPART',
+  'DRM_LOAD_TIME',
+  'DROPPED_FRAMES',
+  'DURATION',
+  'ERROR_CODE',
+  'HOUR',
+  'INITIAL_TIME_TO_TARGET_LATENCY',
+  'LATENCY',
+  'MINUTE',
+  'MONTH',
+  'PAUSED',
+  'PAGE_LOAD_TIME',
+  'PLAYED',
+  'SCREEN_HEIGHT',
+  'SCREEN_WIDTH',
+  'SEEKED',
+  'TARGET_LATENCY',
+  'TARGET_LATENCY_DELTA',
+  'TIME',
+  'TIME_TO_TARGET_LATENCY',
+  'VIDEO_BITRATE',
+  'VIDEO_DURATION',
+  'VIDEO_PLAYBACK_HEIGHT',
+  'VIDEO_PLAYBACK_WIDTH',
+  'VIDEO_SEGMENTS_DOWNLOADED',
+  'VIDEO_SEGMENTS_DOWNLOAD_SIZE',
+  'VIDEO_STARTUPTIME',
+  'VIDEO_WINDOW_HEIGHT',
+  'VIDEO_WINDOW_WIDTH',
+  'VIDEOTIME_END',
+  'VIDEOTIME_START',
+  'YEAR',
+] as const;
+
+/** String value attributes that can be used for filtering, grouping, and ordering. */
+const STRING_QUERY_FILTER_ATTRIBUTES = [
+  'AD_ID',
   'AD_POSITION',
   'AD_SYSTEM',
   'ANALYTICS_VERSION',
-  'AUDIO_BITRATE',
   'AUDIO_CODEC',
   'AUDIO_LANGUAGE',
-  'AUTOPLAY',
   'BROWSER',
-  'BROWSER_IS_BOT',
   'BROWSER_VERSION_MAJOR',
   'BROWSER_VERSION_MINOR',
-  'BUFFERED',
   'CAST_TECH',
   'CDN_PROVIDER',
   'CITY',
-  'CLIENT_TIME',
   'CONTEXT',
   'COUNTRY',
   'CUSTOM_DATA_1',
@@ -74,84 +121,45 @@ const QUERY_FILTER_ATTRIBUTES = [
   'CUSTOM_DATA_49',
   'CUSTOM_DATA_50',
   'CUSTOM_USER_ID',
-  'DAY',
-  'DAYPART',
   'DEVICE_CLASS',
   'DEVICE_TYPE',
   'DOMAIN',
-  'DRM_LOAD_TIME',
   'DRM_TYPE',
-  'DROPPED_FRAMES',
-  'DURATION',
-  'ERROR_CODE',
   'ERROR_MESSAGE',
   'EXPERIMENT_NAME',
   'FUNCTION',
-  'HOUR',
   'ID',
   'IMPRESSION_ID',
-  'INITIAL_TIME_TO_TARGET_LATENCY',
   'IP_ADDRESS',
   'ISP',
-  'IS_CASTING',
-  'IS_LIVE',
-  'IS_LOW_LATENCY',
-  'IS_MUTED',
   'LANGUAGE',
-  'LATENCY',
   'LICENSE_KEY',
   'M3U8_URL',
-  'MINUTE',
-  'MONTH',
   'MPD_URL',
   'OPERATINGSYSTEM',
   'OPERATINGSYSTEM_VERSION_MAJOR',
   'OPERATINGSYSTEM_VERSION_MINOR',
   'ORGANIZATION',
-  'PAGE_LOAD_TIME',
   'PAGE_LOAD_TYPE',
   'PATH',
-  'PAUSED',
   'PLATFORM',
-  'PLAYED',
   'PLAYER',
   'PLAYER_TECH',
   'PLAYER_VERSION',
   'PROG_URL',
   'REGION',
-  'SCREEN_HEIGHT',
   'SCREEN_ORIENTATION',
-  'SCREEN_WIDTH',
-  'SEEKED',
   'SIZE',
   'STATE',
   'STREAM_FORMAT',
-  'SUBTITLE_ENABLED',
   'SUBTITLE_LANGUAGE',
   'SUPPORTED_VIDEO_CODECS',
-  'TARGET_LATENCY',
-  'TARGET_LATENCY_DELTA',
-  'TIME',
-  'TIME_TO_TARGET_LATENCY',
   'USER_ID',
-  'VIDEOSTART_FAILED',
   'VIDEOSTART_FAILED_REASON',
-  'VIDEOTIME_END',
-  'VIDEOTIME_START',
-  'VIDEO_BITRATE',
   'VIDEO_CODEC',
   'VIDEO_CODEC_TYPE',
-  'VIDEO_DURATION',
   'VIDEO_ID',
-  'VIDEO_PLAYBACK_HEIGHT',
-  'VIDEO_PLAYBACK_WIDTH',
-  'VIDEO_SEGMENTS_DOWNLOADED',
-  'VIDEO_SEGMENTS_DOWNLOAD_SIZE',
-  'VIDEO_STARTUPTIME',
   'VIDEO_TITLE',
-  'VIDEO_WINDOW_HEIGHT',
-  'VIDEO_WINDOW_WIDTH',
-  'YEAR',
 ] as const;
 
 /** Attributes that are only available as query dimensions, not for filtering, grouping, or ordering. */
@@ -168,7 +176,12 @@ const QUERY_ONLY_ATTRIBUTES = [
   'VIEWTIME',
 ] as const;
 
-const QUERY_ATTRIBUTES = [...QUERY_FILTER_ATTRIBUTES, ...QUERY_ONLY_ATTRIBUTES] as const;
+const QUERY_ATTRIBUTES = [
+  ...STRING_QUERY_FILTER_ATTRIBUTES,
+  ...BOOLEAN_QUERY_FILTER_ATTRIBUTES,
+  ...INTEGER_QUERY_FILTER_ATTRIBUTES,
+  ...QUERY_ONLY_ATTRIBUTES,
+] as const;
 
 export type QueryAttribute = (typeof QUERY_ATTRIBUTES)[number];
 
@@ -179,9 +192,11 @@ export const SELECTABLE_QUERY_ATTRIBUTES: Array<SelectableValue<QueryAttribute>>
   })
 );
 
-export const SELECTABLE_QUERY_FILTER_ATTRIBUTES: Array<SelectableValue<QueryAttribute>> = QUERY_FILTER_ATTRIBUTES.map(
-  (queryAttribute) => ({
-    value: queryAttribute,
-    label: queryAttribute,
-  })
-);
+export const SELECTABLE_QUERY_FILTER_ATTRIBUTES: Array<SelectableValue<QueryAttribute>> = [
+  ...INTEGER_QUERY_FILTER_ATTRIBUTES,
+  ...BOOLEAN_QUERY_FILTER_ATTRIBUTES,
+  ...STRING_QUERY_FILTER_ATTRIBUTES,
+].map((queryAttribute) => ({
+  value: queryAttribute,
+  label: queryAttribute,
+}));

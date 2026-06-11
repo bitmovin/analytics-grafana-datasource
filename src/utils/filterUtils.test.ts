@@ -2,6 +2,7 @@ import {
   convertFilterValueToProperType,
   getMultiValueOperatorWarning,
   isBooleanFilter,
+  isStringFilter,
   normalizeInFilterValue,
   VariableLike,
 } from './filterUtils';
@@ -138,21 +139,6 @@ describe('convertFilterValueToProperType', () => {
       new Error(`Couldn't parse filter value, please provide data as an integer number`)
     );
   });
-
-  it('should correctly convert to float value for attributes', () => {
-    //arrange & act
-    const result = convertFilterValueToProperType('12.56', 'ERROR_PERCENTAGE', 'EQ', false);
-
-    //assert
-    expect(result).toEqual(12.56);
-  });
-
-  it('should throw error if float parsing fails for attributes', () => {
-    //arrange & act & assert
-    expect(() => convertFilterValueToProperType('two', 'ERROR_PERCENTAGE', 'EQ', false)).toThrow(
-      new Error(`Couldn't parse filter value, please provide data as a floating point number`)
-    );
-  });
 });
 
 describe('getMultiValueOperatorWarning', () => {
@@ -209,5 +195,29 @@ describe('isBooleanFilter', () => {
     expect(isBooleanFilter('IS_LINEAR', false)).toBe(false);
     // IS_LIVE is a non-ad-only boolean
     expect(isBooleanFilter('IS_CASTING', true)).toBe(false);
+  });
+});
+
+describe('isStringFilter', () => {
+  it('returns true for string attributes (not boolean, not numeric)', () => {
+    expect(isStringFilter('BROWSER', false)).toBe(true);
+    expect(isStringFilter('COUNTRY', false)).toBe(true);
+    expect(isStringFilter('IMPRESSION_ID', false)).toBe(true);
+  });
+
+  it('returns false for numeric attributes', () => {
+    expect(isStringFilter('VIDEO_BITRATE', false)).toBe(false);
+    expect(isStringFilter('AD', false)).toBe(false);
+  });
+
+  it('returns false for boolean attributes', () => {
+    expect(isStringFilter('IS_CASTING', false)).toBe(false);
+    expect(isStringFilter('AUTOPLAY', false)).toBe(false);
+  });
+
+  it('uses the ad-attribute sets when isAdAnalytics is true', () => {
+    expect(isStringFilter('AD_POSITION', true)).toBe(true);
+    expect(isStringFilter('VIDEO_BITRATE', true)).toBe(false);
+    expect(isStringFilter('IS_LINEAR', true)).toBe(false);
   });
 });

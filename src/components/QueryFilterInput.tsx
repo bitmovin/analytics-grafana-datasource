@@ -19,6 +19,7 @@ import {
   convertFilterValueToProperType,
   getMultiValueOperatorWarning,
   isBooleanFilter,
+  isStringFilter,
   VariableLike,
 } from 'utils/filterUtils';
 
@@ -58,11 +59,16 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
   );
 
   const operatorOptions = useMemo(() => {
-    if (
-      derivedQueryFilterState.attribute != null &&
-      isBooleanFilter(derivedQueryFilterState.attribute, props.isAdAnalytics)
-    ) {
+    const attribute = derivedQueryFilterState.attribute;
+    if (attribute == null) {
+      return SELECTABLE_QUERY_FILTER_OPERATORS;
+    }
+    if (isBooleanFilter(attribute, props.isAdAnalytics)) {
       return SELECTABLE_QUERY_FILTER_OPERATORS.filter((op) => op.value === 'EQ' || op.value === 'NE');
+    }
+    if (isStringFilter(attribute, props.isAdAnalytics)) {
+      const stringOps: QueryFilterOperator[] = ['EQ', 'NE', 'IN', 'CONTAINS', 'NOTCONTAINS'];
+      return SELECTABLE_QUERY_FILTER_OPERATORS.filter((op) => op.value != null && stringOps.includes(op.value));
     }
     return SELECTABLE_QUERY_FILTER_OPERATORS;
   }, [derivedQueryFilterState.attribute, props.isAdAnalytics]);
