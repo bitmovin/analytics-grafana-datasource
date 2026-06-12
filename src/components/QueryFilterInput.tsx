@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { HorizontalGroup, Icon, IconButton, Input, Select, Tooltip } from '@grafana/ui';
 import { getTemplateSrv } from '@grafana/runtime';
 
-import { QueryFilter, QueryFilterOperator, SELECTABLE_QUERY_FILTER_OPERATORS } from '../types/queryFilter';
+import {
+  BOOLEAN_VALUE_OPTIONS,
+  QueryFilter,
+  QueryFilterOperator,
+  SELECTABLE_QUERY_FILTER_OPERATORS,
+} from '../types/queryFilter';
 import type { SelectableValue } from '@grafana/data';
 import {
   QueryAttribute,
@@ -10,7 +15,13 @@ import {
   SELECTABLE_QUERY_FILTER_ATTRIBUTES,
 } from '../types/queryAttributes';
 import { QueryAdAttribute, SELECTABLE_QUERY_AD_ATTRIBUTES } from '../types/queryAdAttributes';
-import { convertFilterValueToProperType, getMultiValueOperatorWarning, VariableLike } from 'utils/filterUtils';
+import {
+  convertFilterValueToProperType,
+  getMultiValueOperatorWarning,
+  isBooleanFilter,
+  isStringFilter,
+  VariableLike,
+} from 'utils/filterUtils';
 
 interface QueryFilterInputProps {
   /** `undefined` when component is used to create new filter (no values yet) */
@@ -46,6 +57,21 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
     () => findOperatorSelectableValue(derivedQueryFilterState.operator),
     [derivedQueryFilterState.operator]
   );
+
+  const operatorOptions = useMemo(() => {
+    const attribute = derivedQueryFilterState.attribute;
+    if (attribute == null) {
+      return SELECTABLE_QUERY_FILTER_OPERATORS;
+    }
+    if (isBooleanFilter(attribute, props.isAdAnalytics)) {
+      return SELECTABLE_QUERY_FILTER_OPERATORS.filter((op) => op.value === 'EQ' || op.value === 'NE');
+    }
+    if (isStringFilter(attribute, props.isAdAnalytics)) {
+      const stringOps: QueryFilterOperator[] = ['EQ', 'NE', 'IN', 'CONTAINS', 'NOTCONTAINS'];
+      return SELECTABLE_QUERY_FILTER_OPERATORS.filter((op) => op.value != null && stringOps.includes(op.value));
+    }
+    return SELECTABLE_QUERY_FILTER_OPERATORS;
+  }, [derivedQueryFilterState.attribute, props.isAdAnalytics]);
 
   /** Warn inline when a multi-value variable is used with a non-IN operator (only the first value applies). */
   const multiValueWarning = useMemo(
@@ -157,7 +183,7 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
             id={`query-editor-${props.queryEditorId}_filter-operator-select`}
             value={operatorSelectValue}
             onChange={handleOperatorChange}
-            options={SELECTABLE_QUERY_FILTER_OPERATORS}
+            options={operatorOptions}
             width={OPERATOR_COMPONENT_WIDTH}
             invalid={derivedQueryFilterState.operatorError != null}
           />
@@ -168,14 +194,29 @@ export function QueryFilterInput(props: Readonly<QueryFilterInputProps>) {
         show={derivedQueryFilterState.inputValueError != null}
         theme="error"
       >
-        <Input
-          data-testid={`query-editor-${props.queryEditorId}_filter-value-input`}
-          value={derivedQueryFilterState.value}
-          onChange={(e) => handleInputValueChange(e.currentTarget.value)}
-          invalid={derivedQueryFilterState.inputValueError != null}
-          type="text"
-          width={VALUE_COMPONENT_WIDTH}
-        />
+        {derivedQueryFilterState.attribute != null &&
+        isBooleanFilter(derivedQueryFilterState.attribute, props.isAdAnalytics) ? (
+          <Select
+            data-testid={`query-editor-${props.queryEditorId}_filter-value-input`}
+            value={derivedQueryFilterState.value}
+            options={BOOLEAN_VALUE_OPTIONS}
+            onChange={(v) => handleInputValueChange(v.value ?? '')}
+            invalid={derivedQueryFilterState.inputValueError != null}
+            width={VALUE_COMPONENT_WIDTH}
+          />
+        ) : (
+          <Input
+            data-testid={`query-editor-${props.queryEditorId}_filter-value-input`}
+            value={derivedQueryFilterState.value}
+            onChange={(e) => handleInputValueChange(e.currentTarget.value)}
+            invalid={derivedQueryFilterState.inputValueError != null}
+            placeholder={
+              derivedQueryFilterState.operator === 'IN' ? '["v1", "v2"] or a multi-value Grafana variable' : undefined
+            }
+            type="text"
+            width={VALUE_COMPONENT_WIDTH}
+          />
+        )}
       </Tooltip>
 
       {multiValueWarning != null && (

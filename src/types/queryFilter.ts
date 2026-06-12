@@ -9,6 +9,11 @@ export type QueryFilterOperator = (typeof QUERY_FILTER_OPERATORS)[number];
 export const SELECTABLE_QUERY_FILTER_OPERATORS: Array<SelectableValue<QueryFilterOperator>> =
   QUERY_FILTER_OPERATORS.map((o) => ({ value: o, label: o }));
 
+export const BOOLEAN_VALUE_OPTIONS: Array<SelectableValue<string>> = [
+  { value: 'true', label: 'true' },
+  { value: 'false', label: 'false' },
+];
+
 /** This type is needed because of legacy reasons.
  * In the angular plugin the value was saved as a string in a dashboard JSON file. */
 export type QueryFilter = {

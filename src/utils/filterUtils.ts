@@ -1,75 +1,108 @@
 import { isEmpty } from 'lodash';
 
-import { QueryAdAttribute } from '../types/queryAdAttributes';
+import {
+  BOOLEAN_QUERY_AD_ATTRIBUTES,
+  FLOAT_QUERY_AD_ATTRIBUTES,
+  INTEGER_QUERY_AD_ATTRIBUTES,
+  QueryAdAttribute,
+} from '../types/queryAdAttributes';
 import { QueryFilterOperator, OutputQueryFilterValue } from '../types/queryFilter';
-import { QueryAttribute } from '../types/queryAttributes';
+import {
+  BOOLEAN_QUERY_FILTER_ATTRIBUTES,
+  INTEGER_QUERY_FILTER_ATTRIBUTES,
+  QueryAttribute,
+} from '../types/queryAttributes';
 
-export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean => {
-  switch (filterAttribute) {
-    case 'AD_TYPE':
-    case 'CDN_PROVIDER':
-    case 'CUSTOM_DATA_1':
-    case 'CUSTOM_DATA_2':
-    case 'CUSTOM_DATA_3':
-    case 'CUSTOM_DATA_4':
-    case 'CUSTOM_DATA_5':
-    case 'CUSTOM_DATA_6':
-    case 'CUSTOM_DATA_7':
-    case 'CUSTOM_DATA_8':
-    case 'CUSTOM_DATA_9':
-    case 'CUSTOM_DATA_10':
-    case 'CUSTOM_DATA_11':
-    case 'CUSTOM_DATA_12':
-    case 'CUSTOM_DATA_13':
-    case 'CUSTOM_DATA_14':
-    case 'CUSTOM_DATA_15':
-    case 'CUSTOM_DATA_16':
-    case 'CUSTOM_DATA_17':
-    case 'CUSTOM_DATA_18':
-    case 'CUSTOM_DATA_19':
-    case 'CUSTOM_DATA_20':
-    case 'CUSTOM_DATA_21':
-    case 'CUSTOM_DATA_22':
-    case 'CUSTOM_DATA_23':
-    case 'CUSTOM_DATA_24':
-    case 'CUSTOM_DATA_25':
-    case 'CUSTOM_DATA_26':
-    case 'CUSTOM_DATA_27':
-    case 'CUSTOM_DATA_28':
-    case 'CUSTOM_DATA_29':
-    case 'CUSTOM_DATA_30':
-    case 'CUSTOM_DATA_31':
-    case 'CUSTOM_DATA_32':
-    case 'CUSTOM_DATA_33':
-    case 'CUSTOM_DATA_34':
-    case 'CUSTOM_DATA_35':
-    case 'CUSTOM_DATA_36':
-    case 'CUSTOM_DATA_37':
-    case 'CUSTOM_DATA_38':
-    case 'CUSTOM_DATA_39':
-    case 'CUSTOM_DATA_40':
-    case 'CUSTOM_DATA_41':
-    case 'CUSTOM_DATA_42':
-    case 'CUSTOM_DATA_43':
-    case 'CUSTOM_DATA_44':
-    case 'CUSTOM_DATA_45':
-    case 'CUSTOM_DATA_46':
-    case 'CUSTOM_DATA_47':
-    case 'CUSTOM_DATA_48':
-    case 'CUSTOM_DATA_49':
-    case 'CUSTOM_DATA_50':
-    case 'CUSTOM_USER_ID':
-    case 'ERROR_CODE':
-    case 'EXPERIMENT_NAME':
-    case 'ISP':
-    case 'PLAYER_TECH':
-    case 'PLAYER_VERSION':
-    case 'VIDEO_ID':
-      return true;
-    default:
-      return false;
+const NULL_FILTER_ATTRIBUTES_SET = new Set<QueryAttribute | QueryAdAttribute>([
+  'AD_TYPE',
+  'CDN_PROVIDER',
+  'CUSTOM_DATA_1',
+  'CUSTOM_DATA_2',
+  'CUSTOM_DATA_3',
+  'CUSTOM_DATA_4',
+  'CUSTOM_DATA_5',
+  'CUSTOM_DATA_6',
+  'CUSTOM_DATA_7',
+  'CUSTOM_DATA_8',
+  'CUSTOM_DATA_9',
+  'CUSTOM_DATA_10',
+  'CUSTOM_DATA_11',
+  'CUSTOM_DATA_12',
+  'CUSTOM_DATA_13',
+  'CUSTOM_DATA_14',
+  'CUSTOM_DATA_15',
+  'CUSTOM_DATA_16',
+  'CUSTOM_DATA_17',
+  'CUSTOM_DATA_18',
+  'CUSTOM_DATA_19',
+  'CUSTOM_DATA_20',
+  'CUSTOM_DATA_21',
+  'CUSTOM_DATA_22',
+  'CUSTOM_DATA_23',
+  'CUSTOM_DATA_24',
+  'CUSTOM_DATA_25',
+  'CUSTOM_DATA_26',
+  'CUSTOM_DATA_27',
+  'CUSTOM_DATA_28',
+  'CUSTOM_DATA_29',
+  'CUSTOM_DATA_30',
+  'CUSTOM_DATA_31',
+  'CUSTOM_DATA_32',
+  'CUSTOM_DATA_33',
+  'CUSTOM_DATA_34',
+  'CUSTOM_DATA_35',
+  'CUSTOM_DATA_36',
+  'CUSTOM_DATA_37',
+  'CUSTOM_DATA_38',
+  'CUSTOM_DATA_39',
+  'CUSTOM_DATA_40',
+  'CUSTOM_DATA_41',
+  'CUSTOM_DATA_42',
+  'CUSTOM_DATA_43',
+  'CUSTOM_DATA_44',
+  'CUSTOM_DATA_45',
+  'CUSTOM_DATA_46',
+  'CUSTOM_DATA_47',
+  'CUSTOM_DATA_48',
+  'CUSTOM_DATA_49',
+  'CUSTOM_DATA_50',
+  'CUSTOM_USER_ID',
+  'ERROR_CODE',
+  'EXPERIMENT_NAME',
+  'ISP',
+  'PLAYER_TECH',
+  'PLAYER_VERSION',
+  'VIDEO_ID',
+]);
+
+const BOOLEAN_QUERY_AD_ATTRIBUTES_SET = new Set<string>(BOOLEAN_QUERY_AD_ATTRIBUTES);
+const BOOLEAN_QUERY_FILTER_ATTRIBUTES_SET = new Set<string>(BOOLEAN_QUERY_FILTER_ATTRIBUTES);
+
+const INTEGER_QUERY_AD_ATTRIBUTES_SET = new Set<string>(INTEGER_QUERY_AD_ATTRIBUTES);
+const FLOAT_QUERY_AD_ATTRIBUTES_SET = new Set<string>(FLOAT_QUERY_AD_ATTRIBUTES);
+const INTEGER_QUERY_FILTER_ATTRIBUTES_SET = new Set<string>(INTEGER_QUERY_FILTER_ATTRIBUTES);
+
+export const isNullFilter = (filterAttribute: QueryAttribute | QueryAdAttribute): boolean =>
+  NULL_FILTER_ATTRIBUTES_SET.has(filterAttribute);
+
+export function isBooleanFilter(attribute: QueryAttribute | QueryAdAttribute, isAdAnalytics: boolean): boolean {
+  return isAdAnalytics
+    ? BOOLEAN_QUERY_AD_ATTRIBUTES_SET.has(attribute)
+    : BOOLEAN_QUERY_FILTER_ATTRIBUTES_SET.has(attribute);
+}
+
+function isNumericFilter(attribute: QueryAttribute | QueryAdAttribute, isAdAnalytics: boolean): boolean {
+  if (isAdAnalytics) {
+    return INTEGER_QUERY_AD_ATTRIBUTES_SET.has(attribute) || FLOAT_QUERY_AD_ATTRIBUTES_SET.has(attribute);
+  } else {
+    return INTEGER_QUERY_FILTER_ATTRIBUTES_SET.has(attribute);
   }
-};
+}
+
+/** A "string" filter attribute: anything not classified as boolean or numeric. */
+export function isStringFilter(attribute: QueryAttribute | QueryAdAttribute, isAdAnalytics: boolean): boolean {
+  return !isBooleanFilter(attribute, isAdAnalytics) && !isNumericFilter(attribute, isAdAnalytics);
+}
 
 const parseValueForInFilter = (rawValue: string) => {
   const value: string[] = JSON.parse(rawValue);
@@ -107,108 +140,36 @@ export function normalizeInFilterValue(value: string): string {
   return JSON.stringify(parts);
 }
 
-const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute) => {
-  switch (filterAttribute) {
-    case 'IS_LINEAR':
-      return rawValue === 'true';
-
-    case 'AD_INDEX':
-    case 'AD_TYPE':
-    case 'AD_STARTUP_TIME':
-    case 'AD_WRAPPER_ADS_COUNT':
-    case 'AUDIO_BITRATE':
-    case 'CLICK_POSITION':
-    case 'CLOSE_POSITION':
-    case 'ERROR_CODE':
-    case 'MANIFEST_DOWNLOAD_TIME':
-    case 'MIN_SUGGESTED_DURATION':
-    case 'PAGE_LOAD_TIME':
-    case 'SCREEN_HEIGHT':
-    case 'SCREEN_WIDTH':
-    case 'SKIP_POSITION':
-    case 'TIME_HOVERED':
-    case 'TIME_IN_VIEWPORT':
-    case 'TIME_PLAYED':
-    case 'TIME_UNTIL_HOVER':
-    case 'VIDEO_BITRATE':
-    case 'VIDEO_WINDOW_HEIGHT':
-    case 'VIDEO_WINDOW_WIDTH': {
-      const parsedValue = parseInt(rawValue, 10);
-      if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter value, please provide data as an integer number`);
-      }
-      return parsedValue;
-    }
-
-    case 'CLICK_PERCENTAGE':
-    case 'CLOSE_PERCENTAGE':
-    case 'PERCENTAGE_IN_VIEWPORT':
-    case 'SKIP_PERCENTAGE': {
-      const parsedValue = parseFloat(rawValue);
-      if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter value, please provide data as a floating point number`);
-      }
-      return parsedValue;
-    }
-
-    default:
-      return rawValue;
+const parseNumber = (rawValue: string, kind: 'integer' | 'float'): number => {
+  const parsed = kind === 'float' ? parseFloat(rawValue) : parseInt(rawValue, 10);
+  if (isNaN(parsed)) {
+    const expected = kind === 'float' ? 'a floating point number' : 'an integer number';
+    throw new Error(`Couldn't parse filter value, please provide data as ${expected}`);
   }
+  return parsed;
+};
+
+const convertFilterForAds = (rawValue: string, filterAttribute: QueryAdAttribute) => {
+  if (isBooleanFilter(filterAttribute, true)) {
+    return rawValue === 'true';
+  }
+  if (FLOAT_QUERY_AD_ATTRIBUTES_SET.has(filterAttribute)) {
+    return parseNumber(rawValue, 'float');
+  }
+  if (INTEGER_QUERY_AD_ATTRIBUTES_SET.has(filterAttribute)) {
+    return parseNumber(rawValue, 'integer');
+  }
+  return rawValue;
 };
 
 const convertFilter = (rawValue: string, filterAttribute: QueryAttribute) => {
-  switch (filterAttribute) {
-    case 'IS_CASTING':
-    case 'IS_LIVE':
-    case 'IS_MUTED':
-      return rawValue === 'true';
-
-    case 'AD':
-    case 'AUDIO_BITRATE':
-    case 'AD_INDEX':
-    case 'BUFFERED':
-    case 'CLIENT_TIME':
-    case 'DOWNLOAD_SPEED':
-    case 'DRM_LOAD_TIME':
-    case 'DROPPED_FRAMES':
-    case 'DURATION':
-    case 'ERROR_CODE':
-    case 'PAGE_LOAD_TIME':
-    case 'PAGE_LOAD_TYPE':
-    case 'PAUSED':
-    case 'PLAYED':
-    case 'SCREEN_HEIGHT':
-    case 'SCREEN_WIDTH':
-    case 'SEEKED':
-    case 'VIDEO_BITRATE':
-    case 'VIDEO_DURATION':
-    case 'VIDEO_PLAYBACK_HEIGHT':
-    case 'VIDEO_PLAYBACK_WIDTH':
-    case 'VIDEO_STARTUPTIME':
-    case 'VIDEO_WINDOW_HEIGHT':
-    case 'VIDEO_WINDOW_WIDTH':
-    case 'VIDEOTIME_END':
-    case 'VIDEOTIME_START':
-    case 'VIEWTIME': {
-      const parsedValue = parseInt(rawValue, 10);
-      if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter value, please provide data as an integer number`);
-      }
-      return parsedValue;
-    }
-
-    case 'ERROR_PERCENTAGE':
-    case 'REBUFFER_PERCENTAGE': {
-      const parsedValue = parseFloat(rawValue);
-      if (isNaN(parsedValue)) {
-        throw new Error(`Couldn't parse filter value, please provide data as a floating point number`);
-      }
-      return parsedValue;
-    }
-
-    default:
-      return rawValue;
+  if (isBooleanFilter(filterAttribute, false)) {
+    return rawValue === 'true';
   }
+  if (INTEGER_QUERY_FILTER_ATTRIBUTES_SET.has(filterAttribute)) {
+    return parseNumber(rawValue, 'integer');
+  }
+  return rawValue;
 };
 
 /**
