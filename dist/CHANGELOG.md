@@ -2,6 +2,19 @@
 
 ## Development
 
+## 1.7.0
+
+### Changed
+
+- operator selection for boolean filter attributes restricted to `EQ`/`NE`
+- operator selection for string filter attributes restricted to `EQ`/`NE`/`IN`/`CONTAINS`/`NOTCONTAINS`
+
+### Added
+
+- automatic axis units (ms, bps, bytes, percentunit) inferred from the dimension or metric being aggregated
+- true/false dropdown for boolean filter attributes
+- helpful placeholder for the `IN` filter operator
+
 ## 1.6.0
 
 ### Added

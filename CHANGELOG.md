@@ -2,9 +2,12 @@
 
 ## Development
 
+## 1.7.0
+
 ### Changed
 
 - operator selection for boolean filter attributes restricted to `EQ`/`NE`
+- operator selection for string filter attributes restricted to `EQ`/`NE`/`IN`/`CONTAINS`/`NOTCONTAINS`
 
 ### Added
 
