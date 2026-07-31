@@ -2,6 +2,12 @@
 
 ## Development
 
+## 1.8.0
+
+### Added
+
+- selectable ad query columns `AD_BREAKS_ABANDONED`, `FILL_RATE`, `SLATE_DURATION`
+
 ## 1.7.0
 
 ### Changed
